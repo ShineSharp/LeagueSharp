@@ -41,7 +41,7 @@ namespace MoonDiana
             harass.AddItem(new MenuItem("HUSEQ", "Use Q").SetValue(true));
             harass.AddItem(new MenuItem("HUSEW", "Use W").SetValue(true));
             harass.AddItem(new MenuItem("HUSEE", "Use E").SetValue(false));
-            harass.AddItem(new MenuItem("HUSER", "Use R If Moonlight Debuffed").SetValue(true));
+            harass.AddItem(new MenuItem("HUSER", "Use R if Moonlight Debuffed").SetValue(true));
             harass.AddItem(new MenuItem("HMANA", "Min. Mana Percent").SetValue(new Slider(50, 100, 0)));
 
             laneclear = new Menu("LaneClear/JungleClear", "LaneClear");
@@ -72,7 +72,7 @@ namespace MoonDiana
                     };
 
             misc.AddItem(new MenuItem("MINTERRUPTE", "Use E For Interrupt").SetValue(true));
-            misc.AddItem(new MenuItem("MINTERRUPTRE", "Use R->E For Interrupt Important Spells").SetValue(true));
+            misc.AddItem(new MenuItem("MINTERRUPTRE", "Use R->E to Interrupt Important Spells").SetValue(true));
             misc.AddItem(new MenuItem("MGAPCLOSEW", "Use W For Gapcloser").SetValue(true));
             misc.AddItem(new MenuItem("MLXORBWALKER", "Use LXOrbwalker").SetValue(false))
                         .ValueChanged += (s, ar) =>
