@@ -10,7 +10,7 @@ using SharpDX;
 
 namespace SPrediction
 {
-    internal class Collision
+    public class Collision
     {
         private static int yasuoWallCastedTick;
         private static int yasuoWallLevel;
