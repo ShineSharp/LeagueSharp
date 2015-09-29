@@ -1111,7 +1111,7 @@ namespace SPrediction
                 {
                     if (LastSpells.Count != 0)
                     {
-                        LastSpells.RemoveRange(0, 1);
+                        LastSpells.RemoveAt(0);
                         hitCount++;
                     }
                 }
@@ -1125,7 +1125,7 @@ namespace SPrediction
                 LastSpells.RemoveAll(p => Environment.TickCount - p.tick > 2000);
                 if (sender.IsMe && !args.SData.IsAutoAttack() && predMenu.Item("SPREDHC").GetValue<KeyBind>().Active)
                 {
-                    if (sender.Spellbook.Spells.Find(p => p.Name == args.SData.Name).Slot == SpellSlot.Q && !LastSpells.Exists(p => p.name == args.SData.Name))
+                    if (args.Slot == SpellSlot.Q && !LastSpells.Exists(p => p.name == args.SData.Name))
                     {
                         LastSpells.Add(new _lastSpells(args.SData.Name, Environment.TickCount));
                         castCount++;
