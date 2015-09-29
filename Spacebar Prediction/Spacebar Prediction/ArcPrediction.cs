@@ -90,7 +90,7 @@ namespace SPrediction
 
                     result.CastPosition = from + direction * (875f + width / 2f);
 
-                    var targetHitBox = ClipperWrapper.DefineCircle(result.UnitPosition, target.BoundingRadius);
+                    var targetHitBox = ClipperWrapper.DefineCircle(Prediction.GetFastUnitPosition(target, delay, missileSpeed, from), target.BoundingRadius);
 
                     float multp = (result.CastPosition.Distance(from) / 875.0f);
 

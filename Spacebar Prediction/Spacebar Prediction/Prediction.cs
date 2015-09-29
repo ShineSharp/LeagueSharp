@@ -212,9 +212,6 @@ namespace SPrediction
 
             try
             {
-                if (type == SkillshotType.SkillshotCircle)
-                    range += width;
-
                 //to do: hook logic ? by storing average movement direction etc
                 if (path.Count <= 1 && (Environment.TickCount - PathTracker.EnemyInfo[target.NetworkId].LastAATick > 300 || !predMenu.Item("SPREDWINDUP").GetValue<bool>())) //if target is not moving, easy to hit (and not aaing)
                 {
