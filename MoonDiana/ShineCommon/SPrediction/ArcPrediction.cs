@@ -98,8 +98,8 @@ namespace SPrediction
                                             ClipperWrapper.DefineArc(from - new Vector2(875 / 2f, 20), result.CastPosition, (float)Math.PI * multp, 410, 200 * multp),
                                             ClipperWrapper.DefineArc(from - new Vector2(875 / 2f, 20), result.CastPosition, (float)Math.PI * multp, 410, 320 * multp));
 
-                    if (ClipperWrapper.IsIntersects(ClipperWrapper.MakePaths(targetHitBox), ClipperWrapper.MakePaths(arcHitBox)))
-                        result.HitChance = (HitChance)(result.HitChance + 1);
+                    if (!ClipperWrapper.IsIntersects(ClipperWrapper.MakePaths(targetHitBox), ClipperWrapper.MakePaths(arcHitBox)))
+                        result.HitChance = HitChance.Impossible;
                 }
             }
 
