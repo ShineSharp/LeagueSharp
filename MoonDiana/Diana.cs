@@ -255,7 +255,9 @@ namespace MoonDiana
 
         public void Flee()
         {
-            var minion = MinionManager.GetMinions(Spells[R].Range, MinionTypes.All, MinionTeam.NotAlly, MinionOrderTypes.None).Where(p => p.HasBuff("dianamoonlight")).OrderByDescending(q => q.ServerPosition.Distance(ObjectManager.Player.ServerPosition)).FirstOrDefault();
+            ObjectManager.Player.IssueOrder(GameObjectOrder.MoveTo, Game.CursorPos);
+
+            var minion = MinionManager.GetMinions(Spells[R].Range, MinionTypes.All, MinionTeam.NotAlly, MinionOrderTypes.None).OrderByDescending(q => q.ServerPosition.Distance(ObjectManager.Player.ServerPosition)).Where(p => p.HasBuff("dianamoonlight")).FirstOrDefault();
             if (minion == null)
             {
                 minion = MinionManager.GetMinions(Spells[Q].Range - 20, MinionTypes.All, MinionTeam.NotAlly, MinionOrderTypes.None).Where(p => p.Health > Spells[Q].GetDamage(p)).OrderByDescending(q => q.ServerPosition.Distance(ObjectManager.Player.ServerPosition)).FirstOrDefault();

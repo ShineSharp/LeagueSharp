@@ -9,7 +9,7 @@
     <AppDesignerFolder>Properties</AppDesignerFolder>
     <RootNamespace>MoonDiana</RootNamespace>
     <AssemblyName>MoonDiana</AssemblyName>
-    <TargetFrameworkVersion>v4.5</TargetFrameworkVersion>
+    <TargetFrameworkVersion>v4.5.2</TargetFrameworkVersion>
     <FileAlignment>512</FileAlignment>
     <PreBuildEvent />
     <PostBuildEvent />
@@ -93,11 +93,20 @@
     <Compile Include="ShineCommon\Evader.cs" />
     <Compile Include="ShineCommon\Pool\ObjectPool.cs" />
     <Compile Include="ShineCommon\SpellDatabase.cs" />
-    <Compile Include="ShineCommon\Utility.cs" />
+    <Compile Include="ShineCommon\SPrediction\ArcPrediction.cs" />
+    <Compile Include="ShineCommon\SPrediction\CirclePrediction.cs" />
     <Compile Include="ShineCommon\SPrediction\ClipperWrapper.cs" />
     <Compile Include="ShineCommon\SPrediction\Collision.cs" />
+    <Compile Include="ShineCommon\SPrediction\ConePrediction.cs" />
     <Compile Include="ShineCommon\SPrediction\Geometry.cs" />
+    <Compile Include="ShineCommon\SPrediction\LinePrediction.cs" />
+    <Compile Include="ShineCommon\SPrediction\Obj_AI_HeroExtensions.cs" />
+    <Compile Include="ShineCommon\SPrediction\PathTracker.cs" />
     <Compile Include="ShineCommon\SPrediction\Prediction.cs" />
+    <Compile Include="ShineCommon\SPrediction\SpellExtensions.cs" />
+    <Compile Include="ShineCommon\SPrediction\Utility.cs" />
+    <Compile Include="ShineCommon\SPrediction\VectorPrediction.cs" />
+    <Compile Include="ShineCommon\Utility.cs" />
   </ItemGroup>
   <ItemGroup>
     <None Include="App.config" />

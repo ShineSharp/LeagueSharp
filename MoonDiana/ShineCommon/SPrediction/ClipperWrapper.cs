@@ -31,6 +31,9 @@ using Paths = System.Collections.Generic.List<System.Collections.Generic.List<Cl
 
 namespace SPrediction
 {
+    /// <summary>
+    /// SPrediciton Clipper wrapper class
+    /// </summary>
     internal static class ClipperWrapper
     {
         /// <summary>
