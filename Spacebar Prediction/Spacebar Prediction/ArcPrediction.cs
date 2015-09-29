@@ -84,9 +84,9 @@ namespace SPrediction
 
             if (result.HitChance >= HitChance.Low && result.HitChance < HitChance.Dashing)
             {
-                if (result.CastPosition.Distance(from) < 875.0f + width / 2f)
+                if (result.CastPosition.Distance(from) < 875.0f)
                 {
-                    Vector2 direction = (from - result.CastPosition).Normalized();
+                    Vector2 direction = (result.CastPosition - from).Normalized();
 
                     result.CastPosition = from + direction * (875f + width / 2f);
 
