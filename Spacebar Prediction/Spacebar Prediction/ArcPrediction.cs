@@ -82,7 +82,7 @@ namespace SPrediction
 
             Prediction.Result result = Prediction.GetPrediction(target, width, delay, missileSpeed, range, collisionable, SkillshotType.SkillshotCircle, path, avgt, movt, avgp, from, rangeCheckFrom);
 
-            if (result.HitChance >= HitChance.Low && result.HitChance < HitChance.Dashing)
+            if (result.HitChance >= HitChance.Low && result.HitChance < HitChance.VeryHigh)
             {
                 if (result.CastPosition.Distance(from) < 875.0f)
                 {
