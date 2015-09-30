@@ -37,13 +37,13 @@ namespace SPrediction
         /// </summary>
         /// <param name="input">Neccesary inputs for prediction calculations</param>
         /// <returns>Prediction result as <see cref="Prediction.Result"/></returns>
-        public static Prediction.Result GetArcPrediction(Prediction.Input input)
+        public static Prediction.Result GetPrediction(Prediction.Input input)
         {
             return GetPrediction(input.Target, input.SpellWidth, input.SpellDelay, input.SpellMissileSpeed, input.SpellRange, input.SpellCollisionable, input.Path, input.AvgReactionTime, input.LastMovChangeTime, input.AvgPathLenght, input.From.To2D(), input.RangeCheckFrom.To2D());
         }
 
         /// <summary>
-        /// Gets Prediction result for Arc
+        /// Gets Prediction result
         /// </summary>
         /// <param name="target">Target for spell</param>
         /// <param name="width">Spell width</param>
