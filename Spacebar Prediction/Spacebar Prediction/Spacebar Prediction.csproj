@@ -9,7 +9,7 @@
     <AppDesignerFolder>Properties</AppDesignerFolder>
     <RootNamespace>SPrediction</RootNamespace>
     <AssemblyName>SPrediction</AssemblyName>
-    <TargetFrameworkVersion>v4.5</TargetFrameworkVersion>
+    <TargetFrameworkVersion>v4.5.2</TargetFrameworkVersion>
     <FileAlignment>512</FileAlignment>
     <PreBuildEvent />
     <PostBuildEvent />
@@ -58,22 +58,24 @@
     <ErrorReport>prompt</ErrorReport>
     <CodeAnalysisRuleSet>MinimumRecommendedRules.ruleset</CodeAnalysisRuleSet>
     <Prefer32Bit>true</Prefer32Bit>
+    <GenerateSerializationAssemblies>Auto</GenerateSerializationAssemblies>
+    <DocumentationFile>bin\x86\Release\SPrediction.XML</DocumentationFile>
   </PropertyGroup>
   <ItemGroup>
     <Reference Include="clipper_library">
-      <HintPath>..\LeagueSharp222\System\clipper_library.dll</HintPath>
+      <HintPath>C:\Users\Shine\Downloads\LeagueSharp\System\clipper_library.dll</HintPath>
     </Reference>
     <Reference Include="LeagueSharp">
-      <HintPath>..\LeagueSharp222\System\LeagueSharp.dll</HintPath>
+      <HintPath>C:\Users\Shine\Downloads\LeagueSharp\System\LeagueSharp.dll</HintPath>
     </Reference>
     <Reference Include="LeagueSharp.Common">
-      <HintPath>..\LeagueSharp222\System\LeagueSharp.Common.dll</HintPath>
+      <HintPath>C:\Users\Shine\Downloads\LeagueSharp\System\LeagueSharp.Common.dll</HintPath>
     </Reference>
     <Reference Include="SharpDX">
-      <HintPath>..\LeagueSharp222\System\SharpDX.dll</HintPath>
+      <HintPath>C:\Users\Shine\Downloads\LeagueSharp\System\SharpDX.dll</HintPath>
     </Reference>
     <Reference Include="SharpDX.Direct3D9">
-      <HintPath>..\LeagueSharp222\System\SharpDX.Direct3D9.dll</HintPath>
+      <HintPath>C:\Users\Shine\Downloads\LeagueSharp\System\SharpDX.Direct3D9.dll</HintPath>
     </Reference>
     <Reference Include="System" />
     <Reference Include="System.Core" />
