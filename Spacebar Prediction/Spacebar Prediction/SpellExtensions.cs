@@ -340,12 +340,11 @@ namespace SPrediction
         /// <returns>true if spell has casted</returns>
         public static bool SPredictionCastArc(this Spell s, Obj_AI_Hero t, HitChance hc, int reactionIgnoreDelay = 0, byte minHit = 1, Vector3? rangeCheckFrom = null, float filterHPPercent = 100)
         {
-            if (minHit > 1)
-                throw new NotSupportedException("Arc aoe prediction has not supported yet");
-
             if (Prediction.predMenu != null && Prediction.predMenu.Item("PREDICTONLIST").GetValue<StringList>().SelectedIndex == 1)
                 throw new NotSupportedException("Arc Prediction not supported in Common prediction");
 
+            if (minHit > 1)
+                return SPredictionCastAoeArc(s, minHit);
 
             if (t.HealthPercent > filterHPPercent)
                 return false;
@@ -394,12 +393,11 @@ namespace SPrediction
         /// <returns>true if spell has casted</returns>
         public static bool SPredictionCastVector(this Spell s, Obj_AI_Hero t, float vectorLenght, HitChance hc, int reactionIgnoreDelay = 0, byte minHit = 1, Vector3? rangeCheckFrom = null, float filterHPPercent = 100)
         {
-            if (minHit > 1)
-                throw new NotSupportedException("Vector aoe prediction has not supported yet");
-
             if (Prediction.predMenu != null && Prediction.predMenu.Item("PREDICTONLIST").GetValue<StringList>().SelectedIndex == 1)
                 throw new NotSupportedException("Vector Prediction not supported in Common prediction");
 
+            if (minHit > 1)
+                return SPredictionCastAoeVector(s, vectorLenght, minHit);
 
             if (t.HealthPercent > filterHPPercent)
                 return false;
