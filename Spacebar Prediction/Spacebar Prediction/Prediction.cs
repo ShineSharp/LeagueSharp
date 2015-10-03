@@ -1015,12 +1015,6 @@ namespace SPrediction
 
             result.HitChance = HitChance.Impossible;
 
-            if (type == SkillshotType.SkillshotCircle && (pathBounds[0] != -1 || pathBounds[1] != -1))
-                if (movt < 100)
-                    result.HitChance = HitChance.High;
-                else
-                    result.HitChance = HitChance.Medium;
-
             return result;
         }
 

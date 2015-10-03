@@ -84,13 +84,11 @@ namespace SPrediction
 
             if (result.HitChance >= HitChance.Low && result.HitChance < HitChance.VeryHigh)
             {
-                if (result.CastPosition.Distance(from) < 875.0f)
+                if (result.CastPosition.Distance(from) < 875.0f - width)
                 {
                     Vector2 direction = (result.CastPosition - from).Normalized();
 
-                    result.CastPosition = from + direction * (875f + width / 2f);
-
-                    var targetHitBox = ClipperWrapper.DefineCircle(Prediction.GetFastUnitPosition(target, delay, missileSpeed, from), target.BoundingRadius);
+                    result.CastPosition = from + direction * (875f / 2f);
 
                     float multp = (result.CastPosition.Distance(from) / 875.0f);
 
@@ -98,8 +96,8 @@ namespace SPrediction
                                             ClipperWrapper.DefineArc(from - new Vector2(875 / 2f, 20), result.CastPosition, (float)Math.PI * multp, 410, 200 * multp),
                                             ClipperWrapper.DefineArc(from - new Vector2(875 / 2f, 20), result.CastPosition, (float)Math.PI * multp, 410, 320 * multp));
 
-                    if (ClipperWrapper.IsIntersects(ClipperWrapper.MakePaths(targetHitBox), ClipperWrapper.MakePaths(arcHitBox)))
-                        result.HitChance = (HitChance)(result.HitChance + 1);
+                    if (arcHitBox.IsOutside(Prediction.GetFastUnitPosition(target, delay, missileSpeed, from)))
+                        result.HitChance = HitChance.Impossible;
                 }
             }
 
