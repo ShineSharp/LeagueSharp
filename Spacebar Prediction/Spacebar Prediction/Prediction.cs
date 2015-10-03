@@ -422,9 +422,9 @@ namespace SPrediction
             if (distance == 0)
             {
                 float targetDistance = from.Value.Distance(target.ServerPosition);
-                float flyTime = 0f;
+                float flyTime = targetDistance / missileSpeed;
 
-                if (missileSpeed != 0) //skillshot with a missile
+                /*if (missileSpeed != 0) //skillshot with a missile
                 {
                     Vector2 Vt = (path[path.Count - 1] - path[0]).Normalized() * target.MoveSpeed;
                     Vector2 Vs = (target.ServerPosition.To2D() - from.Value).Normalized() * missileSpeed;
@@ -434,9 +434,9 @@ namespace SPrediction
 
                     if (path.Count > 5) //complicated movement
                         flyTime = targetDistance / missileSpeed;
-                }
+                }*/
 
-                float t = flyTime + delay + Game.Ping / 2000f + SpellDelay / 1000f;
+                float t = flyTime + delay + Game.Ping / 2000f;
                 distance = t * target.MoveSpeed;
             }
 
