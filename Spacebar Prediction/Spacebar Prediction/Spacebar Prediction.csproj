@@ -97,6 +97,7 @@
     <Compile Include="Prediction.cs" />
     <Compile Include="LinePrediction.cs" />
     <Compile Include="PathTracker.cs" />
+    <Compile Include="RingPrediction.cs" />
     <Compile Include="Utility.cs" />
     <Compile Include="VectorPrediction.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />

@@ -121,7 +121,7 @@ namespace SPrediction
 
                 return MinionManager.GetMinions(from.Distance(to) + 100, MinionTypes.All, MinionTeam.NotAlly, MinionOrderTypes.None).AsParallel().Any(p => ClipperWrapper.IsIntersects(ClipperWrapper.MakePaths(ClipperWrapper.DefineCircle(Prediction.GetFastUnitPosition(p, delay, missileSpeed), p.BoundingRadius)), spellHitBox));
             }
-
+            
             return MinionManager.GetMinions(from.Distance(to) + 100, MinionTypes.All, MinionTeam.NotAlly, MinionOrderTypes.None).AsParallel().Any(p => spellBBox.Intersects(new BoundingSphere(Prediction.GetFastUnitPosition(p, delay, missileSpeed).To3D(), p.BoundingRadius)));
         }
 
