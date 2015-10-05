@@ -83,13 +83,11 @@ namespace SPrediction
             Prediction.Result result = CirclePrediction.GetPrediction(target, ringRadius, delay, missileSpeed, range + radius, collisionable, path, avgt, movt, avgp, from, rangeCheckFrom);
             if (result.HitChance > HitChance.Low)
             {
-                Vector2 direction = (result.CastPosition - from).Normalized();
-                float distanceA = target.ServerPosition.To2D().Distance(from);
-                float distanceB = result.UnitPosition.Distance(from);
-                if(distanceB > distanceA)
-                    result.CastPosition += direction * radius;
-                else
-                    result.CastPosition -= direction * radius;
+                Vector2 direction = (result.CastPosition - from + target.Direction.To2D()).Normalized();
+                result.CastPosition -= direction * (radius - ringRadius / 2f);
+
+                if (result.CastPosition.Distance(from) > range)
+                    result.HitChance = HitChance.OutOfRange;
             }
 
             return result;
