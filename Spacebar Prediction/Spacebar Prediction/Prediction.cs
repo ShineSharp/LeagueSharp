@@ -224,7 +224,7 @@ namespace SPrediction
                     if (collisionable && (result.CollisionResult.Objects.HasFlag(Collision.Flags.Minions) || result.CollisionResult.Objects.HasFlag(Collision.Flags.YasuoWall)))
                         result.HitChance = HitChance.Collision;
 
-                    if (from.Distance(result.CastPosition) > range - GetArrivalTime(from.Distance(result.CastPosition), delay, missileSpeed) * target.MoveSpeed * predMenu.Item("SPREDMAXRANGEIGNORE").GetValue<Slider>().Value / 100f)
+                    if (from.Distance(result.CastPosition) > range - GetArrivalTime(from.Distance(result.CastPosition), delay, missileSpeed) * target.MoveSpeed * (100 - predMenu.Item("SPREDMAXRANGEIGNORE").GetValue<Slider>().Value) / 100f)
                         result.HitChance = HitChance.OutOfRange;
 
                     return result;
@@ -244,7 +244,7 @@ namespace SPrediction
                             result.HitChance = HitChance.Collision;
 
                         //check if target can dodge with moving backward
-                        if (from.Distance(result.CastPosition) > range - GetArrivalTime(from.Distance(result.CastPosition), delay, missileSpeed) * target.MoveSpeed * predMenu.Item("SPREDMAXRANGEIGNORE").GetValue<Slider>().Value / 100f)
+                        if (from.Distance(result.CastPosition) > range - GetArrivalTime(from.Distance(result.CastPosition), delay, missileSpeed) * target.MoveSpeed * (100 - predMenu.Item("SPREDMAXRANGEIGNORE").GetValue<Slider>().Value) / 100f)
                             result.HitChance = HitChance.OutOfRange;
 
                         return result;
@@ -280,7 +280,7 @@ namespace SPrediction
                             result.HitChance = HitChance.Collision;
 
                         //check if target can dodge with moving backward
-                        if (from.Distance(result.CastPosition) > range - GetArrivalTime(from.Distance(result.CastPosition), delay, missileSpeed) * target.MoveSpeed * predMenu.Item("SPREDMAXRANGEIGNORE").GetValue<Slider>().Value / 100f)
+                        if (from.Distance(result.CastPosition) > range - GetArrivalTime(from.Distance(result.CastPosition), delay, missileSpeed) * target.MoveSpeed * (100 - predMenu.Item("SPREDMAXRANGEIGNORE").GetValue<Slider>().Value) / 100f)
                             result.HitChance = HitChance.OutOfRange;
 
                         return result;
@@ -300,7 +300,7 @@ namespace SPrediction
                     result.HitChance = HitChance.Collision;
 
                 //check if target can dodge with moving backward
-                if (from.Distance(result.CastPosition) > range - GetArrivalTime(from.Distance(result.CastPosition), delay, missileSpeed) * target.MoveSpeed * predMenu.Item("SPREDMAXRANGEIGNORE").GetValue<Slider>().Value / 100f)
+                if (from.Distance(result.CastPosition) > range - GetArrivalTime(from.Distance(result.CastPosition), delay, missileSpeed) * target.MoveSpeed * (100 - predMenu.Item("SPREDMAXRANGEIGNORE").GetValue<Slider>().Value) / 100f)
                     result.HitChance = HitChance.OutOfRange;
 
                 return result;
@@ -851,7 +851,7 @@ namespace SPrediction
                 if (collisionable && result.CollisionResult.Objects.HasFlag(Collision.Flags.Minions))
                     result.HitChance = HitChance.Collision;
 
-                if (from.Distance(result.CastPosition) > range - GetArrivalTime(from.Distance(result.CastPosition), delay, missileSpeed) * target.MoveSpeed * predMenu.Item("SPREDMAXRANGEIGNORE").GetValue<Slider>().Value / 100f)
+                if (from.Distance(result.CastPosition) > range - GetArrivalTime(from.Distance(result.CastPosition), delay, missileSpeed) * target.MoveSpeed * (100 - predMenu.Item("SPREDMAXRANGEIGNORE").GetValue<Slider>().Value) / 100f)
                     result.HitChance = HitChance.OutOfRange;
 
                 return result;
