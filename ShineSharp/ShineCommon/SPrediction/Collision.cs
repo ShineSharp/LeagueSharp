@@ -93,7 +93,7 @@ namespace SPrediction
         /// <returns>true if collision found</returns>
         public static bool CheckCollision(Vector2 from, Vector2 to, float width, float delay, float missileSpeed, bool checkMinion = true, bool checkEnemyHero = false, bool checkYasuoWall = true, bool checkAllyHero = false, bool checkWall = false, bool isArc = false)
         {
-            return  (checkMinion && CheckMinionCollision(from, to, width, delay, missileSpeed, isArc)) ||
+            return (checkMinion && CheckMinionCollision(from, to, width, delay, missileSpeed, isArc)) ||
                     (checkEnemyHero && CheckEnemyHeroCollision(from, to, width, delay, missileSpeed, isArc)) ||
                     (checkYasuoWall && CheckYasuoWallCollision(from, to, width, isArc)) ||
                     (checkAllyHero && CheckAllyHeroCollision(from, to, width, delay, missileSpeed, isArc)) ||
@@ -118,8 +118,9 @@ namespace SPrediction
                 spellHitBox = ClipperWrapper.MakePaths(new SPrediction.Geometry.Polygon(
                                 ClipperWrapper.DefineArc(from - new Vector2(875 / 2f, 20), to, (float)Math.PI * (to.Distance(from) / 875f), 410, 200 * (to.Distance(from) / 875f)),
                                 ClipperWrapper.DefineArc(from - new Vector2(875 / 2f, 20), to, (float)Math.PI * (to.Distance(from) / 875f), 410, 320 * (to.Distance(from) / 875f))));
+
             }
-            return MinionManager.GetMinions(from.Distance(to) + 100, MinionTypes.All, MinionTeam.NotAlly, MinionOrderTypes.None).AsParallel().Any(p => ClipperWrapper.IsIntersects(ClipperWrapper.MakePaths(ClipperWrapper.DefineCircle(Prediction.GetFastUnitPosition(p, delay, missileSpeed), p.BoundingRadius)), spellHitBox));
+            return MinionManager.GetMinions(from.Distance(to) + 250, MinionTypes.All, MinionTeam.NotAlly, MinionOrderTypes.None).AsParallel().Any(p => ClipperWrapper.IsIntersects(ClipperWrapper.MakePaths(ClipperWrapper.DefineCircle(Prediction.GetFastUnitPosition(p, delay, missileSpeed), p.BoundingRadius + width / 2f)), spellHitBox));
         }
 
         /// <summary>
@@ -184,7 +185,7 @@ namespace SPrediction
 
             return false;
         }
-        
+
         /// <summary>
         /// Check Yasuo wall collisions
         /// </summary>
@@ -268,7 +269,8 @@ namespace SPrediction
                                 ClipperWrapper.DefineArc(from - new Vector2(875 / 2f, 20), to, (float)Math.PI * (to.Distance(from) / 875f), 410, 320 * (to.Distance(from) / 875f))));
             }
             Flags _colFlags = Flags.None;
-            var collidedMinions = MinionManager.GetMinions(from.Distance(to) + 100, MinionTypes.All, MinionTeam.NotAlly, MinionOrderTypes.None).AsParallel().Where(p => ClipperWrapper.IsIntersects(ClipperWrapper.MakePaths(ClipperWrapper.DefineCircle(Prediction.GetFastUnitPosition(p, delay, missileSpeed), p.BoundingRadius)), spellHitBox));
+
+            var collidedMinions = MinionManager.GetMinions(from.Distance(to) + 250, MinionTypes.All, MinionTeam.NotAlly, MinionOrderTypes.None).AsParallel().Where(p => ClipperWrapper.IsIntersects(ClipperWrapper.MakePaths(ClipperWrapper.DefineCircle(Prediction.GetFastUnitPosition(p, delay, missileSpeed), p.BoundingRadius + 10)), spellHitBox));
             var collidedEnemies = HeroManager.Enemies.AsParallel().Where(p => ClipperWrapper.IsIntersects(ClipperWrapper.MakePaths(ClipperWrapper.DefineCircle(Prediction.GetFastUnitPosition(p, delay, missileSpeed), p.BoundingRadius)), spellHitBox));
             var collidedAllies = HeroManager.Allies.AsParallel().Where(p => ClipperWrapper.IsIntersects(ClipperWrapper.MakePaths(ClipperWrapper.DefineCircle(Prediction.GetFastUnitPosition(p, delay, missileSpeed), p.BoundingRadius)), spellHitBox));
 

@@ -213,8 +213,11 @@ namespace SPrediction
 
             try
             {
+                if (type == SkillshotType.SkillshotCircle)
+                    range += width;
+
                 //to do: hook logic ? by storing average movement direction etc
-                if (path.Count <= 1 && (Environment.TickCount - PathTracker.EnemyInfo[target.NetworkId].LastAATick > 300 || !predMenu.Item("SPREDWINDUP").GetValue<bool>())) //if target is not moving, easy to hit (and not aaing)
+                if (path.Count <= 1 && movt > 100 && (Environment.TickCount - PathTracker.EnemyInfo[target.NetworkId].LastAATick > 300 || !predMenu.Item("SPREDWINDUP").GetValue<bool>())) //if target is not moving, easy to hit (and not aaing)
                 {
                     result.HitChance = HitChance.VeryHigh;
                     result.CastPosition = target.ServerPosition.To2D();
@@ -224,7 +227,7 @@ namespace SPrediction
                     if (collisionable && (result.CollisionResult.Objects.HasFlag(Collision.Flags.Minions) || result.CollisionResult.Objects.HasFlag(Collision.Flags.YasuoWall)))
                         result.HitChance = HitChance.Collision;
 
-                    if (from.Distance(result.CastPosition) > range - GetArrivalTime(from.Distance(result.CastPosition), delay, missileSpeed) * target.MoveSpeed * (100 - predMenu.Item("SPREDMAXRANGEIGNORE").GetValue<Slider>().Value) / 100f)
+                    if (from.Distance(result.CastPosition) > range - GetArrivalTime(from.Distance(result.CastPosition), delay, missileSpeed) * target.MoveSpeed)
                         result.HitChance = HitChance.OutOfRange;
 
                     return result;
@@ -244,7 +247,7 @@ namespace SPrediction
                             result.HitChance = HitChance.Collision;
 
                         //check if target can dodge with moving backward
-                        if (from.Distance(result.CastPosition) > range - GetArrivalTime(from.Distance(result.CastPosition), delay, missileSpeed) * target.MoveSpeed * (100 - predMenu.Item("SPREDMAXRANGEIGNORE").GetValue<Slider>().Value) / 100f)
+                        if (from.Distance(result.CastPosition) > range - GetArrivalTime(from.Distance(result.CastPosition), delay, missileSpeed) * target.MoveSpeed)
                             result.HitChance = HitChance.OutOfRange;
 
                         return result;
@@ -268,10 +271,10 @@ namespace SPrediction
                     }
 
                     //to do: find a fuking logic
-                    if (avgp < 400 && movt < 100)
+                    if (avgp < 400 && movt < 100 && path.PathLength() <= avgp)
                     {
                         result.HitChance = HitChance.High;
-                        result.CastPosition = target.ServerPosition.To2D();
+                        result.CastPosition = path.Last();
                         result.UnitPosition = result.CastPosition;
                         result.CollisionResult = Collision.GetCollisions(from, result.CastPosition, width, delay, missileSpeed);
 
@@ -280,7 +283,7 @@ namespace SPrediction
                             result.HitChance = HitChance.Collision;
 
                         //check if target can dodge with moving backward
-                        if (from.Distance(result.CastPosition) > range - GetArrivalTime(from.Distance(result.CastPosition), delay, missileSpeed) * target.MoveSpeed * (100 - predMenu.Item("SPREDMAXRANGEIGNORE").GetValue<Slider>().Value) / 100f)
+                        if (from.Distance(result.CastPosition) > range - GetArrivalTime(from.Distance(result.CastPosition), delay, missileSpeed) * target.MoveSpeed)
                             result.HitChance = HitChance.OutOfRange;
 
                         return result;
@@ -300,7 +303,7 @@ namespace SPrediction
                     result.HitChance = HitChance.Collision;
 
                 //check if target can dodge with moving backward
-                if (from.Distance(result.CastPosition) > range - GetArrivalTime(from.Distance(result.CastPosition), delay, missileSpeed) * target.MoveSpeed * (100 - predMenu.Item("SPREDMAXRANGEIGNORE").GetValue<Slider>().Value) / 100f)
+                if (from.Distance(result.CastPosition) > range - GetArrivalTime(from.Distance(result.CastPosition), delay, missileSpeed) * target.MoveSpeed)
                     result.HitChance = HitChance.OutOfRange;
 
                 return result;
@@ -984,7 +987,7 @@ namespace SPrediction
                         Vector2 center = (pA + pB) / 2f;
 
                         float flytime = missileSpeed != 0 ? from.Distance(center) / missileSpeed : 0f;
-                        float t = flytime + delay + Game.Ping / 2000f + SpellDelay / 1000f;
+                        float t = flytime + delay + Game.Ping / 1000f + SpellDelay / 1000f;
 
                         Vector2 currentPosition = isDash ? target.Position.To2D() : target.ServerPosition.To2D();
 
@@ -994,7 +997,7 @@ namespace SPrediction
                         if (Math.Min(arriveTimeA, arriveTimeB) <= t && Math.Max(arriveTimeA, arriveTimeB) >= t)
                         {
                             result.HitChance = GetHitChance(t, avgt, movt, avgp);
-                            result.CastPosition = center;
+                            result.CastPosition = center + (direction * Game.Ping / 1000f * moveSpeed) - (type == SkillshotType.SkillshotLine ? (center - from).Normalized().Perpendicular() * width / 2f : Vector2.Zero);
                             result.UnitPosition = center + (direction * (t - Math.Min(arriveTimeA, arriveTimeB)) * moveSpeed);
                             result.CollisionResult = Collision.GetCollisions(from, result.CastPosition, width, delay, missileSpeed);
                             return result;
@@ -1015,6 +1018,12 @@ namespace SPrediction
             }
 
             result.HitChance = HitChance.Impossible;
+
+            if (type == SkillshotType.SkillshotCircle && (pathBounds[0] != -1 || pathBounds[1] != -1))
+                if (movt < 100)
+                    result.HitChance = HitChance.High;
+                else
+                    result.HitChance = HitChance.Medium;
 
             return result;
         }
