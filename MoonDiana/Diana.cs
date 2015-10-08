@@ -473,9 +473,14 @@ namespace MoonDiana
                 foreach (var enemy in HeroManager.Enemies)
                 {
                     if (!enemy.IsDead && enemy.Health < CalculateComboDamage(enemy))
+                        Drawing.DrawText((int)(enemy.HPBarPosition.X + enemy.BoundingRadius / 2 - 10), (int)(enemy.HPBarPosition.Y - 20), System.Drawing.Color.Red, "Killable");
+
+                    if (enemy.HasBuff("dianamoonlight"))
                     {
-                        var killable_pos = Drawing.WorldToScreen(enemy.Position);
-                        Drawing.DrawText((int)killable_pos.X - 20, (int)killable_pos.Y + 35, System.Drawing.Color.Red, "Killable");
+                        var buff = enemy.GetBuff("dianamoonlight");
+                        string time = ((int)Math.Floor(buff.EndTime - Game.Time)).ToString();
+                        var debuff_pos = Drawing.WorldToScreen(enemy.Position);
+                        Drawing.DrawText((int)debuff_pos.X - 20, (int)debuff_pos.Y + 35, System.Drawing.Color.Red, time);
                     }
                 }
             }
