@@ -102,6 +102,34 @@ namespace SPrediction
 
             Result result = new Result();
 
+            //auto aoe hit (2 hits with using one target as from position)
+            if (target.IsChampion()) //do these calcs if champion kappa
+            {
+                if (ObjectManager.Player.CountEnemiesInRange(range) > 0 && ObjectManager.Player.CountEnemiesInRange(range + vectorLenght) > 1) //if there is at least 1 enemy in range && at least 2 enemy which laser can hit
+                {
+                    Vector2 predPos1 = Prediction.GetFastUnitPosition(target, delay); //get target unit position after delay
+                    foreach (var enemy in HeroManager.Enemies) //loop all enemies
+                    {
+                        if (enemy.NetworkId != target.NetworkId && enemy.Distance(rangeCheckFrom) < range + vectorLenght) //if enemy is not given target and enemy is hitable by laser
+                        {
+                            Vector2 predPos2 = Prediction.GetFastUnitPosition(enemy, delay); //get enemy unit position after delay
+                            if (predPos1.Distance(rangeCheckFrom) < range) //if target is in range 
+                            {
+                                Prediction.Result predRes = LinePrediction.GetPrediction(enemy, width, delay, vectorSpeed, vectorLenght, false, enemy.GetWaypoints(), enemy.AvgMovChangeTime(), enemy.LastMovChangeTime(), enemy.AvgPathLenght(), predPos1 - (predPos1 - rangeCheckFrom).Normalized().Perpendicular() * 30, predPos1 - (predPos1 - rangeCheckFrom).Normalized().Perpendicular() * 30); //get enemy prediciton with from = target's position (a bit backward)
+                                if(predRes.HitChance >= HitChance.Low)
+                                    return predRes.AsVectorResult(predPos1 - (predPos1 - rangeCheckFrom).Normalized().Perpendicular() * 30);
+                            }
+                            else if (predPos2.Distance(rangeCheckFrom) < range) //if enemy is in range
+                            {
+                                Prediction.Result predRes = LinePrediction.GetPrediction(target, width, delay, vectorSpeed, vectorLenght, false, path, avgt, movt, avgp, predPos2 - (predPos2 - rangeCheckFrom).Normalized().Perpendicular() * 30, predPos2 - (predPos2 - rangeCheckFrom).Normalized().Perpendicular() * 30); //get target prediction with from = enemy's position (a bit backward)
+                                if (predRes.HitChance >= HitChance.Low)
+                                    return predRes.AsVectorResult(predPos2 - (predPos2 - rangeCheckFrom).Normalized().Perpendicular() * 30);
+                            }
+                        }
+                    }
+                }
+            }
+
             Vector2 immobileFrom = rangeCheckFrom + (target.ServerPosition.To2D() - rangeCheckFrom).Normalized() * range;
 
             if (path.Count <= 1) //if target is not moving, easy to hit
