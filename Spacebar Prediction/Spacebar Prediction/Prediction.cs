@@ -300,6 +300,10 @@ namespace SPrediction
                     return GetImmobilePrediction(target, width, delay, missileSpeed, range, collisionable, type, from);
 
                 result = WaypointAnlysis(target, width, delay, missileSpeed, range, collisionable, type, path, avgt, movt, avgp, from);
+                
+                float d = result.CastPosition.Distance(target.ServerPosition.To2D());
+                if (d >= (avgt - movt) * target.MoveSpeed && d >= avgp)
+                    result.HitChance = HitChance.Medium;
 
                 //check collisions
                 if (collisionable && (result.CollisionResult.Objects.HasFlag(Collision.Flags.Minions) || result.CollisionResult.Objects.HasFlag(Collision.Flags.YasuoWall)))
