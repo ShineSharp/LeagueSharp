@@ -18,11 +18,7 @@
 
 using System;
 using System.Collections.Generic;
-using System.Collections.Concurrent;
 using System.Linq;
-using System.Text;
-using System.Threading;
-using System.Runtime.CompilerServices;
 using System.Threading.Tasks;
 using LeagueSharp;
 using LeagueSharp.Common;
@@ -51,6 +47,7 @@ namespace SPrediction
             public float AvgReactionTime;
             public float LastMovChangeTime;
             public float AvgPathLenght;
+            public float LastAngleDiff;
             public Vector3 From;
             public Vector3 RangeCheckFrom;
 
@@ -70,12 +67,14 @@ namespace SPrediction
                     AvgReactionTime = t.AvgMovChangeTime();
                     LastMovChangeTime = t.LastMovChangeTime();
                     AvgPathLenght = t.AvgPathLenght();
+                    LastAngleDiff = t.LastAngleDiff();
                 }
                 else
                 {
                     AvgReactionTime = 0;
                     LastMovChangeTime = 0;
                     AvgPathLenght = 0;
+                    LastAngleDiff = 0;
                 }
                 From = _from;
                 RangeCheckFrom = _rangeCheckFrom;
@@ -146,7 +145,6 @@ namespace SPrediction
                 predMenu = new Menu("SPrediction", "SPRED");
                 predMenu.AddItem(new MenuItem("PREDICTONLIST", "Prediction Method").SetValue(new StringList(new[] { "SPrediction", "Common Predicion" }, 0)));
                 predMenu.AddItem(new MenuItem("SPREDWINDUP", "Check for target AA Windup").SetValue(true));
-                predMenu.AddItem(new MenuItem("SPREDWPANALYSIS", "Waypoint analysis splitting method").SetValue(new StringList(new[] { "By target bounding radius", "By spell width" }, 1)));
                 predMenu.AddItem(new MenuItem("SPREDMAXRANGEIGNORE", "Max Range Dodge Ignore (%)").SetValue(new Slider(50, 0, 100)));
                 predMenu.AddItem(new MenuItem("SPREDREACTIONDELAY", "Ignore Rection Delay").SetValue<Slider>(new Slider(0, 0, 200)));
                 predMenu.AddItem(new MenuItem("SPREDDELAY", "Spell Delay").SetValue<Slider>(new Slider(0, 0, 200)));
@@ -171,7 +169,7 @@ namespace SPrediction
         /// <returns>Prediction result as <see cref="Prediction.Result"/></returns>
         internal static Result GetPrediction(Input input)
         {
-            return GetPrediction(input.Target, input.SpellWidth, input.SpellDelay, input.SpellMissileSpeed, input.SpellRange, input.SpellCollisionable, input.SpellSkillShotType, input.Path, input.AvgReactionTime, input.LastMovChangeTime, input.AvgPathLenght, input.From.To2D(), input.RangeCheckFrom.To2D());
+            return GetPrediction(input.Target, input.SpellWidth, input.SpellDelay, input.SpellMissileSpeed, input.SpellRange, input.SpellCollisionable, input.SpellSkillShotType, input.Path, input.AvgReactionTime, input.LastMovChangeTime, input.AvgPathLenght, input.LastAngleDiff, input.From.To2D(), input.RangeCheckFrom.To2D());
         }
 
         /// <summary>
@@ -188,7 +186,7 @@ namespace SPrediction
         /// <returns>Prediction result as <see cref="Prediction.Result"/></returns>
         internal static Result GetPrediction(Obj_AI_Hero target, float width, float delay, float missileSpeed, float range, bool collisionable, SkillshotType type)
         {
-            return GetPrediction(target, width, delay, missileSpeed, range, collisionable, type, target.GetWaypoints(), target.AvgMovChangeTime(), target.LastMovChangeTime(), target.AvgPathLenght(), ObjectManager.Player.ServerPosition.To2D(), ObjectManager.Player.ServerPosition.To2D());
+            return GetPrediction(target, width, delay, missileSpeed, range, collisionable, type, target.GetWaypoints(), target.AvgMovChangeTime(), target.LastMovChangeTime(), target.AvgPathLenght(), target.LastAngleDiff(), ObjectManager.Player.ServerPosition.To2D(), ObjectManager.Player.ServerPosition.To2D());
         }
 
         /// <summary>
@@ -208,7 +206,7 @@ namespace SPrediction
         /// <param name="from">Spell casted position</param>
         /// <param name="rangeCheckFrom"></param>
         /// <returns>Prediction result as <see cref="Prediction.Result"/></returns>
-        internal static Result GetPrediction(Obj_AI_Base target, float width, float delay, float missileSpeed, float range, bool collisionable, SkillshotType type, List<Vector2> path, float avgt, float movt, float avgp, Vector2 from, Vector2 rangeCheckFrom)
+        internal static Result GetPrediction(Obj_AI_Base target, float width, float delay, float missileSpeed, float range, bool collisionable, SkillshotType type, List<Vector2> path, float avgt, float movt, float avgp, float anglediff, Vector2 from, Vector2 rangeCheckFrom)
         {
             Prediction.AssertInitializationMode();
 
@@ -299,7 +297,7 @@ namespace SPrediction
                 if (Utility.IsImmobileTarget(target)) //if unit is immobile
                     return GetImmobilePrediction(target, width, delay, missileSpeed, range, collisionable, type, from);
 
-                result = WaypointAnlysis(target, width, delay, missileSpeed, range, collisionable, type, path, avgt, movt, avgp, from);
+                result = WaypointAnlysis(target, width, delay, missileSpeed, range, collisionable, type, path, avgt, movt, avgp, anglediff, from);
                 
                 float d = result.CastPosition.Distance(target.ServerPosition.To2D());
                 if (d >= (avgt - movt) * target.MoveSpeed && d >= avgp)
@@ -540,7 +538,7 @@ namespace SPrediction
             }
 
             if (target is Obj_AI_Hero)
-                result.HitChance = GetHitChance(t - Utility.LeftImmobileTime(target), ((Obj_AI_Hero)target).AvgMovChangeTime(), 0, 0);
+                result.HitChance = GetHitChance(t - Utility.LeftImmobileTime(target), ((Obj_AI_Hero)target).AvgMovChangeTime(), 0, 0, 0);
             else
                 result.HitChance = HitChance.High;
 
@@ -563,16 +561,26 @@ namespace SPrediction
         /// <param name="movt">Passed time from last movement change (in ms)</param>
         /// <param name="avgp">Average Path Lenght</param>
         /// <returns>HitChance</returns>
-        internal static HitChance GetHitChance(float t, float avgt, float movt, float avgp)
+        internal static HitChance GetHitChance(float t, float avgt, float movt, float avgp, float anglediff)
         {
             if (avgp > 400)
             {
                 if (movt > 50)
                 {
-                    if (avgt - movt >= t * 1.25f)
-                        return HitChance.High;
-                    else if (avgt - movt >= t * 0.5f)
-                        return HitChance.Medium;
+                    if (avgt >= t * 1.25f)
+                    {
+                        if (anglediff < 30)
+                            return HitChance.VeryHigh;
+                        else
+                            return HitChance.High;
+                    }
+                    else if (avgt - movt >= t)
+                    {
+                        if (anglediff < 60)
+                            return HitChance.High;
+                        else
+                            return HitChance.Medium;
+                    }
                     else
                         return HitChance.Low;
                 }
@@ -614,7 +622,7 @@ namespace SPrediction
         /// <param name="avgp">Average Path Lenght</param>
         /// <param name="from">Spell casted position</param>
         /// <returns></returns>
-        internal static Result WaypointAnlysis(Obj_AI_Base target, float width, float delay, float missileSpeed, float range, bool collisionable, SkillshotType type, List<Vector2> path, float avgt, float movt, float avgp, Vector2 from, float moveSpeed = 0, bool isDash = false)
+        internal static Result WaypointAnlysis(Obj_AI_Base target, float width, float delay, float missileSpeed, float range, bool collisionable, SkillshotType type, List<Vector2> path, float avgt, float movt, float avgp, float anglediff, Vector2 from, float moveSpeed = 0, bool isDash = false)
         {
             if (moveSpeed == 0)
                 moveSpeed = target.MoveSpeed;
@@ -654,44 +662,36 @@ namespace SPrediction
                 {
                     Vector2 direction = (path[k + 1] - path[k]).Normalized();
                     float distance = width;
-                    if (predMenu.Item("SPREDWPANALYSIS").GetValue<StringList>().SelectedIndex == 0)
-                        distance = target.BoundingRadius;
 
                     int steps = (int)Math.Floor(path[k].Distance(path[k + 1]) / distance);
                     //split & anlyse current path
-                    for (int i = 0; i < steps; i++)
+                    for (int i = 1; i < steps - 1; i++)
                     {
-                        Vector2 pA = path[k] + (direction * distance * i);
-                        Vector2 pB = path[k] + (direction * distance * (i + 1));
-                        Vector2 center = (pA + pB) / 2f;
-
-                        float flytime = missileSpeed != 0 ? from.Distance(center) / missileSpeed : 0f;
-                        float t = flytime + delay + Game.Ping / 1000f + SpellDelay / 1000f;
-
-                        Vector2 currentPosition = isDash ? target.Position.To2D() : target.ServerPosition.To2D();
+                        Vector2 pCenter = path[k] + (direction * distance * i);
+                        Vector2 pA = pCenter - (direction * target.BoundingRadius);
+                        Vector2 pB = pCenter + (direction * target.BoundingRadius);
+                        
+                        float flytime = missileSpeed != 0 ? from.Distance(pCenter) / missileSpeed : 0f;
+                        float t = flytime + delay + Game.Ping / 2000f + SpellDelay / 1000f;
+                        
+                        Vector2 currentPosition = target.ServerPosition.To2D();
 
                         float arriveTimeA = currentPosition.Distance(pA) / moveSpeed;
                         float arriveTimeB = currentPosition.Distance(pB) / moveSpeed;
 
                         if (Math.Min(arriveTimeA, arriveTimeB) <= t && Math.Max(arriveTimeA, arriveTimeB) >= t)
                         {
-                            result.HitChance = GetHitChance(t, avgt, movt, avgp);
-                            result.CastPosition = center;
-                            result.UnitPosition = center + (direction * (t - Math.Min(arriveTimeA, arriveTimeB)) * moveSpeed);
+                            result.HitChance = GetHitChance(t, avgt, movt, avgp, anglediff);
+                            result.CastPosition = pCenter;
+                            result.UnitPosition = pCenter; //+ (direction * (t - Math.Min(arriveTimeA, arriveTimeB)) * moveSpeed);
+                            if (currentPosition.IsBetween(ObjectManager.Player.ServerPosition.To2D(), result.CastPosition))
+                            {
+                                result.CastPosition = currentPosition;
+                                Console.WriteLine("corrected");
+                            }
                             result.CollisionResult = Collision.GetCollisions(from, result.CastPosition, width, delay, missileSpeed);
                             return result;
                         }
-                    }
-
-                    if (steps == 0)
-                    {
-                        float flytime = missileSpeed != 0 ? from.Distance(path[pathBounds[1]]) / missileSpeed : 0f;
-                        float t = flytime + delay + Game.Ping / 2000f + SpellDelay / 1000f;
-                        result.HitChance = GetHitChance(t, avgt, movt, avgp);
-                        result.CastPosition = path[pathBounds[1]];
-                        result.UnitPosition = path[pathBounds[1]];
-                        result.CollisionResult = Collision.GetCollisions(from, result.CastPosition, width, delay, missileSpeed);
-                        return result;
                     }
                 }
             }

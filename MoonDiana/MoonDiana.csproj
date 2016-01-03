@@ -27,10 +27,10 @@
     <WarningLevel>4</WarningLevel>
   </PropertyGroup>
   <PropertyGroup Condition=" '$(Configuration)|$(Platform)' == 'Release|AnyCPU' ">
-    <PlatformTarget>AnyCPU</PlatformTarget>
+    <PlatformTarget>x86</PlatformTarget>
     <DebugType>pdbonly</DebugType>
     <Optimize>true</Optimize>
-    <OutputPath>bin\Release\</OutputPath>
+    <OutputPath>bin\Release</OutputPath>
     <DefineConstants>TRACE</DefineConstants>
     <ErrorReport>prompt</ErrorReport>
     <WarningLevel>4</WarningLevel>
@@ -103,6 +103,7 @@
     <Compile Include="ShineCommon\SPrediction\Obj_AI_HeroExtensions.cs" />
     <Compile Include="ShineCommon\SPrediction\PathTracker.cs" />
     <Compile Include="ShineCommon\SPrediction\Prediction.cs" />
+    <Compile Include="ShineCommon\SPrediction\RingPrediction.cs" />
     <Compile Include="ShineCommon\SPrediction\SpellExtensions.cs" />
     <Compile Include="ShineCommon\SPrediction\Utility.cs" />
     <Compile Include="ShineCommon\SPrediction\VectorPrediction.cs" />

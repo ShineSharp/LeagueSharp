@@ -18,10 +18,7 @@
 
 using System;
 using System.Collections.Generic;
-using System.Linq;
-using System.Text;
 using System.Threading;
-using System.Threading.Tasks;
 using LeagueSharp;
 using LeagueSharp.Common;
 using SharpDX;
@@ -39,16 +36,16 @@ namespace SPrediction
         /// </summary>
         /// <param name="target">Target</param>
         /// <returns>Prediction result as <see cref="Prediction.Result"/></returns>
-        public static Prediction.Result GetPrediction(this Spell s, Obj_AI_Hero target)
+        public static Prediction.Result GetSPrediction(this Spell s, Obj_AI_Hero target)
         {
             switch (s.Type)
             {
                 case SkillshotType.SkillshotLine:
-                    return LinePrediction.GetPrediction(target, s.Width, s.Delay, s.Speed, s.Range, s.Collision, target.GetWaypoints(), target.AvgMovChangeTime(), target.LastMovChangeTime(), target.AvgPathLenght(), s.From.To2D(), s.RangeCheckFrom.To2D());
+                    return LinePrediction.GetPrediction(target, s.Width, s.Delay, s.Speed, s.Range, s.Collision, target.GetWaypoints(), target.AvgMovChangeTime(), target.LastMovChangeTime(), target.AvgPathLenght(), target.LastAngleDiff(), s.From.To2D(), s.RangeCheckFrom.To2D());
                 case SkillshotType.SkillshotCircle:
-                    return CirclePrediction.GetPrediction(target, s.Width, s.Delay, s.Speed, s.Range, s.Collision, target.GetWaypoints(), target.AvgMovChangeTime(), target.LastMovChangeTime(), target.AvgPathLenght(), s.From.To2D(), s.RangeCheckFrom.To2D());
+                    return CirclePrediction.GetPrediction(target, s.Width, s.Delay, s.Speed, s.Range, s.Collision, target.GetWaypoints(), target.AvgMovChangeTime(), target.LastMovChangeTime(), target.AvgPathLenght(), target.LastAngleDiff(), s.From.To2D(), s.RangeCheckFrom.To2D());
                 case SkillshotType.SkillshotCone:
-                    return ConePrediction.GetPrediction(target, s.Width, s.Delay, s.Speed, s.Range, s.Collision, target.GetWaypoints(), target.AvgMovChangeTime(), target.LastMovChangeTime(), target.AvgPathLenght(), s.From.To2D(), s.RangeCheckFrom.To2D());
+                    return ConePrediction.GetPrediction(target, s.Width, s.Delay, s.Speed, s.Range, s.Collision, target.GetWaypoints(), target.AvgMovChangeTime(), target.LastMovChangeTime(), target.AvgPathLenght(), target.LastAngleDiff(), s.From.To2D(), s.RangeCheckFrom.To2D());
             }
 
             throw new NotSupportedException("Unknown skill shot type");
@@ -59,9 +56,9 @@ namespace SPrediction
         /// </summary>
         /// <param name="target">Target</param>
         /// <returns>Prediction result as <see cref="Prediction.Result"/></returns>
-        public static Prediction.Result GetArcPrediction(this Spell s, Obj_AI_Hero target)
+        public static Prediction.Result GetArcSPrediction(this Spell s, Obj_AI_Hero target)
         {
-            return ArcPrediction.GetPrediction(target, s.Width, s.Delay, s.Speed, s.Range, s.Collision, target.GetWaypoints(), target.AvgMovChangeTime(), target.LastMovChangeTime(), target.AvgPathLenght(), s.From.To2D(), s.RangeCheckFrom.To2D());
+            return ArcPrediction.GetPrediction(target, s.Width, s.Delay, s.Speed, s.Range, s.Collision, target.GetWaypoints(), target.AvgMovChangeTime(), target.LastMovChangeTime(), target.AvgPathLenght(), target.LastAngleDiff(), s.From.To2D(), s.RangeCheckFrom.To2D());
         }
 
         /// <summary>
@@ -70,16 +67,28 @@ namespace SPrediction
         /// <param name="target">Target</param>
         /// <param name="vectorLenght">Vector Lenght</param>
         /// <returns>Prediction result as <see cref="Prediction.Vector.Result"/></returns>
-        public static VectorPrediction.Result GetVectorPrediction(this Spell s, Obj_AI_Hero target, float vectorLenght)
+        public static VectorPrediction.Result GetVectorSPrediction(this Spell s, Obj_AI_Hero target, float vectorLenght)
         {
             return VectorPrediction.GetPrediction(target, s.Width, s.Delay, s.Speed, s.Range, vectorLenght, target.GetWaypoints(), target.AvgMovChangeTime(), target.LastMovChangeTime(), target.AvgPathLenght(), s.RangeCheckFrom.To2D());
+        }
+
+        /// <summary>
+        /// Gets Prediction result
+        /// </summary>
+        /// <param name="s"></param>
+        /// <param name="target">Target</param>
+        /// <param name="ringRadius">Ring radius</param>
+        /// <returns>Prediction result as <see cref="Prediction.Result"/></returns>
+        public static Prediction.Result GetRingSPrediction(this Spell s, Obj_AI_Hero target, float ringRadius)
+        {
+            return RingPrediction.GetPrediction(target, s.Width, ringRadius, s.Delay, s.Speed, s.Range, s.Collision);
         }
 
         /// <summary>
         /// Gets aoe prediction result
         /// </summary>
         /// <returns>Prediction result as <see cref="Prediction.Result"/></returns>
-        public static Prediction.AoeResult GetAoePrediction(this Spell s)
+        public static Prediction.AoeResult GetAoeSPrediction(this Spell s)
         {
             if (s.Collision)
                 throw new InvalidOperationException("Collisionable spell");
@@ -101,7 +110,7 @@ namespace SPrediction
         /// Gets aoe arc prediction
         /// </summary>
         /// <returns>Prediction result as <see cref="Prediction.Result"/></returns>
-        public static Prediction.AoeResult GetAoeArcPrediction(this Spell s)
+        public static Prediction.AoeResult GetAoeArcSPrediction(this Spell s)
         {
             if (s.Collision)
                 throw new InvalidOperationException("Collisionable spell");
@@ -114,7 +123,7 @@ namespace SPrediction
         /// </summary>
         /// <param name="vectorLenght">Vector lenght</param>
         /// <returns>Prediction result as <see cref="VectorPrediction.AoeResult"/></returns>
-        public static VectorPrediction.AoeResult GetAoeVectorPrediction(this Spell s, float vectorLenght)
+        public static VectorPrediction.AoeResult GetAoeVectorSPrediction(this Spell s, float vectorLenght)
         {
             if (s.Collision)
                 throw new InvalidOperationException("Collisionable spell");
@@ -293,11 +302,11 @@ namespace SPrediction
 
                     switch (s.Type)
                     {
-                        case SkillshotType.SkillshotLine:   result = LinePrediction.GetPrediction(t, s.Width, s.Delay, s.Speed, s.Range, s.Collision, waypoints, avgt, movt, avgp, s.From.To2D(), s.RangeCheckFrom.To2D());
+                        case SkillshotType.SkillshotLine: result = LinePrediction.GetPrediction(t, s.Width, s.Delay, s.Speed, s.Range, s.Collision, waypoints, avgt, movt, avgp, t.LastAngleDiff(), s.From.To2D(), s.RangeCheckFrom.To2D());
                             break;
-                        case SkillshotType.SkillshotCircle: result = CirclePrediction.GetPrediction(t, s.Width, s.Delay, s.Speed, s.Range, s.Collision, waypoints, avgt, movt, avgp, s.From.To2D(), s.RangeCheckFrom.To2D());
+                        case SkillshotType.SkillshotCircle: result = CirclePrediction.GetPrediction(t, s.Width, s.Delay, s.Speed, s.Range, s.Collision, waypoints, avgt, movt, avgp, t.LastAngleDiff(), s.From.To2D(), s.RangeCheckFrom.To2D());
                             break;
-                        case SkillshotType.SkillshotCone:   result = ConePrediction.GetPrediction(t, s.Width, s.Delay, s.Speed, s.Range, s.Collision, waypoints, avgt, movt, avgp, s.From.To2D(), s.RangeCheckFrom.To2D());
+                        case SkillshotType.SkillshotCone: result = ConePrediction.GetPrediction(t, s.Width, s.Delay, s.Speed, s.Range, s.Collision, waypoints, avgt, movt, avgp, t.LastAngleDiff(), s.From.To2D(), s.RangeCheckFrom.To2D());
                             break;
                         default:
                             throw new InvalidOperationException("Unknown spell type");
@@ -340,12 +349,11 @@ namespace SPrediction
         /// <returns>true if spell has casted</returns>
         public static bool SPredictionCastArc(this Spell s, Obj_AI_Hero t, HitChance hc, int reactionIgnoreDelay = 0, byte minHit = 1, Vector3? rangeCheckFrom = null, float filterHPPercent = 100)
         {
-            if (minHit > 1)
-                throw new NotSupportedException("Arc aoe prediction has not supported yet");
-
             if (Prediction.predMenu != null && Prediction.predMenu.Item("PREDICTONLIST").GetValue<StringList>().SelectedIndex == 1)
                 throw new NotSupportedException("Arc Prediction not supported in Common prediction");
 
+            if (minHit > 1)
+                return SPredictionCastAoeArc(s, minHit);
 
             if (t.HealthPercent > filterHPPercent)
                 return false;
@@ -360,7 +368,7 @@ namespace SPrediction
                     float avgt = t.AvgMovChangeTime() + reactionIgnoreDelay;
                     float movt = t.LastMovChangeTime();
                     float avgp = t.AvgPathLenght();
-                    var result = ArcPrediction.GetPrediction(t, s.Width, s.Delay, s.Speed, s.Range, s.Collision, t.GetWaypoints(), avgt, movt, avgp, s.From.To2D(), s.RangeCheckFrom.To2D());
+                    var result = ArcPrediction.GetPrediction(t, s.Width, s.Delay, s.Speed, s.Range, s.Collision, t.GetWaypoints(), avgt, movt, avgp, t.LastAngleDiff(), s.From.To2D(), s.RangeCheckFrom.To2D());
 
                     if (result.HitChance >= hc)
                     {
@@ -394,12 +402,11 @@ namespace SPrediction
         /// <returns>true if spell has casted</returns>
         public static bool SPredictionCastVector(this Spell s, Obj_AI_Hero t, float vectorLenght, HitChance hc, int reactionIgnoreDelay = 0, byte minHit = 1, Vector3? rangeCheckFrom = null, float filterHPPercent = 100)
         {
-            if (minHit > 1)
-                throw new NotSupportedException("Vector aoe prediction has not supported yet");
-
             if (Prediction.predMenu != null && Prediction.predMenu.Item("PREDICTONLIST").GetValue<StringList>().SelectedIndex == 1)
                 throw new NotSupportedException("Vector Prediction not supported in Common prediction");
 
+            if (minHit > 1)
+                return SPredictionCastAoeVector(s, vectorLenght, minHit);
 
             if (t.HealthPercent > filterHPPercent)
                 return false;
@@ -419,6 +426,69 @@ namespace SPrediction
                     if (result.HitChance >= hc)
                     {
                         s.Cast(result.CastSourcePosition, result.CastTargetPosition);
+                        return true;
+                    }
+
+                    Monitor.Pulse(PathTracker.EnemyInfo[t.NetworkId].m_lock);
+                    return false;
+                }
+                finally
+                {
+                    Monitor.Exit(PathTracker.EnemyInfo[t.NetworkId].m_lock);
+                }
+            }
+
+            return false;
+        }
+
+        /// <summary>
+        /// Spell extension for cast vector spell with SPrediction
+        /// </summary>
+        /// <param name="s">Spell to cast</param>
+        /// <param name="t">Target for spell</param>
+        /// <param name="ringRadius">Ring Radius</param>
+        /// <param name="hc">Minimum HitChance to cast</param>
+        /// <param name="reactionIgnoreDelay">Delay to ignore target's reaction time</param>
+        /// <param name="minHit">Minimum Hit Count to cast</param>
+        /// <param name="rangeCheckFrom">Position where spell will be casted from</param>
+        /// <param name="filterHPPercent">Minimum HP Percent to cast (for target)</param>
+        /// <returns>true if spell has casted</returns>
+        public static bool SPredictionCastRing(this Spell s, Obj_AI_Hero t, float ringRadius, HitChance hc, bool onlyEdge = true, int reactionIgnoreDelay = 0, byte minHit = 1, Vector3? rangeCheckFrom = null, float filterHPPercent = 100)
+        {
+            if (Prediction.predMenu != null && Prediction.predMenu.Item("PREDICTONLIST").GetValue<StringList>().SelectedIndex == 1)
+                throw new NotSupportedException("Vector Prediction not supported in Common prediction");
+
+            if (minHit > 1)
+                throw new NotSupportedException("Ring aoe prediction not supported yet");
+
+            if (t.HealthPercent > filterHPPercent)
+                return false;
+
+            if (rangeCheckFrom == null)
+                rangeCheckFrom = ObjectManager.Player.ServerPosition;
+
+            if (Monitor.TryEnter(PathTracker.EnemyInfo[t.NetworkId].m_lock))
+            {
+                try
+                {
+                    float avgt = t.AvgMovChangeTime() + reactionIgnoreDelay;
+                    float movt = t.LastMovChangeTime();
+                    float avgp = t.AvgPathLenght();
+                    Prediction.Result result;
+                    if (onlyEdge)
+                        result = RingPrediction.GetPrediction(t, s.Width, ringRadius, s.Delay, s.Speed, s.Range, s.Collision, t.GetWaypoints(), avgt, movt, avgp, s.From.To2D(), rangeCheckFrom.Value.To2D());
+                    else
+                        result = CirclePrediction.GetPrediction(t, s.Width, s.Delay, s.Speed, s.Range + ringRadius, s.Collision, t.GetWaypoints(), avgt, movt, avgp, 360, s.From.To2D(), rangeCheckFrom.Value.To2D());
+
+                    Prediction.lastDrawTick = Utils.TickCount;
+                    Prediction.lastDrawPos = result.CastPosition;
+                    Prediction.lastDrawHitchance = result.HitChance.ToString();
+                    Prediction.lastDrawDirection = (result.CastPosition - s.From.To2D()).Normalized().Perpendicular();
+                    Prediction.lastDrawWidth = (int)ringRadius;
+
+                    if (result.HitChance >= hc)
+                    {
+                        s.Cast(result.CastPosition);
                         return true;
                     }
 
@@ -486,7 +556,7 @@ namespace SPrediction
             if (s.Collision)
                 throw new InvalidOperationException("Collisionable spell");
 
-            Prediction.AoeResult result = ArcPrediction.GetAoePrediction(s.Width, s.Delay, s.Speed, s.Range, s.From.To2D(), s.RangeCheckFrom.To2D());            
+            Prediction.AoeResult result = ArcPrediction.GetAoePrediction(s.Width, s.Delay, s.Speed, s.Range, s.From.To2D(), s.RangeCheckFrom.To2D());
 
             Prediction.lastDrawTick = Utils.TickCount;
             Prediction.lastDrawPos = result.CastPosition;

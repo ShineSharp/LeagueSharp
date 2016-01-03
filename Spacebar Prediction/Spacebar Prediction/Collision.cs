@@ -19,13 +19,13 @@
 using System;
 using System.Collections.Generic;
 using System.Linq;
-using System.Text;
 using System.Text.RegularExpressions;
-using System.Threading.Tasks;
 using LeagueSharp;
 using LeagueSharp.Common;
 using SharpDX;
 
+//typedefs
+using Geometry = SPrediction.Geometry;
 namespace SPrediction
 {
     /// <summary>
