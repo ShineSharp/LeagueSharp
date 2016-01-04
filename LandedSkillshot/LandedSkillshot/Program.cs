@@ -70,7 +70,7 @@ namespace LandedSkillshot
             lock (LastSpells)
             {
                 LastSpells.RemoveAll(p => Environment.TickCount - p.tick > 2000);
-                if (args.SourceNetworkId == ObjectManager.Player.NetworkId && HeroManager.Enemies.Exists(p => p.NetworkId == args.TargetNetworkId))
+                if (args.SourceNetworkId == ObjectManager.Player.NetworkId && HeroManager.Enemies.Exists(p => p.NetworkId == sender.NetworkId))
                 {
                     if (LastSpells.Count != 0)
                     {
