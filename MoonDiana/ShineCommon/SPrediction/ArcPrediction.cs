@@ -84,12 +84,16 @@ namespace SPrediction
             if (path.Count <= 1) //if target is not moving, easy to hit
             {
                 result.HitChance = HitChance.Immobile;
+                result.CastPosition = target.ServerPosition.To2D();
+                result.UnitPosition = result.CastPosition;
                 return result;
             }
 
             if (target is Obj_AI_Hero && ((Obj_AI_Hero)target).IsChannelingImportantSpell())
             {
                 result.HitChance = HitChance.Immobile;
+                result.CastPosition = target.ServerPosition.To2D();
+                result.UnitPosition = result.CastPosition;
                 return result;
             }
 
@@ -114,29 +118,31 @@ namespace SPrediction
                     flyTime = targetDistance / missileSpeed;
             }
 
-            float t = flyTime + delay + Game.Ping / 1000f + Prediction.SpellDelay / 1000f;
-            float distance = t * target.MoveSpeed;
+            float t = flyTime + delay + Game.Ping / 2000f + Prediction.SpellDelay / 1000f;
 
             result.HitChance = Prediction.GetHitChance(t * 1000f, avgt, movt, avgp, anglediff);
 
             #region arc collision test
-            for (int i = 1; i < path.Count; i++)
+            if (result.HitChance > HitChance.Low)
             {
-                Vector2 senderPos = rangeCheckFrom; 
-                Vector2 testPos = path[i];
-
-                float multp = (testPos.Distance(senderPos) / 875.0f);
-
-                var dianaArc = new SPrediction.Geometry.Polygon(
-                                ClipperWrapper.DefineArc(senderPos - new Vector2(875 / 2f, 20), testPos, (float)Math.PI * multp, 410, 200 * multp),
-                                ClipperWrapper.DefineArc(senderPos - new Vector2(875 / 2f, 20), testPos, (float)Math.PI * multp, 410, 320 * multp));
-
-                if (!ClipperWrapper.IsOutside(dianaArc, target.ServerPosition.To2D()))
+                for (int i = 1; i < path.Count; i++)
                 {
-                    result.HitChance = HitChance.VeryHigh;
-                    result.CastPosition = testPos;
-                    result.UnitPosition = testPos;
-                    return result;
+                    Vector2 senderPos = rangeCheckFrom;
+                    Vector2 testPos = path[i];
+
+                    float multp = (testPos.Distance(senderPos) / 875.0f);
+
+                    var dianaArc = new SPrediction.Geometry.Polygon(
+                                    ClipperWrapper.DefineArc(senderPos - new Vector2(875 / 2f, 20), testPos, (float)Math.PI * multp, 410, 200 * multp),
+                                    ClipperWrapper.DefineArc(senderPos - new Vector2(875 / 2f, 20), testPos, (float)Math.PI * multp, 410, 320 * multp));
+
+                    if (!ClipperWrapper.IsOutside(dianaArc, target.ServerPosition.To2D()))
+                    {
+                        result.HitChance = HitChance.VeryHigh;
+                        result.CastPosition = testPos;
+                        result.UnitPosition = testPos;
+                        return result;
+                    }
                 }
             }
             #endregion
