@@ -35,6 +35,8 @@ namespace LandedSkillshot
         private static void Game_OnGameLoad(EventArgs args)
         {
             s_Menu = new Menu("Landed SkillShots", "landedskillshot", true);
+            s_Menu.AddItem(new MenuItem("drawingx", "Drawing Pos X").SetValue(new Slider(Drawing.Width - 200, 0, Drawing.Width)));
+            s_Menu.AddItem(new MenuItem("drawingy", "Drawing Pos Y").SetValue(new Slider(0, 0, Drawing.Height)));
             s_Menu.AddItem(new MenuItem("countonlycombo", "Count Only In Combo Mode").SetValue(false)).ValueChanged += (s, ar) => s_Menu.Item("combokey").Show(ar.GetNewValue<bool>());
             s_Menu.AddItem(new MenuItem("combokey", "Combo Key").SetValue(new KeyBind(32, KeyBindType.Press))).Show(s_Menu.Item("countonlycombo").GetValue<bool>());
             s_Menu.AddItem(new MenuItem("resetval", "Reset").SetValue(false))
@@ -59,9 +61,9 @@ namespace LandedSkillshot
         {
             if (IsEnabled)
             {
-                Drawing.DrawText(Drawing.Width - 200, 0, System.Drawing.Color.Red, String.Format("Casted Spell Count: {0}", castCount));
-                Drawing.DrawText(Drawing.Width - 200, 20, System.Drawing.Color.Red, String.Format("Hit Spell Count: {0}", hitCount));
-                Drawing.DrawText(Drawing.Width - 200, 40, System.Drawing.Color.Red, String.Format("Hitchance (%): {0}%", castCount > 0 ? (((float)hitCount / castCount) * 100).ToString("00.00") : "n/a"));
+                Drawing.DrawText(s_Menu.Item("drawingx").GetValue<Slider>().Value, s_Menu.Item("drawingy").GetValue<Slider>().Value, System.Drawing.Color.Red, String.Format("Casted Spell Count: {0}", castCount));
+                Drawing.DrawText(s_Menu.Item("drawingx").GetValue<Slider>().Value, s_Menu.Item("drawingy").GetValue<Slider>().Value + 20, System.Drawing.Color.Red, String.Format("Hit Spell Count: {0}", hitCount));
+                Drawing.DrawText(s_Menu.Item("drawingx").GetValue<Slider>().Value, s_Menu.Item("drawingy").GetValue<Slider>().Value + 40, System.Drawing.Color.Red, String.Format("Hitchance (%): {0}%", castCount > 0 ? (((float)hitCount / castCount) * 100).ToString("00.00") : "n/a"));
             }
         }
 
