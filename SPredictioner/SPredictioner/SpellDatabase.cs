@@ -169,24 +169,6 @@ namespace SPredictioner
                         new[] { SpellData.CollisionObjectTypes.Champions, SpellData.CollisionObjectTypes.Minion, SpellData.CollisionObjectTypes.YasuoWall }
                 });
 
-            Spells.Add(
-                new SpellData
-                {
-                    ChampionName = "Amumu",
-                    SpellName = "CurseoftheSadMummy",
-                    Slot = SpellSlot.R,
-                    Type = SkillshotType.SkillshotCircle,
-                    Delay = 250,
-                    Range = 0,
-                    Radius = 550,
-                    MissileSpeed = int.MaxValue,
-                    FixedRange = true,
-                    AddHitbox = false,
-                    DangerValue = 5,
-                    IsDangerous = true,
-                    MissileSpellName = "",
-                });
-
             #endregion Amumu
 
             #region Anivia
@@ -1402,23 +1384,6 @@ namespace SPredictioner
                 new SpellData
                 {
                     ChampionName = "JarvanIV",
-                    SpellName = "JarvanIVEQ",
-                    Slot = SpellSlot.Q,
-                    Type = SkillshotType.SkillshotLine,
-                    Delay = 250,
-                    Range = 880,
-                    Radius = 70,
-                    MissileSpeed = 1450,
-                    FixedRange = true,
-                    AddHitbox = true,
-                    DangerValue = 3,
-                    IsDangerous = true,
-                });
-
-            Spells.Add(
-                new SpellData
-                {
-                    ChampionName = "JarvanIV",
                     SpellName = "JarvanIVDemacianStandard",
                     Slot = SpellSlot.E,
                     Type = SkillshotType.SkillshotCircle,
@@ -2028,27 +1993,6 @@ namespace SPredictioner
                     DangerValue = 2,
                     IsDangerous = false,
                     MissileSpellName = "lucianwmissile",
-                });
-
-            Spells.Add(
-                new SpellData
-                {
-                    ChampionName = "Lucian",
-                    SpellName = "LucianRMis",
-                    Slot = SpellSlot.R,
-                    Type = SkillshotType.SkillshotLine,
-                    Delay = 500,
-                    Range = 1400,
-                    Radius = 110,
-                    MissileSpeed = 2800,
-                    FixedRange = true,
-                    AddHitbox = true,
-                    DangerValue = 2,
-                    IsDangerous = false,
-                    MissileSpellName = "lucianrmissileoffhand",
-                    ExtraMissileNames = new[] { "lucianrmissile" },
-                    DontCheckForDuplicates = true,
-                    DisabledByDefault = true,
                 });
 
             #endregion Lucian
@@ -3138,50 +3082,6 @@ namespace SPredictioner
 
             #endregion Thresh
 
-            #region Tristana
-
-            Spells.Add(
-                new SpellData
-                {
-                    ChampionName = "Tristana",
-                    SpellName = "RocketJump",
-                    Slot = SpellSlot.W,
-                    Type = SkillshotType.SkillshotCircle,
-                    Delay = 500,
-                    Range = 900,
-                    Radius = 270,
-                    MissileSpeed = 1500,
-                    FixedRange = false,
-                    AddHitbox = true,
-                    DangerValue = 2,
-                    IsDangerous = false,
-                    MissileSpellName = "RocketJump",
-                });
-
-            #endregion Tristana
-
-            #region Tryndamere
-
-            Spells.Add(
-                new SpellData
-                {
-                    ChampionName = "Tryndamere",
-                    SpellName = "slashCast",
-                    Slot = SpellSlot.E,
-                    Type = SkillshotType.SkillshotLine,
-                    Delay = 0,
-                    Range = 660,
-                    Radius = 93,
-                    MissileSpeed = 1300,
-                    FixedRange = false,
-                    AddHitbox = true,
-                    DangerValue = 2,
-                    IsDangerous = false,
-                    MissileSpellName = "slashCast",
-                });
-
-            #endregion Tryndamere
-
             #region TwistedFate
 
             Spells.Add(
@@ -3894,8 +3794,6 @@ namespace SPredictioner
                 });
 
             #endregion Zyra
-
-            //Game.PrintChat("Added " + Spells.Count + " spells.");
         }
 
         public static SpellData GetByName(string spellName)
