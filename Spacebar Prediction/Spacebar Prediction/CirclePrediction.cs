@@ -77,13 +77,6 @@ namespace SPrediction
         public static Prediction.Result GetPrediction(Obj_AI_Base target, float width, float delay, float missileSpeed, float range, bool collisionable, List<Vector2> path, float avgt, float movt, float avgp, float anglediff, Vector2 from, Vector2 rangeCheckFrom)
         {
             Prediction.Result result = Prediction.GetPrediction(target, width, delay, missileSpeed, range, collisionable, SkillshotType.SkillshotCircle, path, avgt, movt, avgp, anglediff, from, rangeCheckFrom);
-            if (result.HitChance >= HitChance.Low && delay >= 1.0f && width < 250)
-            {
-                result.CastPosition += (result.CastPosition - from + target.Direction.To2D()).Normalized() * width / 2f;
-                if (from.Distance(result.CastPosition) > range - Prediction.GetArrivalTime(from.Distance(result.CastPosition), delay, missileSpeed) * target.MoveSpeed * (100 - Prediction.predMenu.Item("SPREDMAXRANGEIGNORE").GetValue<Slider>().Value) / 100f)
-                    result.HitChance = HitChance.OutOfRange;
-            }
-
             return result;
         }
 

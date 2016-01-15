@@ -333,7 +333,7 @@ namespace SPrediction
         {
             List<Vector2> path = target.GetWaypoints();
             if (from == null)
-                from = target.ServerPosition.To2D();
+                from = ObjectManager.Player.ServerPosition.To2D();
 
             if (path.Count <= 1 || (target is Obj_AI_Hero && ((Obj_AI_Hero)target).IsChannelingImportantSpell()) || Utility.IsImmobileTarget(target))
                 return target.ServerPosition.To2D();
@@ -348,17 +348,14 @@ namespace SPrediction
                 float targetDistance = from.Value.Distance(target.ServerPosition);
                 float flyTime = targetDistance / missileSpeed;
 
-                /*if (missileSpeed != 0) //skillshot with a missile
+                if (missileSpeed != 0 && path.Count == 2)
                 {
-                    Vector2 Vt = (path[path.Count - 1] - path[0]).Normalized() * target.MoveSpeed;
+                    Vector2 Vt = (path[1] - path[0]).Normalized() * target.MoveSpeed;
                     Vector2 Vs = (target.ServerPosition.To2D() - from.Value).Normalized() * missileSpeed;
-                    Vector2 Vr = Vs - Vt;
+                    Vector2 Vr = Vt - Vs;
 
                     flyTime = targetDistance / Vr.Length();
-
-                    if (path.Count > 5) //complicated movement
-                        flyTime = targetDistance / missileSpeed;
-                }*/
+                }
 
                 float t = flyTime + delay + Game.Ping / 2000f;
                 distance = t * target.MoveSpeed;
