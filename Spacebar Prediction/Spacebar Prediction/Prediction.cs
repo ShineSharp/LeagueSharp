@@ -160,10 +160,10 @@ namespace SPrediction
             Drawing.OnDraw += Drawing_OnDraw;
             Obj_AI_Hero.OnProcessSpellCast += Obj_AI_Hero_OnProcessSpellCast;
             Obj_AI_Hero.OnDamage += Obj_AI_Hero_OnDamage;
-            CustomEvents.Game.OnGameEnd += Game_OnGameEnd;
+            Game.OnEnd += Game_OnGameEnd;
             blInitialized = true;
         }
-
+        
         /// <summary>
         /// Gets Prediction result
         /// </summary>
