@@ -46,7 +46,7 @@ namespace LandedSkillshot
                         {
                             hitCount = 0;
                             castCount = 0;
-                            s_Menu.Item("resetval").SetValue(false);
+                            (s as MenuItem).SetValue(false);
                         }
                     };
             s_Menu.AddItem(new MenuItem("landedskillshotsenabled", "Enabled").SetValue(true));

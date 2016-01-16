@@ -127,6 +127,8 @@ namespace MoonDiana
                 OrbwalkingFunctions[(int)LXOrbwalker.Mode.LaneClear] += LaneClear;
                 LXOrbwalker.Enable();
             }
+
+            CustomEvents.Unit.OnDash += Unit_OnDash;
         }
 
         public override void SetSpells()
@@ -258,7 +260,7 @@ namespace MoonDiana
             ObjectManager.Player.IssueOrder(GameObjectOrder.MoveTo, Game.CursorPos);
 
             var minion = MinionManager.GetMinions(Spells[R].Range, MinionTypes.All, MinionTeam.NotAlly, MinionOrderTypes.None).OrderByDescending(q => q.ServerPosition.Distance(ObjectManager.Player.ServerPosition)).Where(p => p.HasBuff("dianamoonlight")).FirstOrDefault();
-            if (minion == null)
+            if (minion == null && Spells[Q].IsReady())
             {
                 minion = MinionManager.GetMinions(Spells[Q].Range - 20, MinionTypes.All, MinionTeam.NotAlly, MinionOrderTypes.None).Where(p => p.Health > Spells[Q].GetDamage(p)).OrderByDescending(q => q.ServerPosition.Distance(ObjectManager.Player.ServerPosition)).FirstOrDefault();
                 if (minion != null)
@@ -453,6 +455,11 @@ namespace MoonDiana
                     Spells[E].Cast();
                 }
             }
+        }
+
+        private void Unit_OnDash(Obj_AI_Base sender, Dash.DashItem args)
+        {
+
         }
 
         public void BeforeDraw()

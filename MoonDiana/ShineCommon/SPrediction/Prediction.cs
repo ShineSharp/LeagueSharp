@@ -333,7 +333,7 @@ namespace SPrediction
         {
             List<Vector2> path = target.GetWaypoints();
             if (from == null)
-                from = target.ServerPosition.To2D();
+                from = ObjectManager.Player.ServerPosition.To2D();
 
             if (path.Count <= 1 || (target is Obj_AI_Hero && ((Obj_AI_Hero)target).IsChannelingImportantSpell()) || Utility.IsImmobileTarget(target))
                 return target.ServerPosition.To2D();

@@ -20,6 +20,7 @@ using System;
 using System.Collections.Generic;
 using System.Linq;
 using System.Threading.Tasks;
+using System.IO;
 using LeagueSharp;
 using LeagueSharp.Common;
 using SharpDX;
@@ -159,6 +160,7 @@ namespace SPrediction
             Drawing.OnDraw += Drawing_OnDraw;
             Obj_AI_Hero.OnProcessSpellCast += Obj_AI_Hero_OnProcessSpellCast;
             Obj_AI_Hero.OnDamage += Obj_AI_Hero_OnDamage;
+            CustomEvents.Game.OnGameEnd += Game_OnGameEnd;
             blInitialized = true;
         }
 
@@ -813,6 +815,19 @@ namespace SPrediction
                     }
                 }
             }
+        }
+
+        private static void Game_OnGameEnd(EventArgs args)
+        {
+            var file = Path.Combine(AppDomain.CurrentDomain.BaseDirectory, String.Format("sprediction_{0}_{1}_{2}.txt", ObjectManager.Player.ChampionName, DateTime.Now.ToString("dd-MM"), Environment.TickCount.ToString("x8")));
+            File.WriteAllText(file,
+                String.Format("Champion : {1}{0}Casted Spell Count: {2}{0}Hit Spell Count: {3}{0} Hitchance(%) : {4}{0}",
+                Environment.NewLine,
+                ObjectManager.Player.ChampionName,
+                castCount,
+                hitCount,
+                castCount > 0 ? (((float)hitCount / castCount) * 100).ToString("00.00") : "n/a"));
+
         }
         #endregion
 
