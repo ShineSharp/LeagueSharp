@@ -827,7 +827,6 @@ namespace SPrediction
                 castCount,
                 hitCount,
                 castCount > 0 ? (((float)hitCount / castCount) * 100).ToString("00.00") : "n/a"));
-
         }
         #endregion
 

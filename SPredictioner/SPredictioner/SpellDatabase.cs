@@ -333,7 +333,7 @@ namespace SPredictioner
                     Slot = SpellSlot.Q,
                     Type = SkillshotType.SkillshotLine,
                     Delay = 250,
-                    Range = 1050,
+                    Range = 925,
                     Radius = 70,
                     MissileSpeed = 1800,
                     FixedRange = true,
