@@ -87,7 +87,6 @@
     <Compile Include="ShineCommon\Activator\Smite.cs" />
     <Compile Include="ShineCommon\Activator\Summoner.cs" />
     <Compile Include="ShineCommon\BaseChamp.cs" />
-    <Compile Include="ShineCommon\HookManager.cs" />
     <Compile Include="Program.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />
     <Compile Include="ShineCommon\Evader.cs" />
