@@ -574,12 +574,7 @@ namespace SPrediction
                             return HitChance.High;
                     }
                     else if (avgt - movt >= t)
-                    {
-                        if (anglediff < 60)
-                            return HitChance.High;
-                        else
-                            return HitChance.Medium;
-                    }
+                        return HitChance.Medium;
                     else
                         return HitChance.Low;
                 }
@@ -683,11 +678,11 @@ namespace SPrediction
                             result.HitChance = GetHitChance(t, avgt, movt, avgp, anglediff);
                             result.CastPosition = pCenter;
                             result.UnitPosition = pCenter; //+ (direction * (t - Math.Min(arriveTimeA, arriveTimeB)) * moveSpeed);
-                            if (currentPosition.IsBetween(ObjectManager.Player.ServerPosition.To2D(), result.CastPosition))
+                            /*if (currentPosition.IsBetween(ObjectManager.Player.ServerPosition.To2D(), result.CastPosition))
                             {
                                 result.CastPosition = currentPosition;
                                 Console.WriteLine("corrected");
-                            }
+                            }*/
                             result.CollisionResult = Collision.GetCollisions(from, result.CastPosition, width, delay, missileSpeed);
                             return result;
                         }
