@@ -656,14 +656,18 @@ namespace SPrediction
                 {
                     Vector2 direction = (path[k + 1] - path[k]).Normalized();
                     float distance = width;
+                    float extender = target.BoundingRadius;
+
+                    if (type == SkillshotType.SkillshotLine)
+                        extender = width;
 
                     int steps = (int)Math.Floor(path[k].Distance(path[k + 1]) / distance);
                     //split & anlyse current path
                     for (int i = 1; i < steps - 1; i++)
                     {
                         Vector2 pCenter = path[k] + (direction * distance * i);
-                        Vector2 pA = pCenter - (direction * target.BoundingRadius);
-                        Vector2 pB = pCenter + (direction * target.BoundingRadius);
+                        Vector2 pA = pCenter - (direction * extender);
+                        Vector2 pB = pCenter + (direction * extender);
                         
                         float flytime = missileSpeed != 0 ? from.Distance(pCenter) / missileSpeed : 0f;
                         float t = flytime + delay + Game.Ping / 2000f + SpellDelay / 1000f;
