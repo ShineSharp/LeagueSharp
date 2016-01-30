@@ -107,6 +107,7 @@
     <Compile Include="ShineCommon\SPrediction\Obj_AI_HeroExtensions.cs" />
     <Compile Include="ShineCommon\SPrediction\PathTracker.cs" />
     <Compile Include="ShineCommon\SPrediction\Prediction.cs" />
+    <Compile Include="ShineCommon\SPrediction\RingPrediction.cs" />
     <Compile Include="ShineCommon\SPrediction\SpellExtensions.cs" />
     <Compile Include="ShineCommon\SPrediction\Utility.cs" />
     <Compile Include="ShineCommon\SPrediction\VectorPrediction.cs" />
