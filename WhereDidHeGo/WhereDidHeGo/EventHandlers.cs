@@ -22,8 +22,14 @@ namespace WhereDidHeGo
         {
             if (sender.IsEnemy)
             {
-                if ((sender.Name.Contains("Rengar_Base_R_Alert") && ObjectManager.Player.HasBuff("rengarralertsound")) || sender.Name == "LeBlanc_Base_P_poof.troy")
-                    AntiStealth.TryDeStealth(sender.Position, 3);
+                Utility.DelayAction.Add(100, () =>
+                    {
+                        if (sender.IsVisible)
+                            return;
+
+                        if ((sender.Name.Contains("Rengar_Base_R_Alert") && ObjectManager.Player.HasBuff("rengarralertsound")) || sender.Name == "LeBlanc_Base_P_poof.troy")
+                            AntiStealth.TryDeStealth(sender.Position, 3);
+                    });
             }
         }
 
@@ -99,71 +105,77 @@ namespace WhereDidHeGo
 
         private static void Obj_AI_Base_OnProcessSpellCast(Obj_AI_Base sender, GameObjectProcessSpellCastEventArgs args)
         {
-            if (sender.IsEnemy && Data.Config.Item("ENABLEWDHG").GetValue<bool>())
-            {
-                int level = 1;
-                Vector3 pos = args.End;
-                switch (args.SData.Name.ToLower())
+            Utility.DelayAction.Add(100, () =>
                 {
-                    case "deceive":
+                    if (sender.IsVisible)
+                        return;
+
+                    if (sender.IsEnemy && Data.Config.Item("ENABLEWDHG").GetValue<bool>() && (!Data.Config.Item("ENABLEINCOMBO").GetValue<bool>() || Data.Config.Item("ENABLECOMBOKEY").GetValue<KeyBind>().Active))
+                    {
+                        int level = 1;
+                        Vector3 pos = args.End;
+                        switch (args.SData.Name.ToLower())
                         {
-                            if (args.Start.Distance(args.End) > 400)
-                                pos = args.Start + (args.End - args.Start).Normalized() * 400;
+                            case "deceive":
+                                {
+                                    if (args.Start.Distance(args.End) > 400)
+                                        pos = args.Start + (args.End - args.Start).Normalized() * 400;
+                                }
+                                break;
+                            case "vaynetumble":
+                                {
+                                    if (sender.HasBuff("VayneInquisition"))
+                                    {
+                                        pos = args.Start + (args.End - args.Start).Normalized() * 300;
+                                        level = 2;
+                                    }
+                                    else
+                                        return;
+                                }
+                                break;
+                            case "summonerflash":
+                                {
+                                    if (sender.IsVisible)
+                                        return;
+                                }
+                                break;
+                            case "jackinbox":
+                                {
+                                    if (args.Start.Distance(args.End) > 425)
+                                        pos = args.Start + (args.End - args.Start).Normalized() * 425;
+
+                                    Data.StealthObjects.Add(new Data._odata { DisplayName = "Shaco Box", Position = pos.To2D(), EndTick = Environment.TickCount + 60000, Radius = 300 });
+                                    Utility.DelayAction.Add(60000, () => { var obj = Data.StealthObjects.FirstOrDefault(p => p.Position.Distance(pos.To2D()) < float.Epsilon); if (obj != null) Data.StealthObjects.Remove(obj); });
+
+                                    return;
+                                }
+                            default:
+                                {
+                                    if (!Data.StealthSpells.Any(p => p.Item2 == args.SData.Name.ToLower()))
+                                        return;
+
+                                    level = Data.StealthSpells.First(p => p.Item2 == args.SData.Name.ToLower()).Item1;
+                                }
+                                break;
                         }
-                        break;
-                    case "vaynetumble":
-                        {
-                            if (sender.HasBuff("VayneInquisition"))
-                            {
-                                pos = args.Start + (args.End - args.Start).Normalized() * 300;
-                                level = 2;
-                            }
-                            else
-                                return;
-                        }
-                        break;
-                    case "summonerflash":
-                        {
-                            if (sender.IsVisible)
-                                return;
-                        }
-                        break;
-                    case "jackinbox":
-                        {
-                            if (args.Start.Distance(args.End) > 425)
-                                pos = args.Start + (args.End - args.Start).Normalized() * 425;
 
-                            Data.StealthObjects.Add(new Data._odata { DisplayName = "Shaco Box", Position = pos.To2D(), EndTick = Environment.TickCount + 60000, Radius = 300 });
-                            Utility.DelayAction.Add(60000, () => { var obj = Data.StealthObjects.FirstOrDefault(p => p.Position.Distance(pos.To2D()) < float.Epsilon); if (obj != null) Data.StealthObjects.Remove(obj); });
+                        lock (Data.StealthPoses)
+                            Data.StealthPoses.Add(new Tuple<int, Vector3>(Utils.TickCount, pos));
 
-                            return;
-                        }
-                    default:
-                        {
-                            if (!Data.StealthSpells.Any(p => p.Item2 == args.SData.Name.ToLower()))
-                                return;
+                        lock (Data.PingPoses)
+                            Data.PingPoses.Add(pos);
 
-                            level = Data.StealthSpells.First(p => p.Item2 == args.SData.Name.ToLower()).Item1;
-                        }
-                        break;
-                }
+                        List<Vector2> path = sender.GetWaypoints();
+                        var pair = new Tuple<float, List<Vector2>>(path.PathLength() / sender.MoveSpeed, path);
 
-                lock (Data.StealthPoses)
-                    Data.StealthPoses.Add(new Tuple<int, Vector3>(Utils.TickCount, pos));
+                        lock (Data.StealthPaths)
+                            Data.StealthPaths.Add(pair);
 
-                lock (Data.PingPoses)
-                    Data.PingPoses.Add(pos);
+                        Utility.DelayAction.Add((int)(path.PathLength() / sender.MoveSpeed * 1000), () => Data.StealthPaths.Remove(pair));
 
-                List<Vector2> path = sender.GetWaypoints();
-                var pair = new Tuple<float, List<Vector2>>(path.PathLength() / sender.MoveSpeed, path);
-
-                lock (Data.StealthPaths)
-                    Data.StealthPaths.Add(pair);
-
-                Utility.DelayAction.Add((int)(path.PathLength() / sender.MoveSpeed * 1000), () => Data.StealthPaths.Remove(pair));
-
-                AntiStealth.TryDeStealth(pos, level);
-            }
+                        AntiStealth.TryDeStealth(pos, level);
+                    }
+                });
         }
     }
 }

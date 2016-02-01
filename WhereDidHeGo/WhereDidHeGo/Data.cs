@@ -44,6 +44,8 @@ namespace WhereDidHeGo
             Config.AddItem(new MenuItem("PINGMODE", "Ping Enemy Missing").SetValue(new StringList(new string[] { "Only local", "Send to team", "Disabled" }, 0)));
             Config.AddItem(new MenuItem("PINGCOUNT", "Ping X Times").SetValue(new Slider(1, 1, 100)));
             Config.AddItem(new MenuItem("DRAWWAPOINTS", "Draw Enemy's Last Waypoint").SetValue(true));
+            Config.AddItem(new MenuItem("ENABLEINCOMBO", "Only Enable In Combo").SetValue(false)).ValueChanged += (s, ar) => Config.Item("ENABLECOMBOKEY").Show(ar.GetNewValue<bool>());
+            Config.AddItem(new MenuItem("ENABLECOMBOKEY", "Combo Key").SetValue(new KeyBind(32, KeyBindType.Press))).Show(Config.Item("ENABLEINCOMBO").GetValue<bool>());
             Config.AddItem(new MenuItem("ENABLEWDHG", "Enabled").SetValue(true));
 
             Menu antiStealth = new Menu("Anti-Stealth", "wdhgantistealth");

@@ -26,17 +26,23 @@ namespace WhereDidHeGo
             //vision ward
             if (Data.Config.Item("USEVISIONWARD").GetValue<bool>())
             {
-                if (Items.CanUseItem(2043) && Items.HasItem(2043))
-                    slot = ObjectManager.Player.GetSpellSlot("VisionWard");
-                else if ((Items.CanUseItem(3362) && Items.HasItem(3362)))
-                    slot = SpellSlot.Trinket;
+                if (ObjectManager.Player.Distance(pos) < 1000)
+                {
+                    if (Items.CanUseItem(2043) && Items.HasItem(2043))
+                        slot = ObjectManager.Player.GetSpellSlot("VisionWard");
+                    else if ((Items.CanUseItem(3362) && Items.HasItem(3362)))
+                        slot = SpellSlot.Trinket;
+                }
             }
 
             //oracle's lens
             if (Data.Config.Item("USEORACLESLENS").GetValue<bool>())
             {
-                if (Items.CanUseItem(3364) && Items.HasItem(3364))
-                    slot = SpellSlot.Trinket;
+                if (ObjectManager.Player.Distance(pos) < 700)
+                {
+                    if ((Items.CanUseItem(3364) && Items.HasItem(3364)) || (Items.CanUseItem(3341) && Items.HasItem(3341)))
+                        slot = SpellSlot.Trinket;
+                }
             }
 
             //lightbringer active
@@ -52,9 +58,14 @@ namespace WhereDidHeGo
             //hextech sweeper
             if (Data.Config.Item("USEHEXTECHSWEEPER").GetValue<bool>())
             {
-                if (Items.CanUseItem(3187) && Items.HasItem(3185))
+                if (Items.CanUseItem(3187) && Items.HasItem(3187))
                 {
                     LeagueSharp.Common.Items.UseItem(3187, pos);
+                    return true;
+                }
+                else if (Items.CanUseItem(3348) && Items.HasItem(3348))
+                {
+                    LeagueSharp.Common.Items.UseItem(3348, pos);
                     return true;
                 }
             }
