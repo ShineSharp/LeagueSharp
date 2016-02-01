@@ -16,6 +16,7 @@ namespace WhereDidHeGo
         public static List<Tuple<float, List<Vector2>>> StealthPaths = new List<Tuple<float, List<Vector2>>>();
         public static List<Tuple<int, string>> StealthSpells = new List<Tuple<int, string>>();
         public static List<_sdata> AntiStealthSpells = new List<_sdata>();
+        public static List<_odata> StealthObjects = new List<_odata>();
         public static Obj_AI_Hero Teemo;
         public static Menu Config;
 
@@ -80,6 +81,14 @@ namespace WhereDidHeGo
             public float SpellRange;
             public int StealthDetectionLevel;
             public bool SelfCast;
+        }
+
+        public class _odata
+        {
+            public string DisplayName;
+            public Vector2 Position;
+            public int EndTick;
+            public int Radius;
         }
     }
 }

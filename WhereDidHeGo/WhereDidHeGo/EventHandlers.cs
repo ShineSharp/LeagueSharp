@@ -87,6 +87,14 @@ namespace WhereDidHeGo
 
             if (Data.Teemo != null && !Data.Teemo.IsVisible)
                 Render.Circle.DrawCircle(Data.Teemo.Position, 75f, System.Drawing.Color.Green);
+
+            foreach(var obj in Data.StealthObjects)
+            {
+                Render.Circle.DrawCircle(obj.Position.To3D2(), obj.Radius, System.Drawing.Color.Red, 10);
+                Vector2 pos = Drawing.WorldToScreen(obj.Position.To3D2());
+                Drawing.DrawText(pos.X, pos.Y, System.Drawing.Color.Black, obj.DisplayName);
+                Drawing.DrawText(pos.X, pos.Y + 20, System.Drawing.Color.Black, ((obj.EndTick - Environment.TickCount) / 1000).ToString("0:00"));
+            }
         }
 
         private static void Obj_AI_Base_OnProcessSpellCast(Obj_AI_Base sender, GameObjectProcessSpellCastEventArgs args)
@@ -120,6 +128,16 @@ namespace WhereDidHeGo
                                 return;
                         }
                         break;
+                    case "jackinbox":
+                        {
+                            if (args.Start.Distance(args.End) > 425)
+                                pos = args.Start + (args.End - args.Start).Normalized() * 425;
+
+                            Data.StealthObjects.Add(new Data._odata { DisplayName = "Shaco Box", Position = pos.To2D(), EndTick = Environment.TickCount + 60000, Radius = 300 });
+                            Utility.DelayAction.Add(60000, () => { var obj = Data.StealthObjects.FirstOrDefault(p => p.Position.Distance(pos.To2D()) < float.Epsilon); if (obj != null) Data.StealthObjects.Remove(obj); });
+
+                            return;
+                        }
                     default:
                         {
                             if (!Data.StealthSpells.Any(p => p.Item2 == args.SData.Name.ToLower()))
