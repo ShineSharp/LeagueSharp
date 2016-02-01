@@ -139,7 +139,7 @@ namespace WhereDidHeGo
                                         return;
                                 }
                                 break;
-                            case "jackinbox":
+                            case "jackinthebox":
                                 {
                                     if (args.Start.Distance(args.End) > 425)
                                         pos = args.Start + (args.End - args.Start).Normalized() * 425;
