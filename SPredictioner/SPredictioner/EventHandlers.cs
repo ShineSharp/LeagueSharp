@@ -49,13 +49,13 @@ namespace SPredictioner
                 {
                     if (SPredictioner.Config.Item("ENABLED").GetValue<bool>() && (SPredictioner.Config.Item("COMBOKEY").GetValue<KeyBind>().Active || SPredictioner.Config.Item("HARASSKEY").GetValue<KeyBind>().Active))
                     {
-                        if (!SPredictioner.Config.Item(String.Format("{0}{1}", ObjectManager.Player.ChampionName, args.Slot)).GetValue<bool>())
-                            return;
-
                         if (!ShineCommon.Utility.IsValidSlot(args.Slot))
                             return;
 
                         if (SPredictioner.Spells[(int)args.Slot] == null)
+                            return;
+
+                        if (!SPredictioner.Config.Item(String.Format("{0}{1}", ObjectManager.Player.ChampionName, args.Slot)).GetValue<bool>())
                             return;
 
                         if (handleEvent[(int)args.Slot])
