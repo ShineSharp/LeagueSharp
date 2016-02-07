@@ -66,8 +66,19 @@ namespace SPredictioner
                             if (enemy == null)
                                 enemy = TargetSelector.GetTarget(SPredictioner.Spells[(int)args.Slot].Range, TargetSelector.DamageType.Physical);
 
+
+
                             if (enemy != null)
-                                SPredictioner.Spells[(int)args.Slot].SPredictionCast(enemy, ShineCommon.Utility.HitchanceArray[SPredictioner.Config.Item("SPREDHITC").GetValue<StringList>().SelectedIndex]);
+                            {
+                                if (ObjectManager.Player.ChampionName == "Viktor" && args.Slot == SpellSlot.E)
+                                    SPredictioner.Spells[(int)args.Slot].SPredictionCastVector(enemy, 500, ShineCommon.Utility.HitchanceArray[SPredictioner.Config.Item("SPREDHITC").GetValue<StringList>().SelectedIndex]);
+                                else if (ObjectManager.Player.ChampionName == "Diana" && args.Slot == SpellSlot.Q)
+                                    SPredictioner.Spells[(int)args.Slot].SPredictionCastArc(enemy, ShineCommon.Utility.HitchanceArray[SPredictioner.Config.Item("SPREDHITC").GetValue<StringList>().SelectedIndex]);
+                                else if (ObjectManager.Player.ChampionName == "Veigar" && args.Slot == SpellSlot.E)
+                                    SPredictioner.Spells[(int)args.Slot].SPredictionCastRing(enemy, 80, ShineCommon.Utility.HitchanceArray[SPredictioner.Config.Item("SPREDHITC").GetValue<StringList>().SelectedIndex]);
+                                else
+                                    SPredictioner.Spells[(int)args.Slot].SPredictionCast(enemy, ShineCommon.Utility.HitchanceArray[SPredictioner.Config.Item("SPREDHITC").GetValue<StringList>().SelectedIndex]);
+                            }
                         }
                     }
                 }
