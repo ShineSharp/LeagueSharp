@@ -78,76 +78,21 @@ namespace SPrediction
         public static Prediction.Result GetPrediction(Obj_AI_Base target, float width, float delay, float missileSpeed, float range, bool collisionable, List<Vector2> path, float avgt, float movt, float avgp, float anglediff, Vector2 from, Vector2 rangeCheckFrom)
         {
             Prediction.AssertInitializationMode();
+            if (target.Distance(from) < width)
+                return CirclePrediction.GetPrediction(target, width, delay, missileSpeed, range, collisionable, path, avgt, movt, avgp, anglediff, from, rangeCheckFrom);
 
-            Prediction.Result result = new Prediction.Result();
-
-            if (path.Count <= 1) //if target is not moving, easy to hit
+            var pred = LinePrediction.GetPrediction(target, 80f, delay, missileSpeed, range, collisionable, path, avgt, movt, avgp, anglediff, from, rangeCheckFrom);
+            if (pred.HitChance >= HitChance.Low)
             {
-                result.HitChance = HitChance.Immobile;
-                result.CastPosition = target.ServerPosition.To2D();
-                result.UnitPosition = result.CastPosition;
-                return result;
+                pred.CastPosition = (from + (pred.CastPosition - from).Normalized() * range)/*.RotateAroundPoint(from, (1 - pred.UnitPosition.Distance(ObjectManager.Player.ServerPosition.To2D()) / 820f) * (float)Math.PI / 2f)*/;
+                float cos = (float)Math.Cos((1 - pred.UnitPosition.Distance(from) / 820f) * Math.PI / 2);
+                float sin = (float)Math.Sin((1 - pred.UnitPosition.Distance(from) / 820f) * Math.PI / 2);
+                float x = cos * (pred.CastPosition.X - from.X) - sin * (pred.CastPosition.Y - from.Y) + from.X;
+                float y = sin * (pred.CastPosition.X - from.X) + cos * (pred.CastPosition.Y - from.Y) + from.Y;
+                pred.CastPosition = new Vector2(x, y);
             }
 
-            if (target is Obj_AI_Hero && ((Obj_AI_Hero)target).IsChannelingImportantSpell())
-            {
-                result.HitChance = HitChance.Immobile;
-                result.CastPosition = target.ServerPosition.To2D();
-                result.UnitPosition = result.CastPosition;
-                return result;
-            }
-
-            if (Utility.IsImmobileTarget(target))
-                return Prediction.GetImmobilePrediction(target, width, delay, missileSpeed, range, collisionable, SkillshotType.SkillshotCircle, from);
-
-            if (target.IsDashing())
-                return Prediction.GetDashingPrediction(target, width, delay, missileSpeed, range, collisionable, SkillshotType.SkillshotCircle, from);
-
-            float targetDistance = rangeCheckFrom.Distance(target.ServerPosition);
-            float flyTime = 0f;
-
-            if (missileSpeed != 0)
-            {
-                Vector2 Vt = (path[path.Count - 1] - path[0]).Normalized() * target.MoveSpeed;
-                Vector2 Vs = (target.ServerPosition.To2D() - rangeCheckFrom).Normalized() * missileSpeed;
-                Vector2 Vr = Vs - Vt;
-
-                flyTime = targetDistance / Vr.Length();
-
-                if (path.Count > 5)
-                    flyTime = targetDistance / missileSpeed;
-            }
-
-            float t = flyTime + delay + Game.Ping / 2000f + Prediction.SpellDelay / 1000f;
-
-            result.HitChance = Prediction.GetHitChance(t * 1000f, avgt, movt, avgp, anglediff);
-
-            #region arc collision test
-            if (result.HitChance > HitChance.Low)
-            {
-                for (int i = 1; i < path.Count; i++)
-                {
-                    Vector2 senderPos = rangeCheckFrom;
-                    Vector2 testPos = path[i];
-
-                    float multp = (testPos.Distance(senderPos) / 875.0f);
-
-                    var dianaArc = new SPrediction.Geometry.Polygon(
-                                    ClipperWrapper.DefineArc(senderPos - new Vector2(875 / 2f, 20), testPos, (float)Math.PI * multp, 410, 200 * multp),
-                                    ClipperWrapper.DefineArc(senderPos - new Vector2(875 / 2f, 20), testPos, (float)Math.PI * multp, 410, 320 * multp));
-
-                    if (!ClipperWrapper.IsOutside(dianaArc, target.ServerPosition.To2D()))
-                    {
-                        result.HitChance = HitChance.VeryHigh;
-                        result.CastPosition = testPos;
-                        result.UnitPosition = testPos;
-                        return result;
-                    }
-                }
-            }
-            #endregion
-
-            return CirclePrediction.GetPrediction(target, width, delay, missileSpeed, range, collisionable, path, avgt, movt, avgp, anglediff, from, rangeCheckFrom);
+            return pred;
         }
 
         /// <summary>
