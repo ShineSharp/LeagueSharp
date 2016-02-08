@@ -19,7 +19,6 @@
 using System;
 using System.Collections.Generic;
 using System.Linq;
-using System.Threading.Tasks;
 using System.IO;
 using LeagueSharp;
 using LeagueSharp.Common;
@@ -87,6 +86,7 @@ namespace SPrediction
         /// </summary>
         public struct Result
         {
+            public Obj_AI_Base Unit;
             public Vector2 CastPosition;
             public Vector2 UnitPosition;
             public HitChance HitChance;
@@ -215,6 +215,7 @@ namespace SPrediction
             Prediction.AssertInitializationMode();
 
             Result result = new Result();
+            result.Unit = target;
 
             try
             {
@@ -454,6 +455,7 @@ namespace SPrediction
         internal static Result GetDashingPrediction(Obj_AI_Base target, float width, float delay, float missileSpeed, float range, bool collisionable, SkillshotType type, Vector2 from)
         {
             Result result = new Result();
+            result.Unit = target;
 
             if (target.IsDashing())
             {
@@ -513,6 +515,7 @@ namespace SPrediction
         internal static Result GetImmobilePrediction(Obj_AI_Base target, float width, float delay, float missileSpeed, float range, bool collisionable, SkillshotType type, Vector2 from)
         {
             Result result = new Result();
+            result.Unit = target;
             result.CastPosition = target.ServerPosition.To2D();
             result.UnitPosition = result.CastPosition;
 
@@ -624,6 +627,7 @@ namespace SPrediction
                 moveSpeed = target.MoveSpeed;
 
             Result result = new Result();
+            result.Unit = target;
 
             float flyTimeMax = 0f;
 
