@@ -111,7 +111,6 @@ namespace SPrediction
             if (s_RegisteredSpells.Contains(s))
                 s_RegisteredSpells.Remove(s);
         }
-
         
         /// <summary>
         /// OnBuffAdd Event
@@ -124,10 +123,7 @@ namespace SPrediction
             {
                 var stasis = s_StasisBuffs.FirstOrDefault(p => args.Buff.Name.Contains(p.Item1));
                 if (stasis != null)
-                {
                     s_DetectedStasises.Add(new Stasis { Unit = sender, StartTick = Utils.TickCount, Duration = stasis.Item2, Name = stasis.Item1, Processed = false });
-                    
-                }
             }
         }
 

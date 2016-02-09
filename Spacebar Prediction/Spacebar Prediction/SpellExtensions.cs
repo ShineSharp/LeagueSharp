@@ -598,5 +598,31 @@ namespace SPrediction
             return false;
         }
         #endregion
+
+        #region Stasis Prediction registers
+
+        /// <summary>
+        /// Registers spell callback to stasis prediction
+        /// </summary>
+        /// <param name="s">The spell.</param>
+        /// <param name="fn">The eventhandler.</param>
+        public static void RegisterStasisCallback(this Spell s, EventHandler<StasisPrediction.Result> fn)
+        {
+            StasisPrediction.RegisterSpell(s);
+            StasisPrediction.OnGuaranteedHit += fn;
+        }
+
+        /// <summary>
+        /// Unregisters spell callback from stasis prediction
+        /// </summary>
+        /// <param name="s">The spell.</param>
+        /// <param name="fn">The eventhandler.</param>
+        public static void UnregisterStasisCallback(this Spell s, EventHandler<StasisPrediction.Result> fn)
+        {
+            StasisPrediction.UnregisterSpell(s);
+            StasisPrediction.OnGuaranteedHit -= fn;
+        }
+
+        #endregion
     }
 }
