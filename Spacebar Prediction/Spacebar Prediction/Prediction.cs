@@ -31,11 +31,15 @@ namespace SPrediction
     /// </summary>
     public static class Prediction
     {
+        #region Structures for prediction inputs/results
+
         /// <summary>
         /// Neccesary input structure for prediction calculations
         /// </summary>
         public struct Input
         {
+            #region Public Properties
+
             public Obj_AI_Base Target;
             public float SpellDelay;
             public float SpellMissileSpeed;
@@ -50,6 +54,10 @@ namespace SPrediction
             public float LastAngleDiff;
             public Vector3 From;
             public Vector3 RangeCheckFrom;
+
+            #endregion
+
+            #region Constructors and Destructors
 
             public Input(Obj_AI_Base _target, Spell s, Vector3 _from, Vector3 _rangeCheckFrom)
             {
@@ -79,6 +87,8 @@ namespace SPrediction
                 From = _from;
                 RangeCheckFrom = _rangeCheckFrom;
             }
+
+            #endregion
         }
 
         /// <summary>
@@ -86,11 +96,28 @@ namespace SPrediction
         /// </summary>
         public struct Result
         {
+            #region Public Properties
+
             public Obj_AI_Base Unit;
             public Vector2 CastPosition;
             public Vector2 UnitPosition;
             public HitChance HitChance;
             public Collision.Result CollisionResult;
+
+            #endregion
+
+            #region Constructors and Destructors
+
+            public Result(Obj_AI_Base unit, Vector2 castpos, Vector2 unitpos, HitChance hc, Collision.Result col)
+            {
+                Unit = unit;
+                CastPosition = castpos;
+                UnitPosition = unitpos;
+                HitChance = hc;
+                CollisionResult = col;
+            }
+
+            #endregion
         }
 
         /// <summary>
@@ -98,12 +125,31 @@ namespace SPrediction
         /// </summary>
         public struct AoeResult
         {
+            #region Public Properties
+
             public Vector2 CastPosition;
             public Collision.Result CollisionResult;
             public int HitCount;
+
+            #endregion
+
+            #region Constructors and Destructors
+
+            public AoeResult(Vector2 castpos, Collision.Result col, int hc)
+            {
+                CastPosition = castpos;
+                CollisionResult = col;
+                HitCount = hc;
+            }
+
+            #endregion
         }
 
-        private static bool blInitialized;
+        #endregion
+
+        #region Private Properties
+
+        internal static bool blInitialized;
         internal static Menu predMenu;
 
         #region stuff for prediction drawings
@@ -133,6 +179,10 @@ namespace SPrediction
         private static List<_lastSpells> LastSpells = new List<_lastSpells>();
         #endregion
 
+        #endregion
+
+        #region Initializer Method
+
         /// <summary>
         /// Initializes Prediction Services
         /// </summary>
@@ -140,6 +190,7 @@ namespace SPrediction
         {
             SPrediction.PathTracker.Initialize();
             SPrediction.Collision.Initialize();
+            SPrediction.StasisPrediction.Initialize();
 
             if (mainMenu != null)
             {
@@ -156,16 +207,17 @@ namespace SPrediction
                 mainMenu.AddSubMenu(predMenu);
             }
 
-            Obj_AI_Base.OnBuffAdd += Obj_AI_Hero_OnBuffAdd;
-            CustomEvents.Unit.OnDash += Unit_OnDash;
-
             Drawing.OnDraw += Drawing_OnDraw;
             Obj_AI_Hero.OnProcessSpellCast += Obj_AI_Hero_OnProcessSpellCast;
             Obj_AI_Hero.OnDamage += Obj_AI_Hero_OnDamage;
             Game.OnEnd += Game_OnGameEnd;
             blInitialized = true;
         }
-        
+
+        #endregion
+
+        #region Internal Methods
+
         /// <summary>
         /// Gets Prediction result
         /// </summary>
@@ -325,121 +377,7 @@ namespace SPrediction
                     result.HitChance = HitChance.Medium;
             }
         }
-
-        /// <summary>
-        /// Gets fast-predicted unit position
-        /// </summary>
-        /// <param name="target">Target</param>
-        /// <param name="delay">Spell delay</param>
-        /// <param name="missileSpeed">Spell missile speed</param>
-        /// <param name="from">Spell casted position</param>
-        /// <returns></returns>
-        public static Vector2 GetFastUnitPosition(Obj_AI_Base target, float delay, float missileSpeed = 0, Vector2? from = null, float distanceSet = 0)
-        {
-            List<Vector2> path = target.GetWaypoints();
-            if (from == null)
-                from = ObjectManager.Player.ServerPosition.To2D();
-
-            if (path.Count <= 1 || (target is Obj_AI_Hero && ((Obj_AI_Hero)target).IsChannelingImportantSpell()) || Utility.IsImmobileTarget(target))
-                return target.ServerPosition.To2D();
-
-            if (target.IsDashing())
-                return target.GetDashInfo().Path.Last();
-
-            float distance = distanceSet;
-
-            if (distance == 0)
-            {
-                float targetDistance = from.Value.Distance(target.ServerPosition);
-                float flyTime = targetDistance / missileSpeed;
-
-                if (missileSpeed != 0 && path.Count == 2)
-                {
-                    Vector2 Vt = (path[1] - path[0]).Normalized() * target.MoveSpeed;
-                    Vector2 Vs = (target.ServerPosition.To2D() - from.Value).Normalized() * missileSpeed;
-                    Vector2 Vr = Vt - Vs;
-
-                    flyTime = targetDistance / Vr.Length();
-                }
-
-                float t = flyTime + delay + Game.Ping / 2000f;
-                distance = t * target.MoveSpeed;
-            }
-
-            for (int i = 0; i < path.Count - 1; i++)
-            {
-                float d = path[i + 1].Distance(path[i]);
-                if (distance == d)
-                    return path[i + 1];
-                else if (distance < d)
-                    return path[i] + distance * (path[i + 1] - path[i]).Normalized();
-                else distance -= d;
-            }
-
-            return path.Last();
-        }
-
-        /// <summary>
-        /// Gets fast-predicted unit position
-        /// </summary>
-        /// <param name="target">Target</param>
-        /// <param name="path">Path</param>
-        /// <param name="delay">Spell delay</param>
-        /// <param name="missileSpeed">Spell missile speed</param>
-        /// <param name="from">Spell casted position</param>
-        /// <param name="moveSpeed">Move speed</param>
-        /// <param name="distanceSet"></param>
-        /// <returns></returns>
-        public static Vector2 GetFastUnitPosition(Obj_AI_Base target, List<Vector2> path, float delay, float missileSpeed = 0, Vector2? from = null, float moveSpeed = 0, float distanceSet = 0)
-        {
-            if (from == null)
-                from = target.ServerPosition.To2D();
-
-            if (moveSpeed == 0)
-                moveSpeed = target.MoveSpeed;
-
-            if (path.Count <= 1 || (target is Obj_AI_Hero && ((Obj_AI_Hero)target).IsChannelingImportantSpell()) || Utility.IsImmobileTarget(target))
-                return target.ServerPosition.To2D();
-
-            if (target.IsDashing())
-                return target.GetDashInfo().Path.Last();
-
-            float distance = distanceSet;
-
-            if (distance == 0)
-            {
-                float targetDistance = from.Value.Distance(target.ServerPosition);
-                float flyTime = 0f;
-
-                if (missileSpeed != 0) //skillshot with a missile
-                {
-                    Vector2 Vt = (path[path.Count - 1] - path[0]).Normalized() * moveSpeed;
-                    Vector2 Vs = (target.ServerPosition.To2D() - from.Value).Normalized() * missileSpeed;
-                    Vector2 Vr = Vs - Vt;
-
-                    flyTime = targetDistance / Vr.Length();
-
-                    if (path.Count > 5) //complicated movement
-                        flyTime = targetDistance / missileSpeed;
-                }
-
-                float t = flyTime + delay + Game.Ping / 2000f + SpellDelay / 1000f;
-                distance = t * moveSpeed;
-            }
-
-            for (int i = 0; i < path.Count - 1; i++)
-            {
-                float d = path[i + 1].Distance(path[i]);
-                if (distance == d)
-                    return path[i + 1];
-                else if (distance < d)
-                    return path[i] + distance * (path[i + 1] - path[i]).Normalized();
-                else distance -= d;
-            }
-
-            return path.Last();
-        }
-
+        
         /// <summary>
         /// Gets Prediction result while unit is dashing
         /// </summary>
@@ -705,6 +643,128 @@ namespace SPrediction
             return result;
         }
 
+        #endregion
+
+        #region Public Methods
+
+        /// <summary>
+        /// Gets fast-predicted unit position
+        /// </summary>
+        /// <param name="target">Target</param>
+        /// <param name="delay">Spell delay</param>
+        /// <param name="missileSpeed">Spell missile speed</param>
+        /// <param name="from">Spell casted position</param>
+        /// <returns></returns>
+        public static Vector2 GetFastUnitPosition(Obj_AI_Base target, float delay, float missileSpeed = 0, Vector2? from = null, float distanceSet = 0)
+        {
+            List<Vector2> path = target.GetWaypoints();
+            if (from == null)
+                from = ObjectManager.Player.ServerPosition.To2D();
+
+            if (path.Count <= 1 || (target is Obj_AI_Hero && ((Obj_AI_Hero)target).IsChannelingImportantSpell()) || Utility.IsImmobileTarget(target))
+                return target.ServerPosition.To2D();
+
+            if (target.IsDashing())
+                return target.GetDashInfo().Path.Last();
+
+            float distance = distanceSet;
+
+            if (distance == 0)
+            {
+                float targetDistance = from.Value.Distance(target.ServerPosition);
+                float flyTime = targetDistance / missileSpeed;
+
+                if (missileSpeed != 0 && path.Count == 2)
+                {
+                    Vector2 Vt = (path[1] - path[0]).Normalized() * target.MoveSpeed;
+                    Vector2 Vs = (target.ServerPosition.To2D() - from.Value).Normalized() * missileSpeed;
+                    Vector2 Vr = Vt - Vs;
+
+                    flyTime = targetDistance / Vr.Length();
+                }
+
+                float t = flyTime + delay + Game.Ping / 2000f;
+                distance = t * target.MoveSpeed;
+            }
+
+            for (int i = 0; i < path.Count - 1; i++)
+            {
+                float d = path[i + 1].Distance(path[i]);
+                if (distance == d)
+                    return path[i + 1];
+                else if (distance < d)
+                    return path[i] + distance * (path[i + 1] - path[i]).Normalized();
+                else distance -= d;
+            }
+
+            return path.Last();
+        }
+
+        /// <summary>
+        /// Gets fast-predicted unit position
+        /// </summary>
+        /// <param name="target">Target</param>
+        /// <param name="path">Path</param>
+        /// <param name="delay">Spell delay</param>
+        /// <param name="missileSpeed">Spell missile speed</param>
+        /// <param name="from">Spell casted position</param>
+        /// <param name="moveSpeed">Move speed</param>
+        /// <param name="distanceSet"></param>
+        /// <returns></returns>
+        public static Vector2 GetFastUnitPosition(Obj_AI_Base target, List<Vector2> path, float delay, float missileSpeed = 0, Vector2? from = null, float moveSpeed = 0, float distanceSet = 0)
+        {
+            if (from == null)
+                from = target.ServerPosition.To2D();
+
+            if (moveSpeed == 0)
+                moveSpeed = target.MoveSpeed;
+
+            if (path.Count <= 1 || (target is Obj_AI_Hero && ((Obj_AI_Hero)target).IsChannelingImportantSpell()) || Utility.IsImmobileTarget(target))
+                return target.ServerPosition.To2D();
+
+            if (target.IsDashing())
+                return target.GetDashInfo().Path.Last();
+
+            float distance = distanceSet;
+
+            if (distance == 0)
+            {
+                float targetDistance = from.Value.Distance(target.ServerPosition);
+                float flyTime = 0f;
+
+                if (missileSpeed != 0) //skillshot with a missile
+                {
+                    Vector2 Vt = (path[path.Count - 1] - path[0]).Normalized() * moveSpeed;
+                    Vector2 Vs = (target.ServerPosition.To2D() - from.Value).Normalized() * missileSpeed;
+                    Vector2 Vr = Vs - Vt;
+
+                    flyTime = targetDistance / Vr.Length();
+
+                    if (path.Count > 5) //complicated movement
+                        flyTime = targetDistance / missileSpeed;
+                }
+
+                float t = flyTime + delay + Game.Ping / 2000f + SpellDelay / 1000f;
+                distance = t * moveSpeed;
+            }
+
+            for (int i = 0; i < path.Count - 1; i++)
+            {
+                float d = path[i + 1].Distance(path[i]);
+                if (distance == d)
+                    return path[i + 1];
+                else if (distance < d)
+                    return path[i] + distance * (path[i + 1] - path[i]).Normalized();
+                else distance -= d;
+            }
+
+            return path.Last();
+        }
+
+        #endregion
+
+        #region Public Properties
+
         /// <summary>
         /// Gets Ignored reaction time (sets with menu)
         /// </summary>
@@ -731,6 +791,10 @@ namespace SPrediction
             }
         }
 
+        #endregion
+
+        #region Private Methods
+
         /// <summary>
         /// Initialization assert
         /// </summary>
@@ -739,17 +803,7 @@ namespace SPrediction
             if (!blInitialized)
                 throw new InvalidOperationException("Prediction is not initalized");
         }
-
-        private static void Unit_OnDash(Obj_AI_Base sender, Dash.DashItem args)
-        {
-            
-        }
-
-        private static void Obj_AI_Hero_OnBuffAdd(Obj_AI_Base sender, Obj_AI_BaseBuffAddEventArgs args)
-        {
-
-        }
-
+        
         /// <summary>
         /// OnDraw event for prediction drawings
         /// </summary>
@@ -835,5 +889,6 @@ namespace SPrediction
         }
         #endregion
 
+        #endregion
     }
 }

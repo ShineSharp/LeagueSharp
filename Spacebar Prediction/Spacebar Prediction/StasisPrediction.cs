@@ -19,6 +19,7 @@
 using System;
 using System.Collections.Generic;
 using System.Linq;
+using System.Reflection;
 using LeagueSharp;
 using LeagueSharp.Common;
 using SharpDX;
@@ -30,10 +31,26 @@ namespace SPrediction
     /// </summary>
     public static class StasisPrediction
     {
+        /// <summary>
+        /// Stasis prediction result
+        /// </summary>
+        public class Result : EventArgs
+        {
+            /// <summary>
+            /// The spell.
+            /// </summary>
+            public Spell Spell;
+
+            /// <summary>
+            /// The prediction result.
+            /// </summary>
+            public Prediction.Result Prediction;
+        }
+
         private static List<Tuple<string, int>> s_StasisBuffs;
         private static List<Spell> s_RegisteredSpells;
         private static List<Stasis> s_DetectedStasises;
-        
+
         public static EventHandler<Result> OnGuaranteedHit;
 
         /// <summary>
@@ -46,7 +63,6 @@ namespace SPrediction
                 new Tuple<string, int>("bardrstasis", 2500),
                 new Tuple<string, int>("lissandrarself", 1500),
                 new Tuple<string, int>("zhonya", 2500),
-                new Tuple<string, int>("chronorevive", 2000),
                 new Tuple<string, int>("chronorevive", 2000),
                 new Tuple<string, int>("aatroxpassivedeath", 3000),
                 new Tuple<string, int>("rebirth", 6000)
@@ -65,23 +81,14 @@ namespace SPrediction
         /// <param name="args">The args.</param>
         private static void Game_OnUpdate(EventArgs args)
         {
-            s_DetectedStasises.RemoveAll(p => Utils.TickCount - p.EndTick > 500);
+            s_DetectedStasises.RemoveAll(p => Utils.TickCount - p.StartTick > p.Duration + 500);
             foreach (var stasis in s_DetectedStasises)
             {
-                /*
+                if (!stasis.Processed)
+                {
                     foreach (var spell in s_RegisteredSpells)
-                    {
-                        var pred = new Prediction.Result();
-                        pred.Unit = sender;
-                        pred.CastPosition = sender.ServerPosition.To2D();
-                        pred.UnitPosition = pred.CastPosition;
-                        pred.HitChance = HitChance.VeryHigh;
-
-                        var result = new Result();
-                        result.Spell = spell;
-                        result.Prediction = pred;
-                    }
-                */
+                        stasis.Process(spell);
+                }
             }
         }
 
@@ -118,7 +125,7 @@ namespace SPrediction
                 var stasis = s_StasisBuffs.FirstOrDefault(p => args.Buff.Name.Contains(p.Item1));
                 if (stasis != null)
                 {
-                    s_DetectedStasises.Add(new Stasis { StartTick = Utils.TickCount, EndTick = Utils.TickCount + stasis.Item2, Name = stasis.Item1 });
+                    s_DetectedStasises.Add(new Stasis { Unit = sender, StartTick = Utils.TickCount, Duration = stasis.Item2, Name = stasis.Item1, Processed = false });
                     
                 }
             }
@@ -127,38 +134,59 @@ namespace SPrediction
         /// <summary>
         /// Stasis class
         /// </summary>
-        private struct Stasis
+        internal class Stasis
         {
+            /// <summary>
+            /// The Unit
+            /// </summary>
+            internal Obj_AI_Base Unit;
+
             /// <summary>
             /// The start tick of stasis
             /// </summary>
-            public int StartTick;
+            internal int StartTick;
 
             /// <summary>
-            /// The end tick of stasis
+            /// The duration of stasis
             /// </summary>
-            public int EndTick;
+            internal int Duration;
 
             /// <summary>
             /// The name of stasis
             /// </summary>
-            public string Name;
-        }
-
-        /// <summary>
-        /// Stasis prediction result
-        /// </summary>
-        public class Result : EventArgs
-        {
-            /// <summary>
-            /// The spell.
-            /// </summary>
-            public Spell Spell;
+            internal string Name;
 
             /// <summary>
-            /// The prediction result.
+            /// 
             /// </summary>
-            public Prediction.Result Prediction;
+            internal bool Processed;
+
+            /// <summary>
+            /// Stasis calculations
+            /// </summary>
+            /// <param name="spell">The spell.</param>
+            internal void Process(Spell spell)
+            {
+                float arrivalT = Prediction.GetArrivalTime(spell.From.Distance(this.Unit.ServerPosition), spell.Delay, spell.Speed) * 1000f;
+                if (Utils.TickCount - this.StartTick >= this.Duration - arrivalT)
+                {
+                    var pred = new Prediction.Result();
+                    pred.Unit = this.Unit;
+                    pred.CastPosition = this.Unit.ServerPosition.To2D();
+                    pred.UnitPosition = pred.CastPosition;
+                    pred.HitChance = HitChance.VeryHigh;
+
+                    var result = new Result();
+                    result.Spell = spell;
+                    result.Prediction = pred;
+
+                    if (OnGuaranteedHit != null)
+                        OnGuaranteedHit(MethodBase.GetCurrentMethod().DeclaringType, result);
+
+                    this.Processed = true;
+                }
+            }
         }
+        
     }
 }
