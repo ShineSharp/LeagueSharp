@@ -302,11 +302,14 @@ namespace SPrediction
 
                     switch (s.Type)
                     {
-                        case SkillshotType.SkillshotLine: result = LinePrediction.GetPrediction(t, s.Width, s.Delay, s.Speed, s.Range, s.Collision, waypoints, avgt, movt, avgp, t.LastAngleDiff(), s.From.To2D(), s.RangeCheckFrom.To2D());
+                        case SkillshotType.SkillshotLine:
+                            result = LinePrediction.GetPrediction(t, s.Width, s.Delay, s.Speed, s.Range, s.Collision, waypoints, avgt, movt, avgp, t.LastAngleDiff(), s.From.To2D(), s.RangeCheckFrom.To2D());
                             break;
-                        case SkillshotType.SkillshotCircle: result = CirclePrediction.GetPrediction(t, s.Width, s.Delay, s.Speed, s.Range, s.Collision, waypoints, avgt, movt, avgp, t.LastAngleDiff(), s.From.To2D(), s.RangeCheckFrom.To2D());
+                        case SkillshotType.SkillshotCircle:
+                            result = CirclePrediction.GetPrediction(t, s.Width, s.Delay, s.Speed, s.Range, s.Collision, waypoints, avgt, movt, avgp, t.LastAngleDiff(), s.From.To2D(), s.RangeCheckFrom.To2D());
                             break;
-                        case SkillshotType.SkillshotCone: result = ConePrediction.GetPrediction(t, s.Width, s.Delay, s.Speed, s.Range, s.Collision, waypoints, avgt, movt, avgp, t.LastAngleDiff(), s.From.To2D(), s.RangeCheckFrom.To2D());
+                        case SkillshotType.SkillshotCone:
+                            result = ConePrediction.GetPrediction(t, s.Width, s.Delay, s.Speed, s.Range, s.Collision, waypoints, avgt, movt, avgp, t.LastAngleDiff(), s.From.To2D(), s.RangeCheckFrom.To2D());
                             break;
                         default:
                             throw new InvalidOperationException("Unknown spell type");
@@ -347,7 +350,7 @@ namespace SPrediction
         /// <param name="rangeCheckFrom">Position where spell will be casted from</param>
         /// <param name="filterHPPercent">Minimum HP Percent to cast (for target)</param>
         /// <returns>true if spell has casted</returns>
-        public static bool SPredictionCastArc(this Spell s, Obj_AI_Hero t, HitChance hc, int reactionIgnoreDelay = 0, byte minHit = 1, Vector3? rangeCheckFrom = null, float filterHPPercent = 100)
+        public static bool SPredictionCastArc(this Spell s, Obj_AI_Hero t, HitChance hc, bool arconly = true, int reactionIgnoreDelay = 0, byte minHit = 1, Vector3? rangeCheckFrom = null, float filterHPPercent = 100)
         {
             if (Prediction.predMenu != null && Prediction.predMenu.Item("PREDICTONLIST").GetValue<StringList>().SelectedIndex == 1)
                 throw new NotSupportedException("Arc Prediction not supported in Common prediction");
@@ -368,7 +371,7 @@ namespace SPrediction
                     float avgt = t.AvgMovChangeTime() + reactionIgnoreDelay;
                     float movt = t.LastMovChangeTime();
                     float avgp = t.AvgPathLenght();
-                    var result = ArcPrediction.GetPrediction(t, s.Width, s.Delay, s.Speed, s.Range, s.Collision, t.GetWaypoints(), avgt, movt, avgp, t.LastAngleDiff(), s.From.To2D(), s.RangeCheckFrom.To2D());
+                    var result = ArcPrediction.GetPrediction(t, s.Width, s.Delay, s.Speed, s.Range, s.Collision, t.GetWaypoints(), avgt, movt, avgp, t.LastAngleDiff(), s.From.To2D(), s.RangeCheckFrom.To2D(), arconly);
 
                     if (result.HitChance >= hc)
                     {
@@ -521,11 +524,14 @@ namespace SPrediction
 
             switch (s.Type)
             {
-                case SkillshotType.SkillshotLine: result = LinePrediction.GetAoePrediction(s.Width, s.Delay, s.Speed, s.Range, s.From.To2D(), s.RangeCheckFrom.To2D());
+                case SkillshotType.SkillshotLine:
+                    result = LinePrediction.GetAoePrediction(s.Width, s.Delay, s.Speed, s.Range, s.From.To2D(), s.RangeCheckFrom.To2D());
                     break;
-                case SkillshotType.SkillshotCircle: result = CirclePrediction.GetAoePrediction(s.Width, s.Delay, s.Speed, s.Range, s.From.To2D(), s.RangeCheckFrom.To2D());
+                case SkillshotType.SkillshotCircle:
+                    result = CirclePrediction.GetAoePrediction(s.Width, s.Delay, s.Speed, s.Range, s.From.To2D(), s.RangeCheckFrom.To2D());
                     break;
-                case SkillshotType.SkillshotCone: result = ConePrediction.GetAoePrediction(s.Width, s.Delay, s.Speed, s.Range, s.From.To2D(), s.RangeCheckFrom.To2D());
+                case SkillshotType.SkillshotCone:
+                    result = ConePrediction.GetAoePrediction(s.Width, s.Delay, s.Speed, s.Range, s.From.To2D(), s.RangeCheckFrom.To2D());
                     break;
                 default:
                     throw new InvalidOperationException("Unknown spell type");
@@ -597,6 +603,32 @@ namespace SPrediction
 
             return false;
         }
+        #endregion
+
+        #region Stasis Prediction registers
+
+        /// <summary>
+        /// Registers spell callback to stasis prediction
+        /// </summary>
+        /// <param name="s">The spell.</param>
+        /// <param name="fn">The eventhandler.</param>
+        public static void RegisterStasisCallback(this Spell s, EventHandler<StasisPrediction.Result> fn)
+        {
+            StasisPrediction.RegisterSpell(s);
+            StasisPrediction.OnGuaranteedHit += fn;
+        }
+
+        /// <summary>
+        /// Unregisters spell callback from stasis prediction
+        /// </summary>
+        /// <param name="s">The spell.</param>
+        /// <param name="fn">The eventhandler.</param>
+        public static void UnregisterStasisCallback(this Spell s, EventHandler<StasisPrediction.Result> fn)
+        {
+            StasisPrediction.UnregisterSpell(s);
+            StasisPrediction.OnGuaranteedHit -= fn;
+        }
+
         #endregion
     }
 }

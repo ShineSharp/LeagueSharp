@@ -104,6 +104,7 @@
     <Compile Include="ShineCommon\SPrediction\Prediction.cs" />
     <Compile Include="ShineCommon\SPrediction\RingPrediction.cs" />
     <Compile Include="ShineCommon\SPrediction\SpellExtensions.cs" />
+    <Compile Include="ShineCommon\SPrediction\StasisPrediction.cs" />
     <Compile Include="ShineCommon\SPrediction\Utility.cs" />
     <Compile Include="ShineCommon\SPrediction\VectorPrediction.cs" />
     <Compile Include="ShineCommon\Utility.cs" />

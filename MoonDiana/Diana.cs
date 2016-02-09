@@ -51,6 +51,7 @@ namespace MoonDiana
             laneclear.AddItem(new MenuItem("LMANA", "Min. Mana Percent").SetValue(new Slider(50, 100, 0)));
 
             misc = new Menu("Misc", "Misc");
+            misc.AddItem(new MenuItem("QPREDTYPE", "Q Prediction Type").SetValue(new StringList(new[] { "Only Tail Arc", "Tail Arc + Circle" }, 0)));
             misc.AddItem(new MenuItem("MMISAYA", "Misaya Combo Key").SetValue<KeyBind>(new KeyBind('T', KeyBindType.Press)))
                     .ValueChanged += (s, ar) =>
                     {
@@ -246,7 +247,7 @@ namespace MoonDiana
                         Spells[W].Cast();
 
                     if (Spells[Q].IsReady() && !m_target.IsDead)
-                        Spells[Q].SPredictionCastArc(m_target, HitChance.High, 100);
+                        Spells[Q].SPredictionCastArc(m_target, HitChance.High, Config.Item("QPREDTYPE").GetValue<StringList>().SelectedIndex == 0, 100);
 
                     if (Spells[R].IsReady() && !m_target.IsDead && HasMoonlight(m_target))
                         Spells[R].Cast();
@@ -280,7 +281,7 @@ namespace MoonDiana
             {
                 var t = TargetSelector.GetTarget(Spells[Q].Range, TargetSelector.DamageType.Magical);
                 if (t != null)
-                    Spells[Q].SPredictionCastArc(t, HitChance.High);
+                    Spells[Q].SPredictionCastArc(t, HitChance.High, Config.Item("QPREDTYPE").GetValue<StringList>().SelectedIndex == 0);
             }
 
             if (m_target == null)
@@ -362,7 +363,7 @@ namespace MoonDiana
             {
                 var t = TargetSelector.GetTarget(Spells[Q].Range, TargetSelector.DamageType.Magical);
                 if (t != null)
-                    Spells[Q].SPredictionCastArc(t, HitChance.High, 100);
+                    Spells[Q].SPredictionCastArc(t, HitChance.High, Config.Item("QPREDTYPE").GetValue<StringList>().SelectedIndex == 0, 100);
             }
 
             if (m_target == null)
