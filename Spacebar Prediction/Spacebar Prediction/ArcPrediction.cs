@@ -138,7 +138,7 @@ namespace SPrediction
                         flyTime = targetDistance / missileSpeed;
                 }
 
-                float t = flyTime + delay + Game.Ping / 2000f + Prediction.SpellDelay / 1000f;
+                float t = flyTime + delay + Game.Ping / 2000f + ConfigMenu.SpellDelay / 1000f;
 
                 result.HitChance = Prediction.GetHitChance(t * 1000f, avgt, movt, avgp, anglediff);
 

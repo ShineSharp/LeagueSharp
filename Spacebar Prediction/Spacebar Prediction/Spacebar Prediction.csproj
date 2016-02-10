@@ -89,6 +89,7 @@
   <ItemGroup>
     <Compile Include="ClipperWrapper.cs" />
     <Compile Include="Collision.cs" />
+    <Compile Include="ConfigMenu.cs" />
     <Compile Include="Geometry.cs" />
     <Compile Include="Obj_AI_HeroExtensions.cs" />
     <Compile Include="ArcPrediction.cs" />

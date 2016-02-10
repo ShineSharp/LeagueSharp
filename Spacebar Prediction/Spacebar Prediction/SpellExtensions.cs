@@ -267,7 +267,7 @@ namespace SPrediction
                 return s.Cast(t) == Spell.CastStates.SuccessfullyCasted;
 
             #region if common prediction selected
-            if (Prediction.predMenu != null && Prediction.predMenu.Item("PREDICTONLIST").GetValue<StringList>().SelectedIndex == 1)
+            if (ConfigMenu.SelectedPrediction.SelectedIndex == 1)
             {
                 var pout = s.GetPrediction(t, minHit > 1);
 
@@ -349,7 +349,7 @@ namespace SPrediction
         /// <returns>true if spell has casted</returns>
         public static bool SPredictionCastArc(this Spell s, Obj_AI_Hero t, HitChance hc, bool arconly = true, int reactionIgnoreDelay = 0, byte minHit = 1, Vector3? rangeCheckFrom = null, float filterHPPercent = 100)
         {
-            if (Prediction.predMenu != null && Prediction.predMenu.Item("PREDICTONLIST").GetValue<StringList>().SelectedIndex == 1)
+            if (ConfigMenu.SelectedPrediction.SelectedIndex == 1)
                 throw new NotSupportedException("Arc Prediction not supported in Common prediction");
 
             if (minHit > 1)
@@ -402,7 +402,7 @@ namespace SPrediction
         /// <returns>true if spell has casted</returns>
         public static bool SPredictionCastVector(this Spell s, Obj_AI_Hero t, float vectorLenght, HitChance hc, int reactionIgnoreDelay = 0, byte minHit = 1, Vector3? rangeCheckFrom = null, float filterHPPercent = 100)
         {
-            if (Prediction.predMenu != null && Prediction.predMenu.Item("PREDICTONLIST").GetValue<StringList>().SelectedIndex == 1)
+            if (ConfigMenu.SelectedPrediction.SelectedIndex == 1)
                 throw new NotSupportedException("Vector Prediction not supported in Common prediction");
 
             if (minHit > 1)
@@ -455,7 +455,7 @@ namespace SPrediction
         /// <returns>true if spell has casted</returns>
         public static bool SPredictionCastRing(this Spell s, Obj_AI_Hero t, float ringRadius, HitChance hc, bool onlyEdge = true, int reactionIgnoreDelay = 0, byte minHit = 1, Vector3? rangeCheckFrom = null, float filterHPPercent = 100)
         {
-            if (Prediction.predMenu != null && Prediction.predMenu.Item("PREDICTONLIST").GetValue<StringList>().SelectedIndex == 1)
+            if (ConfigMenu.SelectedPrediction.SelectedIndex == 1)
                 throw new NotSupportedException("Vector Prediction not supported in Common prediction");
 
             if (minHit > 1)

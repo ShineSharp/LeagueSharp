@@ -150,7 +150,6 @@ namespace SPrediction
         #region Private Properties
 
         internal static bool blInitialized;
-        internal static Menu predMenu;
 
         #region stuff for prediction drawings
         internal static string lastDrawHitchance;
@@ -188,25 +187,14 @@ namespace SPrediction
         /// </summary>
         public static void Initialize(Menu mainMenu)
         {
+            if (mainMenu == null)
+                throw new NullReferenceException("Menu cannot be null!");
+
             SPrediction.PathTracker.Initialize();
             SPrediction.Collision.Initialize();
             SPrediction.StasisPrediction.Initialize();
-
-            if (mainMenu != null)
-            {
-                predMenu = new Menu("SPrediction", "SPRED");
-                predMenu.AddItem(new MenuItem("PREDICTONLIST", "Prediction Method").SetValue(new StringList(new[] { "SPrediction", "Common Predicion" }, 0)));
-                predMenu.AddItem(new MenuItem("SPREDWINDUP", "Check for target AA Windup").SetValue(false));
-                predMenu.AddItem(new MenuItem("SPREDMAXRANGEIGNORE", "Max Range Dodge Ignore (%)").SetValue(new Slider(50, 0, 100)));
-                predMenu.AddItem(new MenuItem("SPREDREACTIONDELAY", "Ignore Rection Delay").SetValue<Slider>(new Slider(0, 0, 200)));
-                predMenu.AddItem(new MenuItem("SPREDDELAY", "Spell Delay").SetValue<Slider>(new Slider(0, 0, 200)));
-                predMenu.AddItem(new MenuItem("SPREDHC", "Count HitChance").SetValue<KeyBind>(new KeyBind(32, KeyBindType.Press)));
-                predMenu.AddItem(new MenuItem("SPREDDRAWINGX", "Drawing Pos X").SetValue(new Slider(Drawing.Width - 200, 0, Drawing.Width)));
-                predMenu.AddItem(new MenuItem("SPREDDRAWINGY", "Drawing Pos Y").SetValue(new Slider(0, 0, Drawing.Height)));
-                predMenu.AddItem(new MenuItem("SPREDDRAWINGS", "Enable Drawings").SetValue(false));
-                mainMenu.AddSubMenu(predMenu);
-            }
-
+            SPrediction.ConfigMenu.Initialize(mainMenu);
+            
             Drawing.OnDraw += Drawing_OnDraw;
             Obj_AI_Hero.OnProcessSpellCast += Obj_AI_Hero_OnProcessSpellCast;
             Obj_AI_Hero.OnDamage += Obj_AI_Hero_OnDamage;
@@ -275,7 +263,7 @@ namespace SPrediction
                     range += width;
 
                 //to do: hook logic ? by storing average movement direction etc
-                if (path.Count <= 1 && movt > 100 && (Environment.TickCount - PathTracker.EnemyInfo[target.NetworkId].LastAATick > 300 || !predMenu.Item("SPREDWINDUP").GetValue<bool>())) //if target is not moving, easy to hit (and not aaing)
+                if (path.Count <= 1 && movt > 100 && (Environment.TickCount - PathTracker.EnemyInfo[target.NetworkId].LastAATick > 300 || !ConfigMenu.CheckAAWindUp)) //if target is not moving, easy to hit (and not aaing)
                 {
                     result.HitChance = HitChance.VeryHigh;
                     result.CastPosition = target.ServerPosition.To2D();
@@ -285,7 +273,7 @@ namespace SPrediction
                     if (collisionable && (result.CollisionResult.Objects.HasFlag(Collision.Flags.Minions) || result.CollisionResult.Objects.HasFlag(Collision.Flags.YasuoWall)))
                         result.HitChance = HitChance.Collision;
 
-                    if (from.Distance(result.CastPosition) > range - GetArrivalTime(from.Distance(result.CastPosition), delay, missileSpeed) * target.MoveSpeed * (100 - predMenu.Item("SPREDMAXRANGEIGNORE").GetValue<Slider>().Value) / 100f)
+                    if (from.Distance(result.CastPosition) > range - GetArrivalTime(from.Distance(result.CastPosition), delay, missileSpeed) * target.MoveSpeed * (100 - ConfigMenu.MaxRangeIgnore) / 100f)
                         result.HitChance = HitChance.OutOfRange;
 
                     return result;
@@ -305,13 +293,13 @@ namespace SPrediction
                             result.HitChance = HitChance.Collision;
 
                         //check if target can dodge with moving backward
-                        if (from.Distance(result.CastPosition) > range - GetArrivalTime(from.Distance(result.CastPosition), delay, missileSpeed) * target.MoveSpeed * (100 - predMenu.Item("SPREDMAXRANGEIGNORE").GetValue<Slider>().Value) / 100f)
+                        if (from.Distance(result.CastPosition) > range - GetArrivalTime(from.Distance(result.CastPosition), delay, missileSpeed) * target.MoveSpeed * (100 - ConfigMenu.MaxRangeIgnore) / 100f)
                             result.HitChance = HitChance.OutOfRange;
 
                         return result;
                     }
 
-                    if (Environment.TickCount - PathTracker.EnemyInfo[target.NetworkId].LastAATick < 300 && predMenu.Item("SPREDWINDUP").GetValue<bool>())
+                    if (Environment.TickCount - PathTracker.EnemyInfo[target.NetworkId].LastAATick < 300 && ConfigMenu.CheckAAWindUp)
                     {
                         if (target.AttackCastDelay * 1000 + PathTracker.EnemyInfo[target.NetworkId].AvgOrbwalkTime + avgt - width / 2f / target.MoveSpeed >= GetArrivalTime(target.ServerPosition.To2D().Distance(from), delay, missileSpeed))
                         {
@@ -341,7 +329,7 @@ namespace SPrediction
                             result.HitChance = HitChance.Collision;
 
                         //check if target can dodge with moving backward
-                        if (from.Distance(result.CastPosition) > range - GetArrivalTime(from.Distance(result.CastPosition), delay, missileSpeed) * target.MoveSpeed * (100 - predMenu.Item("SPREDMAXRANGEIGNORE").GetValue<Slider>().Value) / 100f)
+                        if (from.Distance(result.CastPosition) > range - GetArrivalTime(from.Distance(result.CastPosition), delay, missileSpeed) * target.MoveSpeed * (100 - ConfigMenu.MaxRangeIgnore) / 100f)
                             result.HitChance = HitChance.OutOfRange;
 
                         return result;
@@ -365,7 +353,7 @@ namespace SPrediction
                     result.HitChance = HitChance.Collision;
 
                 //check if target can dodge with moving backward
-                if (from.Distance(result.CastPosition) > range - GetArrivalTime(from.Distance(result.CastPosition), delay, missileSpeed) * target.MoveSpeed * (100 - predMenu.Item("SPREDMAXRANGEIGNORE").GetValue<Slider>().Value) / 100f)
+                if (from.Distance(result.CastPosition) > range - GetArrivalTime(from.Distance(result.CastPosition), delay, missileSpeed) * target.MoveSpeed * (100 - ConfigMenu.MaxRangeIgnore) / 100f)
                     result.HitChance = HitChance.OutOfRange;
 
                 return result;
@@ -473,7 +461,7 @@ namespace SPrediction
                 if (collisionable && result.CollisionResult.Objects.HasFlag(Collision.Flags.Minions))
                     result.HitChance = HitChance.Collision;
 
-                if (from.Distance(result.CastPosition) > range - GetArrivalTime(from.Distance(result.CastPosition), delay, missileSpeed) * target.MoveSpeed * (100 - predMenu.Item("SPREDMAXRANGEIGNORE").GetValue<Slider>().Value) / 100f)
+                if (from.Distance(result.CastPosition) > range - GetArrivalTime(from.Distance(result.CastPosition), delay, missileSpeed) * target.MoveSpeed * (100 - ConfigMenu.MaxRangeIgnore) / 100f)
                     result.HitChance = HitChance.OutOfRange;
 
                 return result;
@@ -489,7 +477,7 @@ namespace SPrediction
                 result.HitChance = HitChance.Collision;
 
             //check range
-            if (from.Distance(result.CastPosition) > range - GetArrivalTime(from.Distance(result.CastPosition), delay, missileSpeed) * target.MoveSpeed * (100 - predMenu.Item("SPREDMAXRANGEIGNORE").GetValue<Slider>().Value) / 100f)
+            if (from.Distance(result.CastPosition) > range - GetArrivalTime(from.Distance(result.CastPosition), delay, missileSpeed) * target.MoveSpeed * (100 - ConfigMenu.MaxRangeIgnore) / 100f)
                 result.HitChance = HitChance.OutOfRange;
 
             return result;
@@ -572,8 +560,8 @@ namespace SPrediction
             if (missileSpeed != 0) //skillshot with a missile
                 flyTimeMax = range / missileSpeed;
 
-            float tMin = delay + Game.Ping / 2000f + SpellDelay / 1000f;
-            float tMax = flyTimeMax + delay + Game.Ping / 1000f + SpellDelay / 1000f;
+            float tMin = delay + Game.Ping / 2000f + ConfigMenu.SpellDelay / 1000f;
+            float tMax = flyTimeMax + delay + Game.Ping / 1000f + ConfigMenu.SpellDelay / 1000f;
             float pathTime = 0f;
             int[] pathBounds = new int[] { -1, -1 };
 
@@ -614,7 +602,7 @@ namespace SPrediction
                         Vector2 pB = pCenter + (direction * extender);
                         
                         float flytime = missileSpeed != 0 ? from.Distance(pCenter) / missileSpeed : 0f;
-                        float t = flytime + delay + Game.Ping / 2000f + SpellDelay / 1000f;
+                        float t = flytime + delay + Game.Ping / 2000f + ConfigMenu.SpellDelay / 1000f;
                         
                         Vector2 currentPosition = target.ServerPosition.To2D();
 
@@ -744,7 +732,7 @@ namespace SPrediction
                         flyTime = targetDistance / missileSpeed;
                 }
 
-                float t = flyTime + delay + Game.Ping / 2000f + SpellDelay / 1000f;
+                float t = flyTime + delay + Game.Ping / 2000f + ConfigMenu.SpellDelay / 1000f;
                 distance = t * moveSpeed;
             }
 
@@ -759,36 +747,6 @@ namespace SPrediction
             }
 
             return path.Last();
-        }
-
-        #endregion
-
-        #region Public Properties
-
-        /// <summary>
-        /// Gets Ignored reaction time (sets with menu)
-        /// </summary>
-        public static int IgnoreReactionDelay
-        {
-            get
-            {
-                if (predMenu == null)
-                    return 0;
-                return predMenu.Item("SPREDREACTIONDELAY").GetValue<Slider>().Value;
-            }
-        }
-
-        /// <summary>
-        /// Gets extra spell delay (sets with menu)
-        /// </summary>
-        public static int SpellDelay
-        {
-            get
-            {
-                if (predMenu == null)
-                    return 0;
-                return predMenu.Item("SPREDDELAY").GetValue<Slider>().Value;
-            }
         }
 
         #endregion
@@ -809,7 +767,7 @@ namespace SPrediction
         /// </summary>
         private static void Drawing_OnDraw(EventArgs args)
         {
-            if (predMenu != null && predMenu.Item("SPREDDRAWINGS").GetValue<bool>())
+            if (ConfigMenu.EnableDrawings)
             {
                 foreach (Obj_AI_Hero enemy in HeroManager.Enemies)
                 {
@@ -837,9 +795,9 @@ namespace SPrediction
                     Drawing.DrawText(centerPos.X, centerPos.Y, System.Drawing.Color.Red, lastDrawHitchance);
                 }
 
-                Drawing.DrawText(predMenu.Item("SPREDDRAWINGX").GetValue<Slider>().Value, predMenu.Item("SPREDDRAWINGY").GetValue<Slider>().Value, System.Drawing.Color.Red, String.Format("Casted Spell Count: {0}", castCount));
-                Drawing.DrawText(predMenu.Item("SPREDDRAWINGX").GetValue<Slider>().Value, predMenu.Item("SPREDDRAWINGY").GetValue<Slider>().Value + 20, System.Drawing.Color.Red, String.Format("Hit Spell Count: {0}", hitCount));
-                Drawing.DrawText(predMenu.Item("SPREDDRAWINGX").GetValue<Slider>().Value, predMenu.Item("SPREDDRAWINGY").GetValue<Slider>().Value + 40, System.Drawing.Color.Red, String.Format("Hitchance (%): {0}%", castCount > 0 ? (((float)hitCount / castCount) * 100).ToString("00.00") : "n/a"));
+                Drawing.DrawText(ConfigMenu.HitChanceDrawingX, ConfigMenu.HitChanceDrawingY, System.Drawing.Color.Red, String.Format("Casted Spell Count: {0}", castCount));
+                Drawing.DrawText(ConfigMenu.HitChanceDrawingX, ConfigMenu.HitChanceDrawingY + 20, System.Drawing.Color.Red, String.Format("Hit Spell Count: {0}", hitCount));
+                Drawing.DrawText(ConfigMenu.HitChanceDrawingX, ConfigMenu.HitChanceDrawingY + 40, System.Drawing.Color.Red, String.Format("Hitchance (%): {0}%", castCount > 0 ? (((float)hitCount / castCount) * 100).ToString("00.00") : "n/a"));
             }
         }
 
@@ -865,7 +823,7 @@ namespace SPrediction
             lock (LastSpells)
             {
                 LastSpells.RemoveAll(p => Environment.TickCount - p.tick > 2000);
-                if (sender.IsMe && !args.SData.IsAutoAttack() && predMenu.Item("SPREDHC").GetValue<KeyBind>().Active)
+                if (sender.IsMe && !args.SData.IsAutoAttack() && ConfigMenu.CountHitChance)
                 {
                     if (args.Slot == SpellSlot.Q && !LastSpells.Exists(p => p.name == args.SData.Name))
                     {
