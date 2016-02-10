@@ -181,10 +181,10 @@ namespace SPrediction
             }
 
             if (target.IsDashing())
-                return Prediction.GetDashingPrediction(target, width, delay, vectorSpeed, range, false, SkillshotType.SkillshotLine, immobileFrom).AsVectorResult(immobileFrom);
+                return Prediction.GetDashingPrediction(target, width, delay, vectorSpeed, range, false, SkillshotType.SkillshotLine, immobileFrom, rangeCheckFrom).AsVectorResult(immobileFrom);
 
             if (SPrediction.Utility.IsImmobileTarget(target))
-                return Prediction.GetImmobilePrediction(target, width, delay, vectorSpeed, range, false, SkillshotType.SkillshotLine, immobileFrom).AsVectorResult(immobileFrom);
+                return Prediction.GetImmobilePrediction(target, width, delay, vectorSpeed, range, false, SkillshotType.SkillshotLine, immobileFrom, rangeCheckFrom).AsVectorResult(immobileFrom);
 
             for (int i = 0; i < path.Count - 1; i++)
             {
@@ -195,6 +195,7 @@ namespace SPrediction
                     point = Geometry.ClosestCirclePoint(rangeCheckFrom, range, path[i]);
 
                 Prediction.Result res = Prediction.WaypointAnlysis(target, width, delay, vectorSpeed, vectorLenght, false, SkillshotType.SkillshotLine, path, avgt, movt, avgp, 360, point);
+                res.Lock();
                 if (res.HitChance >= HitChance.Low)
                     return res.AsVectorResult(point);
             }

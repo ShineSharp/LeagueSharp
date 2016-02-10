@@ -167,10 +167,12 @@ namespace SPrediction
                 if (Utils.TickCount - this.StartTick >= this.Duration - arrivalT)
                 {
                     var pred = new Prediction.Result();
+                    pred.Input = new Prediction.Input(this.Unit, spell.Delay, spell.Speed, spell.Width, spell.Range, spell.Collision, spell.Type, spell.From, spell.RangeCheckFrom);
                     pred.Unit = this.Unit;
                     pred.CastPosition = this.Unit.ServerPosition.To2D();
                     pred.UnitPosition = pred.CastPosition;
                     pred.HitChance = HitChance.VeryHigh;
+                    pred.Lock(false);
 
                     var result = new Result();
                     result.Spell = spell;

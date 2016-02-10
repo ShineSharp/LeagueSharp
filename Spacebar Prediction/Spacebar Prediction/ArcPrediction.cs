@@ -118,10 +118,10 @@ namespace SPrediction
                 }
 
                 if (Utility.IsImmobileTarget(target))
-                    return Prediction.GetImmobilePrediction(target, width, delay, missileSpeed, range, collisionable, SkillshotType.SkillshotCircle, from);
+                    return Prediction.GetImmobilePrediction(target, width, delay, missileSpeed, range, collisionable, SkillshotType.SkillshotCircle, from, rangeCheckFrom);
 
                 if (target.IsDashing())
-                    return Prediction.GetDashingPrediction(target, width, delay, missileSpeed, range, collisionable, SkillshotType.SkillshotCircle, from);
+                    return Prediction.GetDashingPrediction(target, width, delay, missileSpeed, range, collisionable, SkillshotType.SkillshotCircle, from, rangeCheckFrom);
 
                 float targetDistance = rangeCheckFrom.Distance(target.ServerPosition);
                 float flyTime = 0f;

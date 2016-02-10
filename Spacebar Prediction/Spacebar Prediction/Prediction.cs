@@ -59,7 +59,7 @@ namespace SPrediction
 
             #region Constructors and Destructors
 
-            public Input(Obj_AI_Base _target, Spell s, Vector3 _from, Vector3 _rangeCheckFrom)
+            public Input(Obj_AI_Base _target, Spell s)
             {
                 Target = _target;
                 SpellDelay = s.Delay;
@@ -68,6 +68,35 @@ namespace SPrediction
                 SpellRange = s.Range;
                 SpellCollisionable = s.Collision;
                 SpellSkillShotType = s.Type;
+                Path = Target.GetWaypoints();
+                if (Target is Obj_AI_Hero)
+                {
+                    Obj_AI_Hero t = Target as Obj_AI_Hero;
+                    AvgReactionTime = t.AvgMovChangeTime();
+                    LastMovChangeTime = t.LastMovChangeTime();
+                    AvgPathLenght = t.AvgPathLenght();
+                    LastAngleDiff = t.LastAngleDiff();
+                }
+                else
+                {
+                    AvgReactionTime = 0;
+                    LastMovChangeTime = 0;
+                    AvgPathLenght = 0;
+                    LastAngleDiff = 0;
+                }
+                From = s.From;
+                RangeCheckFrom = s.RangeCheckFrom;
+            }
+
+            public Input(Obj_AI_Base _target, float delay, float speed, float radius, float range, bool collision, SkillshotType type, Vector3 _from, Vector3 _rangeCheckFrom)
+            {
+                Target = _target;
+                SpellDelay = delay;
+                SpellMissileSpeed = speed;
+                SpellWidth = radius;
+                SpellRange = range;
+                SpellCollisionable = collision;
+                SpellSkillShotType = type;
                 Path = Target.GetWaypoints();
                 if (Target is Obj_AI_Hero)
                 {
@@ -98,6 +127,7 @@ namespace SPrediction
         {
             #region Public Properties
 
+            public Input Input;
             public Obj_AI_Base Unit;
             public Vector2 CastPosition;
             public Vector2 UnitPosition;
@@ -108,13 +138,41 @@ namespace SPrediction
 
             #region Constructors and Destructors
 
-            public Result(Obj_AI_Base unit, Vector2 castpos, Vector2 unitpos, HitChance hc, Collision.Result col)
+            public Result(Input inp, Obj_AI_Base unit, Vector2 castpos, Vector2 unitpos, HitChance hc, Collision.Result col)
             {
+                Input = inp;
                 Unit = unit;
                 CastPosition = castpos;
                 UnitPosition = unitpos;
                 HitChance = hc;
                 CollisionResult = col;
+            }
+
+            #endregion
+
+            #region Internal Methods
+
+            internal void Lock(bool checkDodge = true)
+            {
+                this.CollisionResult = Collision.GetCollisions(this.Input.From.To2D(), this.CastPosition, this.Input.SpellWidth, this.Input.SpellDelay, this.Input.SpellMissileSpeed);
+                this.CheckCollisions();
+                this.CheckOutofRange(checkDodge);
+            }
+
+            #endregion
+
+            #region Private Methods
+
+            private void CheckCollisions()
+            {
+                if (this.Input.SpellCollisionable && (this.CollisionResult.Objects.HasFlag(Collision.Flags.Minions) || this.CollisionResult.Objects.HasFlag(Collision.Flags.YasuoWall)))
+                    this.HitChance = HitChance.Collision;
+            }
+
+            private void CheckOutofRange(bool checkDodge)
+            {
+                if (this.Input.RangeCheckFrom.To2D().Distance(this.CastPosition) > this.Input.SpellRange - (checkDodge ? GetArrivalTime(this.Input.From.To2D().Distance(this.CastPosition), this.Input.SpellDelay, this.Input.SpellMissileSpeed) * this.Unit.MoveSpeed * (100 - ConfigMenu.MaxRangeIgnore) / 100f : 0))
+                    this.HitChance = HitChance.OutOfRange;
             }
 
             #endregion
@@ -255,6 +313,7 @@ namespace SPrediction
             Prediction.AssertInitializationMode();
 
             Result result = new Result();
+            result.Input = new Input(target, delay, missileSpeed, width, range, collisionable, type, from.To3D2(), rangeCheckFrom.To3D2());
             result.Unit = target;
 
             try
@@ -268,13 +327,7 @@ namespace SPrediction
                     result.HitChance = HitChance.VeryHigh;
                     result.CastPosition = target.ServerPosition.To2D();
                     result.UnitPosition = result.CastPosition;
-                    result.CollisionResult = Collision.GetCollisions(from, result.CastPosition, width, delay, missileSpeed);
-
-                    if (collisionable && (result.CollisionResult.Objects.HasFlag(Collision.Flags.Minions) || result.CollisionResult.Objects.HasFlag(Collision.Flags.YasuoWall)))
-                        result.HitChance = HitChance.Collision;
-
-                    if (from.Distance(result.CastPosition) > range - GetArrivalTime(from.Distance(result.CastPosition), delay, missileSpeed) * target.MoveSpeed * (100 - ConfigMenu.MaxRangeIgnore) / 100f)
-                        result.HitChance = HitChance.OutOfRange;
+                    result.Lock();
 
                     return result;
                 }
@@ -286,15 +339,7 @@ namespace SPrediction
                         result.HitChance = HitChance.VeryHigh;
                         result.CastPosition = target.ServerPosition.To2D();
                         result.UnitPosition = result.CastPosition;
-                        result.CollisionResult = Collision.GetCollisions(from, result.CastPosition, width, delay, missileSpeed);
-
-                        //check collisions
-                        if (collisionable && (result.CollisionResult.Objects.HasFlag(Collision.Flags.Minions) || result.CollisionResult.Objects.HasFlag(Collision.Flags.YasuoWall)))
-                            result.HitChance = HitChance.Collision;
-
-                        //check if target can dodge with moving backward
-                        if (from.Distance(result.CastPosition) > range - GetArrivalTime(from.Distance(result.CastPosition), delay, missileSpeed) * target.MoveSpeed * (100 - ConfigMenu.MaxRangeIgnore) / 100f)
-                            result.HitChance = HitChance.OutOfRange;
+                        result.Lock();
 
                         return result;
                     }
@@ -306,11 +351,7 @@ namespace SPrediction
                             result.HitChance = HitChance.High;
                             result.CastPosition = target.ServerPosition.To2D();
                             result.UnitPosition = result.CastPosition;
-                            result.CollisionResult = Collision.GetCollisions(from, result.CastPosition, width, delay, missileSpeed);
-
-                            //check collisions
-                            if (collisionable && (result.CollisionResult.Objects.HasFlag(Collision.Flags.Minions) || result.CollisionResult.Objects.HasFlag(Collision.Flags.YasuoWall)))
-                                result.HitChance = HitChance.Collision;
+                            result.Lock();
 
                             return result;
                         }
@@ -322,25 +363,17 @@ namespace SPrediction
                         result.HitChance = HitChance.High;
                         result.CastPosition = path.Last();
                         result.UnitPosition = result.CastPosition;
-                        result.CollisionResult = Collision.GetCollisions(from, result.CastPosition, width, delay, missileSpeed);
-
-                        //check collisions
-                        if (collisionable && (result.CollisionResult.Objects.HasFlag(Collision.Flags.Minions) || result.CollisionResult.Objects.HasFlag(Collision.Flags.YasuoWall)))
-                            result.HitChance = HitChance.Collision;
-
-                        //check if target can dodge with moving backward
-                        if (from.Distance(result.CastPosition) > range - GetArrivalTime(from.Distance(result.CastPosition), delay, missileSpeed) * target.MoveSpeed * (100 - ConfigMenu.MaxRangeIgnore) / 100f)
-                            result.HitChance = HitChance.OutOfRange;
+                        result.Lock();
 
                         return result;
                     }
                 }
 
                 if (target.IsDashing()) //if unit is dashing
-                    return GetDashingPrediction(target, width, delay, missileSpeed, range, collisionable, type, from);
+                    return GetDashingPrediction(target, width, delay, missileSpeed, range, collisionable, type, from, rangeCheckFrom);
 
                 if (Utility.IsImmobileTarget(target)) //if unit is immobile
-                    return GetImmobilePrediction(target, width, delay, missileSpeed, range, collisionable, type, from);
+                    return GetImmobilePrediction(target, width, delay, missileSpeed, range, collisionable, type, from, rangeCheckFrom);
 
                 result = WaypointAnlysis(target, width, delay, missileSpeed, range, collisionable, type, path, avgt, movt, avgp, anglediff, from);
                 
@@ -348,13 +381,7 @@ namespace SPrediction
                 if (d >= (avgt - movt) * target.MoveSpeed && d >= avgp)
                     result.HitChance = HitChance.Medium;
 
-                //check collisions
-                if (collisionable && (result.CollisionResult.Objects.HasFlag(Collision.Flags.Minions) || result.CollisionResult.Objects.HasFlag(Collision.Flags.YasuoWall)))
-                    result.HitChance = HitChance.Collision;
-
-                //check if target can dodge with moving backward
-                if (from.Distance(result.CastPosition) > range - GetArrivalTime(from.Distance(result.CastPosition), delay, missileSpeed) * target.MoveSpeed * (100 - ConfigMenu.MaxRangeIgnore) / 100f)
-                    result.HitChance = HitChance.OutOfRange;
+               result.Lock();
 
                 return result;
             }
@@ -378,9 +405,10 @@ namespace SPrediction
         /// <param name="type">Spell skillshot type</param>
         /// <param name="from">Spell casted position</param>
         /// <returns></returns>
-        internal static Result GetDashingPrediction(Obj_AI_Base target, float width, float delay, float missileSpeed, float range, bool collisionable, SkillshotType type, Vector2 from)
+        internal static Result GetDashingPrediction(Obj_AI_Base target, float width, float delay, float missileSpeed, float range, bool collisionable, SkillshotType type, Vector2 from, Vector2 rangeCheckFrom)
         {
             Result result = new Result();
+            result.Input = new Input(target, delay, missileSpeed, width, range, collisionable, type, from.To3D2(), rangeCheckFrom.To3D2());
             result.Unit = target;
 
             if (target.IsDashing())
@@ -391,35 +419,11 @@ namespace SPrediction
                     result.HitChance = HitChance.Impossible;
                     return result;
                 }
-
-                //define hitboxes
-                var dashHitBox = ClipperWrapper.MakePaths(ClipperWrapper.DefineRectangle(dashInfo.StartPos, dashInfo.EndPos + (dashInfo.EndPos - dashInfo.StartPos).Normalized() * 500, target.BoundingRadius * 2));
-                var myHitBox = ClipperWrapper.MakePaths(ClipperWrapper.DefineCircle(from, from == ObjectManager.Player.ServerPosition.To2D() ? ObjectManager.Player.BoundingRadius : width));
-
-                if (ClipperWrapper.IsIntersects(myHitBox, dashHitBox))
-                {
-                    result.HitChance = HitChance.Dashing;
-                    result.CastPosition = target.ServerPosition.To2D();
-                    result.UnitPosition = result.CastPosition;
-                    result.CollisionResult = Collision.GetCollisions(from, result.CastPosition, width, delay, missileSpeed);
-
-                    //check collisions
-                    if (collisionable && result.CollisionResult.Objects.HasFlag(Collision.Flags.Minions))
-                        result.HitChance = HitChance.Collision;
-
-                    return result;
-                }
-
+                
                 result.CastPosition = GetFastUnitPosition(target, dashInfo.Path, delay, missileSpeed, from, dashInfo.Speed);
                 result.HitChance = HitChance.Dashing;
 
-                //check range
-                if (result.CastPosition.Distance(from) > range)
-                    result.HitChance = HitChance.OutOfRange;
-
-                //check collisions
-                if (collisionable && (result.CollisionResult.Objects.HasFlag(Collision.Flags.Minions) || result.CollisionResult.Objects.HasFlag(Collision.Flags.YasuoWall)))
-                    result.HitChance = HitChance.Collision;
+                result.Lock(false);
             }
             else
                 result.HitChance = HitChance.Impossible;
@@ -438,9 +442,10 @@ namespace SPrediction
         /// <param name="type">Spell skillshot type</param>
         /// <param name="from">Spell casted position</param>
         /// <returns></returns>
-        internal static Result GetImmobilePrediction(Obj_AI_Base target, float width, float delay, float missileSpeed, float range, bool collisionable, SkillshotType type, Vector2 from)
+        internal static Result GetImmobilePrediction(Obj_AI_Base target, float width, float delay, float missileSpeed, float range, bool collisionable, SkillshotType type, Vector2 from, Vector2 rangeCheckFrom)
         {
             Result result = new Result();
+            result.Input = new Input(target, delay, missileSpeed, width, range, collisionable, type, from.To3D2(), rangeCheckFrom.To3D2());
             result.Unit = target;
             result.CastPosition = target.ServerPosition.To2D();
             result.UnitPosition = result.CastPosition;
@@ -456,13 +461,7 @@ namespace SPrediction
             if (t >= Utility.LeftImmobileTime(target))
             {
                 result.HitChance = HitChance.Immobile;
-                result.CollisionResult = Collision.GetCollisions(from, result.CastPosition, width, delay, missileSpeed);
-
-                if (collisionable && result.CollisionResult.Objects.HasFlag(Collision.Flags.Minions))
-                    result.HitChance = HitChance.Collision;
-
-                if (from.Distance(result.CastPosition) > range - GetArrivalTime(from.Distance(result.CastPosition), delay, missileSpeed) * target.MoveSpeed * (100 - ConfigMenu.MaxRangeIgnore) / 100f)
-                    result.HitChance = HitChance.OutOfRange;
+                result.Lock();
 
                 return result;
             }
@@ -472,13 +471,7 @@ namespace SPrediction
             else
                 result.HitChance = HitChance.High;
 
-            //check collisions
-            if (collisionable && result.CollisionResult.Objects.HasFlag(Collision.Flags.Minions))
-                result.HitChance = HitChance.Collision;
-
-            //check range
-            if (from.Distance(result.CastPosition) > range - GetArrivalTime(from.Distance(result.CastPosition), delay, missileSpeed) * target.MoveSpeed * (100 - ConfigMenu.MaxRangeIgnore) / 100f)
-                result.HitChance = HitChance.OutOfRange;
+            result.Lock();
 
             return result;
         }
@@ -619,7 +612,6 @@ namespace SPrediction
                                 result.CastPosition = currentPosition;
                                 Console.WriteLine("corrected");
                             }*/
-                            result.CollisionResult = Collision.GetCollisions(from, result.CastPosition, width, delay, missileSpeed);
                             return result;
                         }
                     }
