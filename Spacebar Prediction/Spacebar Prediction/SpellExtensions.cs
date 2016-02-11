@@ -17,7 +17,6 @@
 */
 
 using System;
-using System.Collections.Generic;
 using System.Threading;
 using LeagueSharp;
 using LeagueSharp.Common;
@@ -312,11 +311,11 @@ namespace SPrediction
                             throw new InvalidOperationException("Unknown spell type");
                     }
 
-                    Prediction.lastDrawTick = Utils.TickCount;
-                    Prediction.lastDrawPos = result.CastPosition;
-                    Prediction.lastDrawHitchance = result.HitChance.ToString();
-                    Prediction.lastDrawDirection = (result.CastPosition - s.From.To2D()).Normalized().Perpendicular();
-                    Prediction.lastDrawWidth = (int)s.Width;
+                    Drawings.s_DrawTick = Utils.TickCount;
+                    Drawings.s_DrawPos = result.CastPosition;
+                    Drawings.s_DrawHitChance = result.HitChance.ToString();
+                    Drawings.s_DrawDirection = (result.CastPosition - s.From.To2D()).Normalized().Perpendicular();
+                    Drawings.s_DrawWidth = (int)s.Width;
 
                     if (result.HitChance >= hc)
                     {
@@ -480,12 +479,11 @@ namespace SPrediction
                     else
                         result = CirclePrediction.GetPrediction(t, s.Width, s.Delay, s.Speed, s.Range + ringRadius, s.Collision, t.GetWaypoints(), avgt, movt, avgp, 360, s.From.To2D(), rangeCheckFrom.Value.To2D());
 
-                    Prediction.lastDrawTick = Utils.TickCount;
-                    Prediction.lastDrawPos = result.CastPosition;
-                    Prediction.lastDrawHitchance = result.HitChance.ToString();
-                    Prediction.lastDrawDirection = (result.CastPosition - s.From.To2D()).Normalized().Perpendicular();
-                    Prediction.lastDrawWidth = (int)ringRadius;
-
+                    Drawings.s_DrawTick = Utils.TickCount;
+                    Drawings.s_DrawPos = result.CastPosition;
+                    Drawings.s_DrawHitChance = result.HitChance.ToString();
+                    Drawings.s_DrawDirection = (result.CastPosition - s.From.To2D()).Normalized().Perpendicular();
+                    Drawings.s_DrawWidth = (int)ringRadius;
                     if (result.HitChance >= hc)
                     {
                         s.Cast(result.CastPosition);
@@ -531,11 +529,11 @@ namespace SPrediction
                     throw new InvalidOperationException("Unknown spell type");
             }
 
-            Prediction.lastDrawTick = Utils.TickCount;
-            Prediction.lastDrawPos = result.CastPosition;
-            Prediction.lastDrawHitchance = String.Format("Aoe Cast (Hits: {0})", result.HitCount);
-            Prediction.lastDrawDirection = (result.CastPosition - s.From.To2D()).Normalized().Perpendicular();
-            Prediction.lastDrawWidth = (int)s.Width;
+            Drawings.s_DrawTick = Utils.TickCount;
+            Drawings.s_DrawPos = result.CastPosition;
+            Drawings.s_DrawHitChance = String.Format("Aoe Cast (Hits: {0})", result.HitCount);
+            Drawings.s_DrawDirection = (result.CastPosition - s.From.To2D()).Normalized().Perpendicular();
+            Drawings.s_DrawWidth = (int)s.Width;
 
             if (result.HitCount >= minHit)
                 return s.Cast(result.CastPosition);
@@ -557,12 +555,6 @@ namespace SPrediction
                 throw new InvalidOperationException("Collisionable spell");
 
             Prediction.AoeResult result = ArcPrediction.GetAoePrediction(s.Width, s.Delay, s.Speed, s.Range, s.From.To2D(), s.RangeCheckFrom.To2D());
-
-            Prediction.lastDrawTick = Utils.TickCount;
-            Prediction.lastDrawPos = result.CastPosition;
-            Prediction.lastDrawHitchance = String.Format("Arc Aoe Cast (Hits: {0})", result.HitCount);
-            Prediction.lastDrawDirection = (result.CastPosition - s.From.To2D()).Normalized().Perpendicular();
-            Prediction.lastDrawWidth = (int)s.Width;
 
             if (result.HitCount >= minHit)
                 return s.Cast(result.CastPosition);
@@ -586,11 +578,6 @@ namespace SPrediction
 
             VectorPrediction.AoeResult result = VectorPrediction.GetAoePrediction(s.Width, s.Delay, s.Speed, s.Range, vectorLenght, s.RangeCheckFrom.To2D());
 
-            Prediction.lastDrawTick = Utils.TickCount;
-            Prediction.lastDrawPos = result.CastTargetPosition;
-            Prediction.lastDrawHitchance = String.Format("Arc Aoe Cast (Hits: {0})", result.HitCount);
-            Prediction.lastDrawDirection = (result.CastTargetPosition - s.From.To2D()).Normalized().Perpendicular();
-            Prediction.lastDrawWidth = (int)s.Width;
 
             if (result.HitCount >= minHit)
                 return s.Cast(result.CastSourcePosition, result.CastTargetPosition);

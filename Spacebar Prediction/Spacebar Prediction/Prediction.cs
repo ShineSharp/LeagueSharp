@@ -19,7 +19,6 @@
 using System;
 using System.Collections.Generic;
 using System.Linq;
-using System.IO;
 using LeagueSharp;
 using LeagueSharp.Common;
 using SharpDX;
@@ -205,36 +204,9 @@ namespace SPrediction
 
         #endregion
 
-        #region Private Properties
+        #region Internal Properties
 
         internal static bool blInitialized;
-
-        #region stuff for prediction drawings
-        internal static string lastDrawHitchance;
-        internal static Vector2 lastDrawPos;
-        internal static Vector2 lastDrawDirection;
-        internal static int lastDrawTick;
-        internal static int lastDrawWidth;
-        #endregion
-
-        #region stuff for hitchance drawings
-        private static int hitCount = 0;
-        private static int castCount = 0;
-
-        private struct _lastSpells
-        {
-            public string name;
-            public int tick;
-
-            public _lastSpells(string n, int t)
-            {
-                name = n;
-                tick = t;
-            }
-        }
-
-        private static List<_lastSpells> LastSpells = new List<_lastSpells>();
-        #endregion
 
         #endregion
 
@@ -248,15 +220,12 @@ namespace SPrediction
             if (mainMenu == null)
                 throw new NullReferenceException("Menu cannot be null!");
 
-            SPrediction.PathTracker.Initialize();
-            SPrediction.Collision.Initialize();
-            SPrediction.StasisPrediction.Initialize();
-            SPrediction.ConfigMenu.Initialize(mainMenu);
+            PathTracker.Initialize();
+            Collision.Initialize();
+            StasisPrediction.Initialize();
+            ConfigMenu.Initialize(mainMenu);
+            Drawings.Initialize();
             
-            Drawing.OnDraw += Drawing_OnDraw;
-            Obj_AI_Hero.OnProcessSpellCast += Obj_AI_Hero_OnProcessSpellCast;
-            Obj_AI_Hero.OnDamage += Obj_AI_Hero_OnDamage;
-            Game.OnEnd += Game_OnGameEnd;
             blInitialized = true;
         }
 
@@ -754,91 +723,6 @@ namespace SPrediction
                 throw new InvalidOperationException("Prediction is not initalized");
         }
         
-        /// <summary>
-        /// OnDraw event for prediction drawings
-        /// </summary>
-        private static void Drawing_OnDraw(EventArgs args)
-        {
-            if (ConfigMenu.EnableDrawings)
-            {
-                foreach (Obj_AI_Hero enemy in HeroManager.Enemies)
-                {
-                    var waypoints = enemy.GetWaypoints();
-                    if (waypoints != null && waypoints.Count > 1)
-                    {
-                        for (int i = 0; i < waypoints.Count - 1; i++)
-                        {
-                            Vector2 posFrom = Drawing.WorldToScreen(waypoints[i].To3D());
-                            Vector2 posTo = Drawing.WorldToScreen(waypoints[i + 1].To3D());
-                            Drawing.DrawLine(posFrom, posTo, 2, System.Drawing.Color.Aqua);
-                        }
-
-                        Vector2 pos = Drawing.WorldToScreen(waypoints[waypoints.Count - 1].To3D());
-                        Drawing.DrawText(pos.X, pos.Y, System.Drawing.Color.Black, (waypoints.PathLength() / enemy.MoveSpeed).ToString("0.00")); //arrival time
-                    }
-                }
-
-                if (Utils.TickCount - lastDrawTick <= 2000)
-                {
-                    Vector2 centerPos = Drawing.WorldToScreen((lastDrawPos - lastDrawDirection * 5).To3D());
-                    Vector2 startPos = Drawing.WorldToScreen((lastDrawPos - lastDrawDirection * lastDrawWidth).To3D());
-                    Vector2 endPos = Drawing.WorldToScreen((lastDrawPos + lastDrawDirection * lastDrawWidth).To3D());
-                    Drawing.DrawLine(startPos, endPos, 3, System.Drawing.Color.Gold);
-                    Drawing.DrawText(centerPos.X, centerPos.Y, System.Drawing.Color.Red, lastDrawHitchance);
-                }
-
-                Drawing.DrawText(ConfigMenu.HitChanceDrawingX, ConfigMenu.HitChanceDrawingY, System.Drawing.Color.Red, String.Format("Casted Spell Count: {0}", castCount));
-                Drawing.DrawText(ConfigMenu.HitChanceDrawingX, ConfigMenu.HitChanceDrawingY + 20, System.Drawing.Color.Red, String.Format("Hit Spell Count: {0}", hitCount));
-                Drawing.DrawText(ConfigMenu.HitChanceDrawingX, ConfigMenu.HitChanceDrawingY + 40, System.Drawing.Color.Red, String.Format("Hitchance (%): {0}%", castCount > 0 ? (((float)hitCount / castCount) * 100).ToString("00.00") : "n/a"));
-            }
-        }
-
-        #region events for hitcount drawings
-        private static void Obj_AI_Hero_OnDamage(AttackableUnit sender, AttackableUnitDamageEventArgs args)
-        {
-            lock (LastSpells)
-            {
-                LastSpells.RemoveAll(p => Environment.TickCount - p.tick > 2000);
-                if (args.SourceNetworkId == ObjectManager.Player.NetworkId && HeroManager.Enemies.Exists(p => p.NetworkId == args.TargetNetworkId))
-                {
-                    if (LastSpells.Count != 0)
-                    {
-                        LastSpells.RemoveAt(0);
-                        hitCount++;
-                    }
-                }
-            }
-        }
-
-        private static void Obj_AI_Hero_OnProcessSpellCast(Obj_AI_Base sender, GameObjectProcessSpellCastEventArgs args)
-        {
-            lock (LastSpells)
-            {
-                LastSpells.RemoveAll(p => Environment.TickCount - p.tick > 2000);
-                if (sender.IsMe && !args.SData.IsAutoAttack() && ConfigMenu.CountHitChance)
-                {
-                    if (args.Slot == SpellSlot.Q && !LastSpells.Exists(p => p.name == args.SData.Name))
-                    {
-                        LastSpells.Add(new _lastSpells(args.SData.Name, Environment.TickCount));
-                        castCount++;
-                    }
-                }
-            }
-        }
-
-        private static void Game_OnGameEnd(EventArgs args)
-        {
-            var file = Path.Combine(AppDomain.CurrentDomain.BaseDirectory, String.Format("sprediction_{0}_{1}_{2}.txt", ObjectManager.Player.ChampionName, DateTime.Now.ToString("dd-MM"), Environment.TickCount.ToString("x8")));
-            File.WriteAllText(file,
-                String.Format("Champion : {1}{0}Casted Spell Count: {2}{0}Hit Spell Count: {3}{0}Hitchance(%) : {4}{0}",
-                Environment.NewLine,
-                ObjectManager.Player.ChampionName,
-                castCount,
-                hitCount,
-                castCount > 0 ? (((float)hitCount / castCount) * 100).ToString("00.00") : "n/a"));
-        }
-        #endregion
-
         #endregion
     }
 }
