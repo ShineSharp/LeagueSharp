@@ -552,8 +552,8 @@ namespace SPrediction
                     float distance = width;
                     float extender = target.BoundingRadius;
 
-                    /*if (type == SkillshotType.SkillshotLine)
-                        extender = width;*/
+                    if (type == SkillshotType.SkillshotLine)
+                        extender = width;
 
                     int steps = (int)Math.Floor(path[k].Distance(path[k + 1]) / distance);
                     //split & anlyse current path
