@@ -153,7 +153,7 @@ namespace SPrediction
 
             internal void Lock(bool checkDodge = true)
             {
-                this.CollisionResult = Collision.GetCollisions(this.Input.From.To2D(), this.CastPosition, this.Input.SpellWidth, this.Input.SpellDelay, this.Input.SpellMissileSpeed);
+                this.CollisionResult = Collision.GetCollisions(this.Input.From.To2D(), this.CastPosition, this.Input.SpellRange, this.Input.SpellWidth, this.Input.SpellDelay, this.Input.SpellMissileSpeed);
                 this.CheckCollisions();
                 this.CheckOutofRange(checkDodge);
             }
@@ -350,7 +350,7 @@ namespace SPrediction
                 if (d >= (avgt - movt) * target.MoveSpeed && d >= avgp)
                     result.HitChance = HitChance.Medium;
 
-               result.Lock();
+                result.Lock();
 
                 return result;
             }

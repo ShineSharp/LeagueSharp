@@ -238,7 +238,7 @@ namespace SPrediction
         /// <returns>Collision result as <see cref="Collision.Result"/></returns>
         public static Collision.Result GetCollisions(this Spell s, Vector2 to, bool isArc = false)
         {
-            return Collision.GetCollisions(s.From.To2D(), to, s.Width, s.Delay, s.Speed, isArc);
+            return Collision.GetCollisions(s.From.To2D(), to, s.Range, s.Width, s.Delay, s.Speed, isArc);
         }
         #endregion
 
