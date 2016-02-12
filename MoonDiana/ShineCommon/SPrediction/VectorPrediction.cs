@@ -138,7 +138,7 @@ namespace SPrediction
                 result.CastSourcePosition = immobileFrom;
                 result.CastTargetPosition = target.ServerPosition.To2D();
                 result.UnitPosition = result.CastTargetPosition;
-                result.CollisionResult = Collision.GetCollisions(immobileFrom, result.CastTargetPosition, width, delay, vectorSpeed);
+                result.CollisionResult = Collision.GetCollisions(immobileFrom, result.CastTargetPosition, range, width, delay, vectorSpeed);
 
                 if (immobileFrom.Distance(result.CastTargetPosition) > vectorLenght - Prediction.GetArrivalTime(immobileFrom.Distance(result.CastTargetPosition), delay, vectorSpeed) * target.MoveSpeed)
                     result.HitChance = HitChance.OutOfRange;
@@ -154,7 +154,7 @@ namespace SPrediction
                     result.CastSourcePosition = immobileFrom;
                     result.CastTargetPosition = target.ServerPosition.To2D();
                     result.UnitPosition = result.CastTargetPosition;
-                    result.CollisionResult = Collision.GetCollisions(immobileFrom, result.CastTargetPosition, width, delay, vectorSpeed);
+                    result.CollisionResult = Collision.GetCollisions(immobileFrom, result.CastTargetPosition, range, width, delay, vectorSpeed);
 
                     //check if target can dodge with moving backward
                     if (immobileFrom.Distance(result.CastTargetPosition) > range - Prediction.GetArrivalTime(immobileFrom.Distance(result.CastTargetPosition), delay, vectorSpeed) * target.MoveSpeed)
@@ -170,7 +170,7 @@ namespace SPrediction
                     result.CastTargetPosition = target.ServerPosition.To2D();
                     result.CastSourcePosition = immobileFrom;
                     result.UnitPosition = result.CastTargetPosition;
-                    result.CollisionResult = Collision.GetCollisions(immobileFrom, result.CastTargetPosition, width, delay, vectorSpeed);
+                    result.CollisionResult = Collision.GetCollisions(immobileFrom, result.CastTargetPosition, range, width, delay, vectorSpeed);
 
                     //check if target can dodge with moving backward
                     if (immobileFrom.Distance(result.CastTargetPosition) > range - Prediction.GetArrivalTime(immobileFrom.Distance(result.CastTargetPosition), delay, vectorSpeed) * target.MoveSpeed)
@@ -181,10 +181,10 @@ namespace SPrediction
             }
 
             if (target.IsDashing())
-                return Prediction.GetDashingPrediction(target, width, delay, vectorSpeed, range, false, SkillshotType.SkillshotLine, immobileFrom).AsVectorResult(immobileFrom);
+                return Prediction.GetDashingPrediction(target, width, delay, vectorSpeed, range, false, SkillshotType.SkillshotLine, immobileFrom, rangeCheckFrom).AsVectorResult(immobileFrom);
 
             if (SPrediction.Utility.IsImmobileTarget(target))
-                return Prediction.GetImmobilePrediction(target, width, delay, vectorSpeed, range, false, SkillshotType.SkillshotLine, immobileFrom).AsVectorResult(immobileFrom);
+                return Prediction.GetImmobilePrediction(target, width, delay, vectorSpeed, range, false, SkillshotType.SkillshotLine, immobileFrom, rangeCheckFrom).AsVectorResult(immobileFrom);
 
             for (int i = 0; i < path.Count - 1; i++)
             {
@@ -195,6 +195,7 @@ namespace SPrediction
                     point = Geometry.ClosestCirclePoint(rangeCheckFrom, range, path[i]);
 
                 Prediction.Result res = Prediction.WaypointAnlysis(target, width, delay, vectorSpeed, vectorLenght, false, SkillshotType.SkillshotLine, path, avgt, movt, avgp, 360, point);
+                res.Lock();
                 if (res.HitChance >= HitChance.Low)
                     return res.AsVectorResult(point);
             }
@@ -227,7 +228,7 @@ namespace SPrediction
                 {
                     Vector2 from = rangeCheckFrom + (enemy.ServerPosition.To2D() - rangeCheckFrom).Normalized() * range;
                     Vector2 to = from + (enemy.ServerPosition.To2D() - from).Normalized() * vectorLenght;
-                    Collision.Result colResult = Collision.GetCollisions(from, to, width, delay, vectorSpeed);
+                    Collision.Result colResult = Collision.GetCollisions(from, to, range, width, delay, vectorSpeed);
 
                     if (colResult.Objects.HasFlag(Collision.Flags.EnemyChampions))
                     {
@@ -255,7 +256,7 @@ namespace SPrediction
                             if (prediction.HitChance > HitChance.Medium)
                             {
                                 Vector2 to = point + (prediction.CastPosition - point).Normalized() * vectorLenght;
-                                Collision.Result colResult = Collision.GetCollisions(point, to, width, delay, vectorSpeed, false);
+                                Collision.Result colResult = Collision.GetCollisions(point, to, range, width, delay, vectorSpeed, false);
                                 if (colResult.Objects.HasFlag(Collision.Flags.EnemyChampions))
                                 {
                                     int collisionCount = colResult.Units.Count(p => p.IsEnemy && p.IsChampion());

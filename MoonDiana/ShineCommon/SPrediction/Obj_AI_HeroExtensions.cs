@@ -62,7 +62,7 @@ namespace SPrediction
         public static float AvgMovChangeTime(this Obj_AI_Hero t)
         {
             Prediction.AssertInitializationMode();
-            return PathTracker.EnemyInfo[t.NetworkId].AvgTick + Prediction.IgnoreReactionDelay;
+            return PathTracker.EnemyInfo[t.NetworkId].AvgTick + ConfigMenu.IgnoreReactionDelay;
         }
 
         /// <summary>

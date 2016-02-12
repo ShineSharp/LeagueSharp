@@ -100,7 +100,7 @@ namespace SPrediction
                 if (prediction.HitChance > HitChance.Medium)
                 {
                     Vector2 to = from + (prediction.CastPosition - from).Normalized() * range;
-                    Collision.Result colResult = Collision.GetCollisions(from, to, width, delay, missileSpeed, false);
+                    Collision.Result colResult = Collision.GetCollisions(from, to, range, width, delay, missileSpeed, false);
                     if (colResult.Objects.HasFlag(Collision.Flags.EnemyChampions))
                     {
                         int collisionCount = colResult.Units.Count(p => p.IsEnemy && p.IsChampion());

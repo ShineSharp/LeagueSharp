@@ -97,7 +97,7 @@ namespace SPrediction
 
             lock (enemy.m_lock)
             {
-                if (args.Path.Length < 1)
+                if (args.Path.Length < 2)
                 {
                     if (!enemy.IsStopped)
                     {

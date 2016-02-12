@@ -97,6 +97,8 @@
     <Compile Include="ShineCommon\SPrediction\ClipperWrapper.cs" />
     <Compile Include="ShineCommon\SPrediction\Collision.cs" />
     <Compile Include="ShineCommon\SPrediction\ConePrediction.cs" />
+    <Compile Include="ShineCommon\SPrediction\ConfigMenu.cs" />
+    <Compile Include="ShineCommon\SPrediction\Drawings.cs" />
     <Compile Include="ShineCommon\SPrediction\Geometry.cs" />
     <Compile Include="ShineCommon\SPrediction\LinePrediction.cs" />
     <Compile Include="ShineCommon\SPrediction\Obj_AI_HeroExtensions.cs" />
