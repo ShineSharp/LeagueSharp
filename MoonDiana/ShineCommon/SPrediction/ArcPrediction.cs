@@ -81,7 +81,7 @@ namespace SPrediction
 
             if (arconly)
             {
-                if (target.Distance(from) < width)
+                if (target.Distance(from) < width || target.Distance(from) > range * 0.75f)
                     return CirclePrediction.GetPrediction(target, width, delay, missileSpeed, range, collisionable, path, avgt, movt, avgp, anglediff, from, rangeCheckFrom);
 
                 var pred = LinePrediction.GetPrediction(target, 80f, delay, missileSpeed, range, collisionable, path, avgt, movt, avgp, anglediff, from, rangeCheckFrom);
@@ -118,10 +118,10 @@ namespace SPrediction
                 }
 
                 if (Utility.IsImmobileTarget(target))
-                    return Prediction.GetImmobilePrediction(target, width, delay, missileSpeed, range, collisionable, SkillshotType.SkillshotCircle, from);
+                    return Prediction.GetImmobilePrediction(target, width, delay, missileSpeed, range, collisionable, SkillshotType.SkillshotCircle, from, rangeCheckFrom);
 
                 if (target.IsDashing())
-                    return Prediction.GetDashingPrediction(target, width, delay, missileSpeed, range, collisionable, SkillshotType.SkillshotCircle, from);
+                    return Prediction.GetDashingPrediction(target, width, delay, missileSpeed, range, collisionable, SkillshotType.SkillshotCircle, from, rangeCheckFrom);
 
                 float targetDistance = rangeCheckFrom.Distance(target.ServerPosition);
                 float flyTime = 0f;
@@ -138,7 +138,7 @@ namespace SPrediction
                         flyTime = targetDistance / missileSpeed;
                 }
 
-                float t = flyTime + delay + Game.Ping / 2000f + Prediction.SpellDelay / 1000f;
+                float t = flyTime + delay + Game.Ping / 2000f + ConfigMenu.SpellDelay / 1000f;
 
                 result.HitChance = Prediction.GetHitChance(t * 1000f, avgt, movt, avgp, anglediff);
 
