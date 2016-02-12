@@ -81,7 +81,7 @@ namespace SPrediction
 
             if (arconly)
             {
-                if (target.Distance(from) < width)
+                if (target.Distance(from) < width || target.Distance(from) > range * 0.75f)
                     return CirclePrediction.GetPrediction(target, width, delay, missileSpeed, range, collisionable, path, avgt, movt, avgp, anglediff, from, rangeCheckFrom);
 
                 var pred = LinePrediction.GetPrediction(target, 80f, delay, missileSpeed, range, collisionable, path, avgt, movt, avgp, anglediff, from, rangeCheckFrom);
