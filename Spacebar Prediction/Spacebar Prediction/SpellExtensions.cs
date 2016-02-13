@@ -288,48 +288,40 @@ namespace SPrediction
             if (t.HealthPercent > filterHPPercent)
                 return false;
 
-            if (Monitor.TryEnter(PathTracker.EnemyInfo[t.NetworkId].m_lock))
+
+
+            float avgt = t.AvgMovChangeTime() + reactionIgnoreDelay;
+            float movt = t.LastMovChangeTime();
+            float avgp = t.AvgPathLenght();
+            var waypoints = t.GetWaypoints();
+
+            Prediction.Result result;
+
+            switch (s.Type)
             {
-                try
-                {
-                    float avgt = t.AvgMovChangeTime() + reactionIgnoreDelay;
-                    float movt = t.LastMovChangeTime();
-                    float avgp = t.AvgPathLenght();
-                    var waypoints = t.GetWaypoints();
+                case SkillshotType.SkillshotLine:
+                    result = LinePrediction.GetPrediction(t, s.Width, s.Delay, s.Speed, s.Range, s.Collision, waypoints, avgt, movt, avgp, t.LastAngleDiff(), s.From.To2D(), s.RangeCheckFrom.To2D());
+                    break;
+                case SkillshotType.SkillshotCircle:
+                    result = CirclePrediction.GetPrediction(t, s.Width, s.Delay, s.Speed, s.Range, s.Collision, waypoints, avgt, movt, avgp, t.LastAngleDiff(), s.From.To2D(), s.RangeCheckFrom.To2D());
+                    break;
+                case SkillshotType.SkillshotCone:
+                    result = ConePrediction.GetPrediction(t, s.Width, s.Delay, s.Speed, s.Range, s.Collision, waypoints, avgt, movt, avgp, t.LastAngleDiff(), s.From.To2D(), s.RangeCheckFrom.To2D());
+                    break;
+                default:
+                    throw new InvalidOperationException("Unknown spell type");
+            }
 
-                    Prediction.Result result;
+            Drawings.s_DrawTick = Utils.TickCount;
+            Drawings.s_DrawPos = result.CastPosition;
+            Drawings.s_DrawHitChance = result.HitChance.ToString();
+            Drawings.s_DrawDirection = (result.CastPosition - s.From.To2D()).Normalized().Perpendicular();
+            Drawings.s_DrawWidth = (int)s.Width;
 
-                    switch (s.Type)
-                    {
-                        case SkillshotType.SkillshotLine: result = LinePrediction.GetPrediction(t, s.Width, s.Delay, s.Speed, s.Range, s.Collision, waypoints, avgt, movt, avgp, t.LastAngleDiff(), s.From.To2D(), s.RangeCheckFrom.To2D());
-                            break;
-                        case SkillshotType.SkillshotCircle: result = CirclePrediction.GetPrediction(t, s.Width, s.Delay, s.Speed, s.Range, s.Collision, waypoints, avgt, movt, avgp, t.LastAngleDiff(), s.From.To2D(), s.RangeCheckFrom.To2D());
-                            break;
-                        case SkillshotType.SkillshotCone: result = ConePrediction.GetPrediction(t, s.Width, s.Delay, s.Speed, s.Range, s.Collision, waypoints, avgt, movt, avgp, t.LastAngleDiff(), s.From.To2D(), s.RangeCheckFrom.To2D());
-                            break;
-                        default:
-                            throw new InvalidOperationException("Unknown spell type");
-                    }
-
-                    Drawings.s_DrawTick = Utils.TickCount;
-                    Drawings.s_DrawPos = result.CastPosition;
-                    Drawings.s_DrawHitChance = result.HitChance.ToString();
-                    Drawings.s_DrawDirection = (result.CastPosition - s.From.To2D()).Normalized().Perpendicular();
-                    Drawings.s_DrawWidth = (int)s.Width;
-
-                    if (result.HitChance >= hc)
-                    {
-                        s.Cast(result.CastPosition);
-                        return true;
-                    }
-
-                    Monitor.Pulse(PathTracker.EnemyInfo[t.NetworkId].m_lock);
-                    return false;
-                }
-                finally
-                {
-                    Monitor.Exit(PathTracker.EnemyInfo[t.NetworkId].m_lock);
-                }
+            if (result.HitChance >= hc)
+            {
+                s.Cast(result.CastPosition);
+                return true;
             }
 
             return false;
@@ -360,31 +352,20 @@ namespace SPrediction
             if (rangeCheckFrom == null)
                 rangeCheckFrom = ObjectManager.Player.ServerPosition;
 
-            if (Monitor.TryEnter(PathTracker.EnemyInfo[t.NetworkId].m_lock))
+
+            float avgt = t.AvgMovChangeTime() + reactionIgnoreDelay;
+            float movt = t.LastMovChangeTime();
+            float avgp = t.AvgPathLenght();
+            var result = ArcPrediction.GetPrediction(t, s.Width, s.Delay, s.Speed, s.Range, s.Collision, t.GetWaypoints(), avgt, movt, avgp, t.LastAngleDiff(), s.From.To2D(), s.RangeCheckFrom.To2D(), arconly);
+
+            if (result.HitChance >= hc)
             {
-                try
-                {
-                    float avgt = t.AvgMovChangeTime() + reactionIgnoreDelay;
-                    float movt = t.LastMovChangeTime();
-                    float avgp = t.AvgPathLenght();
-                    var result = ArcPrediction.GetPrediction(t, s.Width, s.Delay, s.Speed, s.Range, s.Collision, t.GetWaypoints(), avgt, movt, avgp, t.LastAngleDiff(), s.From.To2D(), s.RangeCheckFrom.To2D(), arconly);
-
-                    if (result.HitChance >= hc)
-                    {
-                        s.Cast(result.CastPosition);
-                        return true;
-                    }
-
-                    Monitor.Pulse(PathTracker.EnemyInfo[t.NetworkId].m_lock);
-                    return false;
-                }
-                finally
-                {
-                    Monitor.Exit(PathTracker.EnemyInfo[t.NetworkId].m_lock);
-                }
+                s.Cast(result.CastPosition);
+                return true;
             }
 
             return false;
+
         }
 
         /// <summary>
@@ -413,28 +394,16 @@ namespace SPrediction
             if (rangeCheckFrom == null)
                 rangeCheckFrom = ObjectManager.Player.ServerPosition;
 
-            if (Monitor.TryEnter(PathTracker.EnemyInfo[t.NetworkId].m_lock))
+
+            float avgt = t.AvgMovChangeTime() + reactionIgnoreDelay;
+            float movt = t.LastMovChangeTime();
+            float avgp = t.AvgPathLenght();
+            var result = VectorPrediction.GetPrediction(t, s.Width, s.Delay, s.Speed, s.Range, vectorLenght, t.GetWaypoints(), avgt, movt, avgp, s.RangeCheckFrom.To2D());
+
+            if (result.HitChance >= hc)
             {
-                try
-                {
-                    float avgt = t.AvgMovChangeTime() + reactionIgnoreDelay;
-                    float movt = t.LastMovChangeTime();
-                    float avgp = t.AvgPathLenght();
-                    var result = VectorPrediction.GetPrediction(t, s.Width, s.Delay, s.Speed, s.Range, vectorLenght, t.GetWaypoints(), avgt, movt, avgp, s.RangeCheckFrom.To2D());
-
-                    if (result.HitChance >= hc)
-                    {
-                        s.Cast(result.CastSourcePosition, result.CastTargetPosition);
-                        return true;
-                    }
-
-                    Monitor.Pulse(PathTracker.EnemyInfo[t.NetworkId].m_lock);
-                    return false;
-                }
-                finally
-                {
-                    Monitor.Exit(PathTracker.EnemyInfo[t.NetworkId].m_lock);
-                }
+                s.Cast(result.CastSourcePosition, result.CastTargetPosition);
+                return true;
             }
 
             return false;
@@ -466,37 +435,25 @@ namespace SPrediction
             if (rangeCheckFrom == null)
                 rangeCheckFrom = ObjectManager.Player.ServerPosition;
 
-            if (Monitor.TryEnter(PathTracker.EnemyInfo[t.NetworkId].m_lock))
+
+            float avgt = t.AvgMovChangeTime() + reactionIgnoreDelay;
+            float movt = t.LastMovChangeTime();
+            float avgp = t.AvgPathLenght();
+            Prediction.Result result;
+            if (onlyEdge)
+                result = RingPrediction.GetPrediction(t, s.Width, ringRadius, s.Delay, s.Speed, s.Range, s.Collision, t.GetWaypoints(), avgt, movt, avgp, s.From.To2D(), rangeCheckFrom.Value.To2D());
+            else
+                result = CirclePrediction.GetPrediction(t, s.Width, s.Delay, s.Speed, s.Range + ringRadius, s.Collision, t.GetWaypoints(), avgt, movt, avgp, 360, s.From.To2D(), rangeCheckFrom.Value.To2D());
+
+            Drawings.s_DrawTick = Utils.TickCount;
+            Drawings.s_DrawPos = result.CastPosition;
+            Drawings.s_DrawHitChance = result.HitChance.ToString();
+            Drawings.s_DrawDirection = (result.CastPosition - s.From.To2D()).Normalized().Perpendicular();
+            Drawings.s_DrawWidth = (int)ringRadius;
+            if (result.HitChance >= hc)
             {
-                try
-                {
-                    float avgt = t.AvgMovChangeTime() + reactionIgnoreDelay;
-                    float movt = t.LastMovChangeTime();
-                    float avgp = t.AvgPathLenght();
-                    Prediction.Result result;
-                    if (onlyEdge)
-                        result = RingPrediction.GetPrediction(t, s.Width, ringRadius, s.Delay, s.Speed, s.Range, s.Collision, t.GetWaypoints(), avgt, movt, avgp, s.From.To2D(), rangeCheckFrom.Value.To2D());
-                    else
-                        result = CirclePrediction.GetPrediction(t, s.Width, s.Delay, s.Speed, s.Range + ringRadius, s.Collision, t.GetWaypoints(), avgt, movt, avgp, 360, s.From.To2D(), rangeCheckFrom.Value.To2D());
-
-                    Drawings.s_DrawTick = Utils.TickCount;
-                    Drawings.s_DrawPos = result.CastPosition;
-                    Drawings.s_DrawHitChance = result.HitChance.ToString();
-                    Drawings.s_DrawDirection = (result.CastPosition - s.From.To2D()).Normalized().Perpendicular();
-                    Drawings.s_DrawWidth = (int)ringRadius;
-                    if (result.HitChance >= hc)
-                    {
-                        s.Cast(result.CastPosition);
-                        return true;
-                    }
-
-                    Monitor.Pulse(PathTracker.EnemyInfo[t.NetworkId].m_lock);
-                    return false;
-                }
-                finally
-                {
-                    Monitor.Exit(PathTracker.EnemyInfo[t.NetworkId].m_lock);
-                }
+                s.Cast(result.CastPosition);
+                return true;
             }
 
             return false;
