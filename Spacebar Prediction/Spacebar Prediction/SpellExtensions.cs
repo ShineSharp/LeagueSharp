@@ -37,6 +37,16 @@ namespace SPrediction
         /// <returns>Prediction result as <see cref="Prediction.Result"/></returns>
         public static Prediction.Result GetSPrediction(this Spell s, Obj_AI_Hero target)
         {
+            #region if common prediction selected
+            if (ConfigMenu.SelectedPrediction.SelectedIndex == 1)
+            {
+                var pred = s.GetPrediction(target);
+                var result = new Prediction.Result(new Prediction.Input(target, s), target, pred.CastPosition.To2D(), pred.UnitPosition.To2D(), pred.Hitchance, default(Collision.Result));
+                result.Lock(false);
+                return result;
+            }
+            #endregion
+
             switch (s.Type)
             {
                 case SkillshotType.SkillshotLine:
