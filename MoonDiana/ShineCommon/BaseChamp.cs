@@ -42,7 +42,6 @@ namespace ShineCommon
         public Menu Config, combo, ult, harass, laneclear, misc, drawing, evade, pred, activator;
         public MoonDiana.Orbwalking.Orbwalker Orbwalker;
         public Spell[] Spells = new Spell[4];
-        public Evader m_evader;
         public Font Text;
 
         public delegate void dVoidDelegate();

@@ -71,6 +71,9 @@
     <Reference Include="SharpDX.Direct3D9">
       <HintPath>C:\Users\Shine\Downloads\LeagueSharp\System\SharpDX.Direct3D9.dll</HintPath>
     </Reference>
+    <Reference Include="SPrediction">
+      <HintPath>..\..\..\Users\Shine\Downloads\LeagueSharp\System\SPrediction.dll</HintPath>
+    </Reference>
     <Reference Include="System" />
     <Reference Include="System.Core" />
     <Reference Include="System.Drawing" />
@@ -89,26 +92,8 @@
     <Compile Include="ShineCommon\BaseChamp.cs" />
     <Compile Include="Program.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />
-    <Compile Include="ShineCommon\Evader.cs" />
     <Compile Include="ShineCommon\Pool\ObjectPool.cs" />
     <Compile Include="ShineCommon\SpellDatabase.cs" />
-    <Compile Include="ShineCommon\SPrediction\ArcPrediction.cs" />
-    <Compile Include="ShineCommon\SPrediction\CirclePrediction.cs" />
-    <Compile Include="ShineCommon\SPrediction\ClipperWrapper.cs" />
-    <Compile Include="ShineCommon\SPrediction\Collision.cs" />
-    <Compile Include="ShineCommon\SPrediction\ConePrediction.cs" />
-    <Compile Include="ShineCommon\SPrediction\ConfigMenu.cs" />
-    <Compile Include="ShineCommon\SPrediction\Drawings.cs" />
-    <Compile Include="ShineCommon\SPrediction\Geometry.cs" />
-    <Compile Include="ShineCommon\SPrediction\LinePrediction.cs" />
-    <Compile Include="ShineCommon\SPrediction\Obj_AI_HeroExtensions.cs" />
-    <Compile Include="ShineCommon\SPrediction\PathTracker.cs" />
-    <Compile Include="ShineCommon\SPrediction\Prediction.cs" />
-    <Compile Include="ShineCommon\SPrediction\RingPrediction.cs" />
-    <Compile Include="ShineCommon\SPrediction\SpellExtensions.cs" />
-    <Compile Include="ShineCommon\SPrediction\StasisPrediction.cs" />
-    <Compile Include="ShineCommon\SPrediction\Utility.cs" />
-    <Compile Include="ShineCommon\SPrediction\VectorPrediction.cs" />
     <Compile Include="ShineCommon\Utility.cs" />
   </ItemGroup>
   <ItemGroup>
