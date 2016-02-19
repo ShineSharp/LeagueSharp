@@ -173,12 +173,12 @@ namespace SPrediction
                     pred.UnitPosition = pred.CastPosition;
                     pred.HitChance = HitChance.VeryHigh;
                     pred.Lock(false);
-
+                    
                     var result = new Result();
                     result.Spell = spell;
                     result.Prediction = pred;
 
-                    if (OnGuaranteedHit != null)
+                    if (OnGuaranteedHit != null && pred.HitChance != HitChance.Collision && pred.HitChance != HitChance.OutOfRange)
                         OnGuaranteedHit(MethodBase.GetCurrentMethod().DeclaringType, result);
 
                     this.Processed = true;
