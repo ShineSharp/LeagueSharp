@@ -25,7 +25,7 @@ using ClipperLib;
 using Path = System.Collections.Generic.List<ClipperLib.IntPoint>;
 using Paths = System.Collections.Generic.List<System.Collections.Generic.List<ClipperLib.IntPoint>>;
 
-namespace SPrediction
+namespace ShineCommon
 {
     /// <summary>
     /// SPrediciton Clipper wrapper class

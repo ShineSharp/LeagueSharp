@@ -22,7 +22,7 @@ using LeagueSharp;
 using LeagueSharp.Common;
 using SharpDX;
 
-namespace SPrediction
+namespace ShineCommon
 {
     /// <summary>
     /// SPrediction Geometry class
