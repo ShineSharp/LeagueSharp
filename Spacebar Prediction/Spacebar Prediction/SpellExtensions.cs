@@ -17,7 +17,6 @@
 */
 
 using System;
-using System.Threading;
 using LeagueSharp;
 using LeagueSharp.Common;
 using SharpDX;
