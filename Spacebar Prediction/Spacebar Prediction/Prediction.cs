@@ -210,13 +210,16 @@ namespace SPrediction
 
         #endregion
 
-        #region Initializer Method
+        #region Initializer Methods
 
         /// <summary>
         /// Initializes Prediction Services
         /// </summary>
         public static void Initialize(Menu mainMenu)
         {
+            if (blInitialized)
+                throw new Exception("SPrediction Already Initialized");
+
             if (mainMenu == null)
                 throw new NullReferenceException("Menu cannot be null!");
 
@@ -227,6 +230,22 @@ namespace SPrediction
             Drawings.Initialize();
             
             blInitialized = true;
+        }
+
+        public static Menu Initialize()
+        {
+            if (blInitialized)
+                throw new Exception("SPrediction Already Initialized");
+            
+            PathTracker.Initialize();
+            Collision.Initialize();
+            StasisPrediction.Initialize();
+            Menu spredMenu = ConfigMenu.Initialize();
+            Drawings.Initialize();
+
+            blInitialized = true;
+
+            return spredMenu;
         }
 
         #endregion

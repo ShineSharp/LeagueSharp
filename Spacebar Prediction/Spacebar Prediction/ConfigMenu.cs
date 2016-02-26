@@ -35,10 +35,18 @@ namespace SPrediction
         #region Initalizer Method
 
         /// <summary>
-        /// Creates the sprediciton menu
+        /// Creates the sprediciton menu and attach to the given menu
         /// </summary>
         /// <param name="menuToAttach">The menu to attach.</param>
         public static void Initialize(Menu menuToAttach)
+        {
+            menuToAttach.AddSubMenu(Initialize());
+        }
+
+        /// <summary>
+        /// Creates the sprediciton menu
+        /// </summary>
+        public static Menu Initialize()
         {
             s_Menu = new Menu("SPrediction", "SPRED");
             s_Menu.AddItem(new MenuItem("PREDICTONLIST", "Prediction Method").SetValue(new StringList(new[] { "SPrediction", "Common Predicion" }, 0)));
@@ -50,7 +58,8 @@ namespace SPrediction
             s_Menu.AddItem(new MenuItem("SPREDDRAWINGX", "Drawing Pos X").SetValue(new Slider(Drawing.Width - 200, 0, Drawing.Width)));
             s_Menu.AddItem(new MenuItem("SPREDDRAWINGY", "Drawing Pos Y").SetValue(new Slider(0, 0, Drawing.Height)));
             s_Menu.AddItem(new MenuItem("SPREDDRAWINGS", "Enable Drawings").SetValue(false));
-            menuToAttach.AddSubMenu(s_Menu);
+
+            return s_Menu;
         }
 
         #endregion
