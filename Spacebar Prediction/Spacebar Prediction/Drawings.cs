@@ -70,7 +70,7 @@ namespace SPrediction
         /// </summary>
         private static void Drawing_OnDraw(EventArgs args)
         {
-            if (ConfigMenu.EnableDrawings)
+            if (ConfigMenu.SelectedPrediction.SelectedIndex == 0 && ConfigMenu.EnableDrawings)
             {
                 foreach (Obj_AI_Hero enemy in HeroManager.Enemies)
                 {
