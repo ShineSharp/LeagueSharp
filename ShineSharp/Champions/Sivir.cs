@@ -10,6 +10,7 @@ namespace ShineSharp.Champions
 {
     public class Sivir : BaseChamp
     {
+        private TargetedSpellEvader m_targetedEvader;
         public Sivir()
             : base ("Sivir")
         {
@@ -37,7 +38,8 @@ namespace ShineSharp.Champions
             misc.AddItem(new MenuItem("MAUTOQIMMO", "Auto Q Immobile Target").SetValue(true));
             misc.AddItem(new MenuItem("MANTIGAPR", "Anti Gap Closer With R").SetValue(false));
 
-            m_evader = new Evader(out evade, EvadeMethods.SivirE);
+            m_evader = new Evader(out evade, EvadeMethods.SpellShield);
+            m_targetedEvader = new TargetedSpellEvader(TargetedSpell_Evade, misc);
 
             Config.AddSubMenu(combo);
             Config.AddSubMenu(harass);
@@ -115,6 +117,17 @@ namespace ShineSharp.Champions
             if (sender.IsEnemy && sender.IsChampion() && ShineCommon.Utility.IsImmobileTarget(sender as Obj_AI_Hero) && Spells[Q].IsInRange(sender) && Config.Item("MAUTOQIMMO").GetValue<bool>())
                 if (Spells[Q].IsReady())
                     Spells[Q].Cast(sender.ServerPosition);
+        }
+
+        private void TargetedSpell_Evade(DetectedTargetedSpellArgs data)
+        {
+            if (Spells[E].IsReady())
+            {
+                if (Orbwalker.ActiveMode != Orbwalking.OrbwalkingMode.Combo || !m_targetedEvader.DisableInComboMode)
+                {
+                    Spells[E].Cast();
+                }
+            }
         }
     }
 }

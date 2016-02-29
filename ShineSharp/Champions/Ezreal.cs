@@ -49,7 +49,7 @@ namespace ShineSharp.Champions
             misc.AddItem(new MenuItem("MAUTOQ", "Auto Harass Q").SetValue(true));
             misc.AddItem(new MenuItem("MUSER", "Use R If Killable").SetValue(false));
 
-            m_evader = new Evader(out evade, EvadeMethods.EzrealE);
+            m_evader = new Evader(out evade, EvadeMethods.Blink);
 
             Config.AddSubMenu(combo);
             Config.AddSubMenu(harass);

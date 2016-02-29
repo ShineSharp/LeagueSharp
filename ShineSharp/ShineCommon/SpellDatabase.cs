@@ -1,7 +1,5 @@
 ﻿using System;
 using System.Collections.Generic;
-using System.Linq;
-using System.Text;
 using LeagueSharp;
 using LeagueSharp.Common;
 using SharpDX;
@@ -12,17 +10,13 @@ namespace ShineCommon
     public enum EvadeMethods
     {
         Default = 0,
-        EzrealE = 1,
-        SivirE = 2,
-        MorganaE = 4,
-        KayleR = 16,
-        FizzE = 32,
-        LissandraR = 64,
-        NocturneW = 128,
-        VladimirW = 256,
-        ZedW = 512,
-        QSS = 1024,
-        None = 2048,
+        Blink = 1,
+        SpellShield = 2,
+        Dash = 4,
+        Invulnerability = 8,
+        AllyTargetted = 16, //soon tm
+        EnemyTargetted = 32, //soon tm
+        None = 64,
     }
 
     [Flags]
@@ -60,6 +54,8 @@ namespace ShineCommon
         public string MissileSpellName;
         public EvadeMethods EvadeMethods;
         public Collisions Collisionable;
+        public bool IsTargeted;
+        public bool IsAAEmpower;
     }
 
     public class MovementBuffSpellData : SpellData
@@ -79,11 +75,20 @@ namespace ShineCommon
     public class SpellDatabase
     {
         public static List<SpellData> EvadeableSpells;
+        public static List<SpellData> TargetedSpells;
         public static List<MovementBuffSpellData> MovementBuffers;
+
+        private static bool blInitialized = false;
 
         public static void InitalizeSpellDatabase()
         {
+            if (blInitialized)
+                return;
+
+            blInitialized = true;
+
             EvadeableSpells = new List<SpellData>();
+            TargetedSpells = new List<SpellData>();
             #region Dangreous Spell Database
             //diana q x axis eliptic radius 315
             EvadeableSpells.Add(
@@ -100,8 +105,8 @@ namespace ShineCommon
                     MissileSpeed = 1550,
                     IsDangerous = true,
                     MissileSpellName = "AhriSeduceMissile",
-                    EvadeMethods =  EvadeMethods.EzrealE | EvadeMethods.SivirE | EvadeMethods.MorganaE | EvadeMethods.QSS | EvadeMethods.ZedW,
-                    Collisionable = Collisions.Champions | Collisions.Minions | Collisions.YasuoWall 
+                    EvadeMethods = EvadeMethods.Blink | EvadeMethods.SpellShield | EvadeMethods.Dash,
+                    Collisionable = Collisions.Champions | Collisions.Minions | Collisions.YasuoWall
                 });
 
             EvadeableSpells.Add(
@@ -118,7 +123,7 @@ namespace ShineCommon
                     MissileSpeed = 2000,
                     IsDangerous = true,
                     MissileSpellName = "SadMummyBandageToss",
-                    EvadeMethods = EvadeMethods.EzrealE | EvadeMethods.SivirE | EvadeMethods.MorganaE | EvadeMethods.QSS | EvadeMethods.ZedW,
+                    EvadeMethods = EvadeMethods.Blink | EvadeMethods.SpellShield | EvadeMethods.Dash,
                     Collisionable = Collisions.Champions | Collisions.Minions | Collisions.YasuoWall
 
                 });
@@ -136,7 +141,7 @@ namespace ShineCommon
                     Radius = 550,
                     MissileSpeed = int.MaxValue,
                     IsDangerous = true,
-                    EvadeMethods = EvadeMethods.EzrealE | EvadeMethods.SivirE | EvadeMethods.MorganaE | EvadeMethods.QSS
+                    EvadeMethods = EvadeMethods.Blink | EvadeMethods.SpellShield | EvadeMethods.Dash
                 });
 
             EvadeableSpells.Add(
@@ -153,7 +158,7 @@ namespace ShineCommon
                     MissileSpeed = int.MaxValue,
                     IsDangerous = true,
                     MissileSpellName = "",
-                    EvadeMethods = EvadeMethods.EzrealE | EvadeMethods.SivirE | EvadeMethods.MorganaE
+                    EvadeMethods = EvadeMethods.Blink | EvadeMethods.SpellShield | EvadeMethods.Dash
                 });
 
             EvadeableSpells.Add(
@@ -170,7 +175,7 @@ namespace ShineCommon
                     MissileSpeed = 1600,
                     IsDangerous = true,
                     MissileSpellName = "EnchantedCrystalArrow",
-                    EvadeMethods = EvadeMethods.EzrealE | EvadeMethods.SivirE | EvadeMethods.MorganaE | EvadeMethods.QSS | EvadeMethods.ZedW,
+                    EvadeMethods = EvadeMethods.Blink | EvadeMethods.SpellShield | EvadeMethods.Dash,
                     Collisionable = Collisions.Champions | Collisions.YasuoWall
                 });
 
@@ -188,7 +193,7 @@ namespace ShineCommon
                     MissileSpeed = 2100,
                     IsDangerous = false,
                     MissileSpellName = "BardR",
-                    EvadeMethods = EvadeMethods.EzrealE | EvadeMethods.SivirE | EvadeMethods.MorganaE | EvadeMethods.QSS,
+                    EvadeMethods = EvadeMethods.Blink | EvadeMethods.SpellShield | EvadeMethods.Dash,
                 });
 
             EvadeableSpells.Add(
@@ -205,7 +210,7 @@ namespace ShineCommon
                     MissileSpeed = 1800,
                     IsDangerous = true,
                     MissileSpellName = "RocketGrabMissile",
-                    EvadeMethods = EvadeMethods.EzrealE | EvadeMethods.SivirE | EvadeMethods.MorganaE | EvadeMethods.ZedW,
+                    EvadeMethods = EvadeMethods.Blink | EvadeMethods.SpellShield | EvadeMethods.Dash,
                     Collisionable = Collisions.Champions | Collisions.YasuoWall
                 });
 
@@ -223,7 +228,7 @@ namespace ShineCommon
                     MissileSpeed = 1400,
                     IsDangerous = true,
                     MissileSpellName = "braumrmissile",
-                    EvadeMethods = EvadeMethods.EzrealE | EvadeMethods.SivirE | EvadeMethods.MorganaE,
+                    EvadeMethods = EvadeMethods.Blink | EvadeMethods.SpellShield | EvadeMethods.Dash,
                     Collisionable = Collisions.YasuoWall
                 });
 
@@ -240,17 +245,17 @@ namespace ShineCommon
                     Radius = 195,
                     IsArc = true,
                     ArcData = new ArcData
-                        {
-                            Pos = new Vector2(875 / 2f, 20),
-                            Angle = (float)Math.PI,
-                            Width = 410,
-                            Height = 200,
-                            Radius = 120
-                        },
+                    {
+                        Pos = new Vector2(875 / 2f, 20),
+                        Angle = (float)Math.PI,
+                        Width = 410,
+                        Height = 200,
+                        Radius = 120
+                    },
                     MissileSpeed = 1600,
                     IsDangerous = true,
                     MissileSpellName = "DianaArc",
-                    EvadeMethods = EvadeMethods.EzrealE | EvadeMethods.SivirE | EvadeMethods.MorganaE,
+                    EvadeMethods = EvadeMethods.Blink | EvadeMethods.SpellShield | EvadeMethods.Dash,
                     Collisionable = Collisions.YasuoWall
                 });
 
@@ -268,7 +273,7 @@ namespace ShineCommon
                     MissileSpeed = 1400,
                     IsDangerous = true,
                     MissileSpellName = "DravenDoubleShotMissile",
-                    EvadeMethods = EvadeMethods.EzrealE | EvadeMethods.SivirE | EvadeMethods.MorganaE,
+                    EvadeMethods = EvadeMethods.Blink | EvadeMethods.SpellShield,
                     Collisionable = Collisions.YasuoWall
                 });
 
@@ -286,7 +291,7 @@ namespace ShineCommon
                     MissileSpeed = 1600,
                     IsDangerous = true,
                     MissileSpellName = "EliseHumanE",
-                    EvadeMethods = EvadeMethods.EzrealE | EvadeMethods.SivirE | EvadeMethods.MorganaE | EvadeMethods.ZedW,
+                    EvadeMethods = EvadeMethods.Blink | EvadeMethods.SpellShield | EvadeMethods.Dash,
                     Collisionable = Collisions.YasuoWall
                 });
 
@@ -304,7 +309,7 @@ namespace ShineCommon
                     MissileSpeed = int.MaxValue,
                     IsDangerous = true,
                     MissileSpellName = "EvelynnR",
-                    EvadeMethods =  EvadeMethods.EzrealE | EvadeMethods.SivirE
+                    EvadeMethods = EvadeMethods.Blink | EvadeMethods.SpellShield | EvadeMethods.Dash
                 });
 
             EvadeableSpells.Add(
@@ -321,7 +326,7 @@ namespace ShineCommon
                     MissileSpeed = int.MaxValue,
                     IsDangerous = true,
                     MissileSpellName = "CassiopeiaPetrifyingGaze",
-                    EvadeMethods = EvadeMethods.EzrealE | EvadeMethods.SivirE | EvadeMethods.MorganaE | EvadeMethods.ZedW
+                    EvadeMethods = EvadeMethods.Blink | EvadeMethods.SpellShield | EvadeMethods.Dash
                 });
 
             EvadeableSpells.Add(
@@ -339,7 +344,7 @@ namespace ShineCommon
                     IsDangerous = true,
                     MissileSpellName = "FizzMarinerDoomMissile",
                     Collisionable = Collisions.Champions | Collisions.YasuoWall,
-                    EvadeMethods = EvadeMethods.EzrealE | EvadeMethods.SivirE | EvadeMethods.MorganaE | EvadeMethods.ZedW
+                    EvadeMethods = EvadeMethods.Blink | EvadeMethods.SpellShield | EvadeMethods.Dash
                 });
 
             EvadeableSpells.Add(
@@ -356,7 +361,7 @@ namespace ShineCommon
                     MissileSpeed = int.MaxValue,
                     IsDangerous = true,
                     MissileSpellName = "",
-                    EvadeMethods = EvadeMethods.EzrealE | EvadeMethods.SivirE | EvadeMethods.MorganaE
+                    EvadeMethods = EvadeMethods.Blink | EvadeMethods.SpellShield | EvadeMethods.Dash
                 });
 
             EvadeableSpells.Add(
@@ -373,7 +378,7 @@ namespace ShineCommon
                     MissileSpeed = int.MaxValue,
                     IsDangerous = true,
                     MissileSpellName = "",
-                    EvadeMethods = EvadeMethods.EzrealE | EvadeMethods.SivirE | EvadeMethods.MorganaE
+                    EvadeMethods = EvadeMethods.Blink | EvadeMethods.SpellShield | EvadeMethods.Dash
                 });
 
             EvadeableSpells.Add(
@@ -390,8 +395,8 @@ namespace ShineCommon
                     MissileSpeed = 1200,
                     IsDangerous = false,
                     MissileSpellName = "GragasE",
-                    Collisionable = Collisions.Champions | Collisions.Minions ,
-                    EvadeMethods = EvadeMethods.EzrealE | EvadeMethods.SivirE | EvadeMethods.MorganaE
+                    Collisionable = Collisions.Champions | Collisions.Minions,
+                    EvadeMethods = EvadeMethods.Blink | EvadeMethods.SpellShield | EvadeMethods.Dash
                 });
 
 
@@ -411,7 +416,7 @@ namespace ShineCommon
                     IsDangerous = true,
                     MissileSpellName = "GragasRBoom",
                     Collisionable = Collisions.YasuoWall,
-                    EvadeMethods = EvadeMethods.EzrealE | EvadeMethods.SivirE | EvadeMethods.MorganaE
+                    EvadeMethods = EvadeMethods.Blink | EvadeMethods.SpellShield | EvadeMethods.Dash
                 });
 
             EvadeableSpells.Add(
@@ -429,7 +434,7 @@ namespace ShineCommon
                     IsDangerous = true,
                     MissileSpellName = "GravesChargeShotShot",
                     Collisionable = Collisions.YasuoWall,
-                    EvadeMethods = EvadeMethods.EzrealE | EvadeMethods.SivirE | EvadeMethods.ZedW
+                    EvadeMethods = EvadeMethods.Blink | EvadeMethods.SpellShield | EvadeMethods.Dash
                 });
 
             EvadeableSpells.Add(
@@ -446,7 +451,7 @@ namespace ShineCommon
                     MissileSpeed = int.MaxValue,
                     IsDangerous = true,
                     MissileSpellName = "LeonaSolarFlare",
-                    EvadeMethods = EvadeMethods.EzrealE | EvadeMethods.SivirE | EvadeMethods.MorganaE | EvadeMethods.QSS
+                    EvadeMethods = EvadeMethods.Blink | EvadeMethods.SpellShield | EvadeMethods.Dash
                 });
 
             EvadeableSpells.Add(
@@ -464,7 +469,7 @@ namespace ShineCommon
                     IsDangerous = true,
                     MissileSpellName = "LeonaZenithBladeMissile",
                     Collisionable = Collisions.YasuoWall,
-                    EvadeMethods = EvadeMethods.EzrealE | EvadeMethods.SivirE | EvadeMethods.MorganaE | EvadeMethods.QSS | EvadeMethods.ZedW
+                    EvadeMethods = EvadeMethods.Blink | EvadeMethods.SpellShield | EvadeMethods.Dash
                 });
 
             EvadeableSpells.Add(
@@ -481,7 +486,7 @@ namespace ShineCommon
                     MissileSpeed = 1500,
                     IsDangerous = true,
                     MissileSpellName = "UFSlash",
-                    EvadeMethods = EvadeMethods.EzrealE | EvadeMethods.SivirE | EvadeMethods.MorganaE | EvadeMethods.ZedW
+                    EvadeMethods = EvadeMethods.Blink | EvadeMethods.SpellShield | EvadeMethods.Dash
                 });
 
             EvadeableSpells.Add(
@@ -498,7 +503,7 @@ namespace ShineCommon
                     MissileSpeed = 1200,
                     IsDangerous = true,
                     MissileSpellName = "DarkBindingMissile",
-                    EvadeMethods = EvadeMethods.EzrealE | EvadeMethods.SivirE | EvadeMethods.MorganaE | EvadeMethods.QSS | EvadeMethods.ZedW,
+                    EvadeMethods = EvadeMethods.Blink | EvadeMethods.SpellShield | EvadeMethods.Dash,
                     Collisionable = Collisions.Champions | Collisions.Minions | Collisions.YasuoWall
                 });
 
@@ -517,7 +522,7 @@ namespace ShineCommon
                     MissileSpeed = int.MaxValue,
                     IsDangerous = true,
                     MissileSpellName = "namiqmissile",
-                    EvadeMethods = EvadeMethods.EzrealE | EvadeMethods.SivirE | EvadeMethods.MorganaE | EvadeMethods.QSS
+                    EvadeMethods = EvadeMethods.Blink | EvadeMethods.SpellShield | EvadeMethods.Dash
                 });
 
 
@@ -535,7 +540,7 @@ namespace ShineCommon
                     MissileSpeed = 2000,
                     IsDangerous = true,
                     MissileSpellName = "NautilusAnchorDragMissile",
-                    EvadeMethods = EvadeMethods.EzrealE | EvadeMethods.SivirE | EvadeMethods.MorganaE | EvadeMethods.ZedW,
+                    EvadeMethods = EvadeMethods.Blink | EvadeMethods.SpellShield | EvadeMethods.Dash,
                     Collisionable = Collisions.Champions | Collisions.Minions | Collisions.YasuoWall
                 });
 
@@ -554,7 +559,7 @@ namespace ShineCommon
                     MissileSpeed = 1500,
                     IsDangerous = true,
                     MissileSpellName = "RengarEFinal",
-                    EvadeMethods = EvadeMethods.EzrealE | EvadeMethods.SivirE | EvadeMethods.MorganaE | EvadeMethods.QSS | EvadeMethods.ZedW,
+                    EvadeMethods = EvadeMethods.Blink | EvadeMethods.SpellShield | EvadeMethods.Dash,
                     Collisionable = Collisions.Champions | Collisions.Minions | Collisions.YasuoWall
                 });
 
@@ -573,7 +578,7 @@ namespace ShineCommon
                     MissileSpeed = 2400,
                     IsDangerous = true,
                     MissileSpellName = "SonaR",
-                    EvadeMethods = EvadeMethods.EzrealE | EvadeMethods.SivirE | EvadeMethods.MorganaE | EvadeMethods.QSS | EvadeMethods.ZedW,
+                    EvadeMethods = EvadeMethods.Blink | EvadeMethods.SpellShield | EvadeMethods.Dash,
                     Collisionable = Collisions.YasuoWall
                 });
 
@@ -593,7 +598,7 @@ namespace ShineCommon
                     MissileSpeed = int.MaxValue,
                     IsDangerous = true,
                     MissileSpellName = "SwainShadowGrasp",
-                    EvadeMethods = EvadeMethods.EzrealE | EvadeMethods.SivirE | EvadeMethods.MorganaE | EvadeMethods.QSS,
+                    EvadeMethods = EvadeMethods.Blink | EvadeMethods.SpellShield | EvadeMethods.Dash,
                 });
 
             EvadeableSpells.Add(
@@ -610,7 +615,7 @@ namespace ShineCommon
                     MissileSpeed = 1601,
                     IsDangerous = false,
                     MissileSpellName = "syndrae5",
-                    EvadeMethods = EvadeMethods.EzrealE | EvadeMethods.SivirE | EvadeMethods.MorganaE | EvadeMethods.QSS | EvadeMethods.ZedW
+                    EvadeMethods = EvadeMethods.Blink | EvadeMethods.SpellShield | EvadeMethods.Dash
                 });
 
             EvadeableSpells.Add(
@@ -627,7 +632,7 @@ namespace ShineCommon
                     MissileSpeed = 1601,
                     IsDangerous = false,
                     MissileSpellName = "SyndraE",
-                    EvadeMethods = EvadeMethods.EzrealE | EvadeMethods.SivirE | EvadeMethods.MorganaE | EvadeMethods.QSS | EvadeMethods.ZedW,
+                    EvadeMethods = EvadeMethods.Blink | EvadeMethods.SpellShield | EvadeMethods.Dash,
                 });
 
             EvadeableSpells.Add(
@@ -644,7 +649,7 @@ namespace ShineCommon
                     MissileSpeed = 1900,
                     IsDangerous = true,
                     MissileSpellName = "ThreshQMissile",
-                    EvadeMethods = EvadeMethods.EzrealE | EvadeMethods.SivirE | EvadeMethods.MorganaE | EvadeMethods.QSS | EvadeMethods.ZedW,
+                    EvadeMethods = EvadeMethods.Blink | EvadeMethods.SpellShield | EvadeMethods.Dash,
                     Collisionable = Collisions.Champions | Collisions.Minions | Collisions.YasuoWall
                 });
 
@@ -663,7 +668,7 @@ namespace ShineCommon
                     MissileSpeed = 1900,
                     IsDangerous = false,
                     MissileSpellName = "VarusQMissile",
-                    EvadeMethods = EvadeMethods.EzrealE | EvadeMethods.SivirE | EvadeMethods.ZedW,
+                    EvadeMethods = EvadeMethods.Blink | EvadeMethods.SpellShield | EvadeMethods.Dash,
                     Collisionable = Collisions.YasuoWall
                 });
 
@@ -681,7 +686,7 @@ namespace ShineCommon
                     MissileSpeed = 1950,
                     IsDangerous = true,
                     MissileSpellName = "VarusRMissile",
-                    EvadeMethods = EvadeMethods.EzrealE | EvadeMethods.SivirE | EvadeMethods.MorganaE | EvadeMethods.QSS | EvadeMethods.ZedW,
+                    EvadeMethods = EvadeMethods.Blink | EvadeMethods.SpellShield | EvadeMethods.Dash,
                     Collisionable = Collisions.Champions | Collisions.YasuoWall
                 });
 
@@ -699,7 +704,7 @@ namespace ShineCommon
                     MissileSpeed = 1500,
                     IsDangerous = false,
                     MissileSpellName = "VelkozEMissile",
-                    EvadeMethods = EvadeMethods.EzrealE | EvadeMethods.SivirE | EvadeMethods.MorganaE | EvadeMethods.QSS,
+                    EvadeMethods = EvadeMethods.Blink | EvadeMethods.SpellShield | EvadeMethods.Dash,
                 });
 
             EvadeableSpells.Add(
@@ -717,7 +722,7 @@ namespace ShineCommon
                     IsDangerous = true,
                     MissileSpellName = "yasuoq3w",
                     Collisionable = Collisions.YasuoWall,
-                    EvadeMethods = EvadeMethods.EzrealE | EvadeMethods.SivirE | EvadeMethods.MorganaE | EvadeMethods.QSS | EvadeMethods.ZedW,
+                    EvadeMethods = EvadeMethods.Blink | EvadeMethods.SpellShield | EvadeMethods.Dash,
                 });
 
             EvadeableSpells.Add(
@@ -735,7 +740,7 @@ namespace ShineCommon
                     IsDangerous = true,
                     MissileSpellName = "ZyraGraspingRoots",
                     Collisionable = Collisions.YasuoWall,
-                    EvadeMethods = EvadeMethods.EzrealE | EvadeMethods.SivirE | EvadeMethods.MorganaE | EvadeMethods.QSS,
+                    EvadeMethods = EvadeMethods.Blink | EvadeMethods.SpellShield | EvadeMethods.Dash,
                 });
 
             EvadeableSpells.Add(
@@ -753,7 +758,7 @@ namespace ShineCommon
                     IsDangerous = true,
                     MissileSpellName = "zyrapassivedeathmanager",
                     Collisionable = Collisions.YasuoWall,
-                    EvadeMethods = EvadeMethods.EzrealE | EvadeMethods.SivirE | EvadeMethods.MorganaE | EvadeMethods.QSS,
+                    EvadeMethods = EvadeMethods.Blink | EvadeMethods.SpellShield | EvadeMethods.Dash,
                 });
             #endregion
             #region Escape Spell Data
@@ -792,7 +797,7 @@ namespace ShineCommon
                 IsDecaying = true,
                 DecayTime = 1.5f
             });
-            
+
             MovementBuffers.Add(new MovementBuffSpellData
             {
                 ChampionName = "Blitzcrank",
@@ -987,8 +992,382 @@ namespace ShineCommon
                 DecayTime = 2,
             });
             #endregion
-        }
+            #region Targeted Spell Database
+            TargetedSpells.Add(
+                new SpellData
+                {
+                    ChampionName = "Malzahar",
+                    Slot = SpellSlot.R,
+                    SpellName = "AlZaharNetherGrasp",
+                    IsTargeted = true,
+                    IsDangerous = true
+                });
 
+            TargetedSpells.Add(
+                new SpellData
+                {
+                    ChampionName = "Mordekaiser",
+                    Slot = SpellSlot.R,
+                    SpellName = "MordekaiserChildrenOfTheGrave",
+                    IsTargeted = true
+                });
+
+            TargetedSpells.Add(
+                new SpellData
+                {
+                    ChampionName = "Nocturne",
+                    Slot = SpellSlot.R,
+                    SpellName = "NocturneParanoia",
+                    IsTargeted = true,
+                    IsDangerous = true
+                });
+
+            TargetedSpells.Add(
+                new SpellData
+                {
+                    ChampionName = "Rammus",
+                    Slot = SpellSlot.E,
+                    SpellName = "PuncturingTaunt",
+                    IsDangerous = true,
+                    IsTargeted = true
+                });
+
+            TargetedSpells.Add(
+                new SpellData
+                {
+                    ChampionName = "Skarner",
+                    Slot = SpellSlot.R,
+                    SpellName = "SkarnerImpale",
+                    IsDangerous = true,
+                    IsTargeted = true
+                });
+
+            TargetedSpells.Add(
+                new SpellData
+                {
+                    ChampionName = "Vladimir",
+                    Slot = SpellSlot.Q,
+                    SpellName = "VladimirTransfusion",
+                    IsTargeted = true
+                });
+
+            TargetedSpells.Add(
+                new SpellData
+                {
+                    ChampionName = "Vladimir",
+                    Slot = SpellSlot.R,
+                    SpellName = "VladimirHemoplague",
+                    IsDangerous = true
+                });
+
+            TargetedSpells.Add(
+                new SpellData
+                {
+                    ChampionName = "Warwick",
+                    Slot = SpellSlot.R,
+                    SpellName = "InfiniteDuress",
+                    IsTargeted = true,
+                    IsDangerous = true
+                });
+
+            TargetedSpells.Add(
+                new SpellData
+                {
+                    ChampionName = "Zed",
+                    Slot = SpellSlot.R,
+                    SpellName = "zedulttargetmark",
+                    IsTargeted = true,
+                    IsDangerous = true
+                });
+
+            TargetedSpells.Add(
+                new SpellData
+                {
+                    ChampionName = "Amumu",
+                    Slot = SpellSlot.R,
+                    SpellName = "CurseoftheSadMummy",
+                    Radius = 550,
+                    IsDangerous = true,
+                });
+
+            TargetedSpells.Add(
+                new SpellData
+                {
+                    ChampionName = "Annie",
+                    Slot = SpellSlot.Q,
+                    SpellName = "Disintegrate",
+                    IsTargeted = true,
+                });
+
+            TargetedSpells.Add(
+                new SpellData
+                {
+                    ChampionName = "Diana",
+                    Slot = SpellSlot.R,
+                    SpellName = "DianaTeleport",
+                    IsTargeted = true,
+                    IsDangerous = true
+                });
+
+            TargetedSpells.Add(
+                new SpellData
+                {
+                    ChampionName = "Fizz",
+                    Slot = SpellSlot.Q,
+                    SpellName = "FizzPiercingStrike",
+                    IsTargeted = true
+                });
+
+            TargetedSpells.Add(
+                new SpellData
+                {
+                    ChampionName = "KhaZix",
+                    Slot = SpellSlot.Q,
+                    SpellName = "KhazixQ",
+                    IsTargeted = true,
+                });
+
+            TargetedSpells.Add(
+               new SpellData
+               {
+                   ChampionName = "KhaZix",
+                   Slot = SpellSlot.Q, //evolved
+                   SpellName = "khazixqlong",
+                   IsTargeted = true
+               });
+
+            TargetedSpells.Add(
+                new SpellData
+                {
+                    ChampionName = "LeeSin",
+                    Slot = SpellSlot.R,
+                    SpellName = "BlindMonkRKick",
+                    IsTargeted = true,
+                    IsDangerous = true
+                });
+
+            TargetedSpells.Add(
+                new SpellData
+                {
+                    ChampionName = "Malphite",
+                    Slot = SpellSlot.Q,
+                    SpellName = "SismicShard",
+                    IsTargeted = true
+                });
+
+            TargetedSpells.Add(
+                new SpellData
+                {
+                    ChampionName = "Maokai",
+                    Slot = SpellSlot.W,
+                    SpellName = "MaokaiUnstableGrowth",
+                    IsTargeted = true
+                });
+
+            TargetedSpells.Add(
+                new SpellData
+                {
+                    ChampionName = "Fiddlesticks",
+                    Slot = SpellSlot.Q,
+                    SpellName = "Terrify",
+                    IsTargeted = true,
+                    IsDangerous = true
+                });
+
+            TargetedSpells.Add(
+                new SpellData
+                {
+                    ChampionName = "Renekton",
+                    Slot = SpellSlot.W,
+                    SpellName = "RenektonPreExecute",
+                    IsTargeted = true
+                });
+
+            TargetedSpells.Add(
+                new SpellData
+                {
+                    ChampionName = "Riven",
+                    Slot = SpellSlot.W,
+                    SpellName = "RivenMartyr",
+                    Radius = 270,
+                    IsDangerous = true,
+                });
+
+            TargetedSpells.Add(
+                new SpellData
+                {
+                    ChampionName = "Ryze",
+                    Slot = SpellSlot.W,
+                    SpellName = "RunePrison",
+                    IsTargeted = true,
+                    IsDangerous = true
+                });
+
+            TargetedSpells.Add(
+                new SpellData
+                {
+                    ChampionName = "Nocturne",
+                    Slot = SpellSlot.E,
+                    SpellName = "NocturneUnspeakableHorror",
+                    IsTargeted = true,
+                    IsDangerous = true
+                });
+
+            TargetedSpells.Add(
+                new SpellData
+                {
+                    ChampionName = "Pantheon",
+                    Slot = SpellSlot.W,
+                    SpellName = "PantheonW",
+                    IsTargeted = true,
+                    IsDangerous = true
+                });
+
+            TargetedSpells.Add(
+                new SpellData
+                {
+                    ChampionName = "Pantheon",
+                    Slot = SpellSlot.Q,
+                    SpellName = "PantheonQ",
+                    IsTargeted = true
+                });
+
+            TargetedSpells.Add(
+                new SpellData
+                {
+                    ChampionName = "Trundle",
+                    Slot = SpellSlot.R,
+                    SpellName = "TrundlePain",
+                    IsTargeted = true,
+                    IsDangerous = true
+                });
+
+            TargetedSpells.Add(
+                new SpellData
+                {
+                    ChampionName = "Yasuo",
+                    Slot = SpellSlot.E,
+                    SpellName = "YasuoDashWrapper",
+                    IsTargeted = true,
+                    IsDangerous = true
+                });
+
+            TargetedSpells.Add(
+                new SpellData
+                {
+                    ChampionName = "Taric",
+                    Slot = SpellSlot.E,
+                    SpellName = "Dazzle",
+                    IsTargeted = true,
+                    IsDangerous = true,
+                });
+
+            TargetedSpells.Add(
+                new SpellData
+                {
+                    ChampionName = "Garen",
+                    Slot = SpellSlot.Q,
+                    SpellName = "GarenQAttack",
+                    IsTargeted = true,
+                    IsDangerous = true,
+                });
+
+            TargetedSpells.Add(
+                new SpellData
+                {
+                    ChampionName = "Garen",
+                    Slot = SpellSlot.R,
+                    SpellName = "GarenRPreCast",
+                    IsTargeted = true,
+                    IsDangerous = true
+                });
+
+            TargetedSpells.Add(
+                new SpellData
+                {
+                    ChampionName = "Ekko",
+                    Slot = SpellSlot.E,
+                    SpellName = "EkkoEAttack",
+                    IsTargeted = true
+                });
+
+            TargetedSpells.Add(
+                new SpellData
+                {
+                    ChampionName = "Illaoi",
+                    Slot = SpellSlot.W,
+                    SpellName = "IllaoiWAttack",
+                    IsTargeted = true
+                });
+
+            TargetedSpells.Add(
+                new SpellData
+                {
+                    ChampionName = "Leona",
+                    Slot = SpellSlot.Q,
+                    SpellName = "LeonaShieldOfDaybreakAttack",
+                    IsTargeted = true,
+                    IsDangerous = true
+                });
+
+            TargetedSpells.Add(
+                new SpellData
+                {
+                    ChampionName = "Darius",
+                    Slot = SpellSlot.R,
+                    SpellName = "DariusExecute",
+                    IsTargeted = true,
+                    IsDangerous = true
+                });
+
+            TargetedSpells.Add(
+                new SpellData
+                {
+                    ChampionName = "Gangplank",
+                    Slot = SpellSlot.Q,
+                    SpellName = "GangplankQWrapper",
+                    IsTargeted = true,
+                });
+
+            TargetedSpells.Add(
+                new SpellData
+                {
+                    ChampionName = "Syndra",
+                    Slot = SpellSlot.R,
+                    SpellName = "SyndraR",
+                    IsTargeted = true
+                });
+
+            TargetedSpells.Add(
+                new SpellData
+                {
+                    ChampionName = "Veigar",
+                    Slot = SpellSlot.R,
+                    SpellName = "VeigarPrimordialBurst",
+                    IsTargeted = true
+                });
+
+            TargetedSpells.Add(
+                new SpellData
+                {
+                    ChampionName = "TwistedFate",
+                    Slot = SpellSlot.W,
+                    SpellName = "goldcardpreattack",
+                    IsTargeted = true,
+                    IsDangerous = true
+                });
+
+            TargetedSpells.Add(
+                new SpellData
+                {
+                    ChampionName = "XinZhao",
+                    Slot = SpellSlot.Q,
+                    SpellName = "XenZhaoThrust3",
+                    IsTargeted = true,
+                    IsDangerous = true
+                });
+            #endregion
+        }
     }
 
     public class DetectedSpellData

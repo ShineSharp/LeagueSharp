@@ -102,6 +102,8 @@
     <Compile Include="ShineCommon\Evader.cs" />
     <Compile Include="ShineCommon\Pool\ObjectPool.cs" />
     <Compile Include="ShineCommon\SpellDatabase.cs" />
+    <Compile Include="ShineCommon\TargetedSpellDetector.cs" />
+    <Compile Include="ShineCommon\TargetedSpellEvader.cs" />
     <Compile Include="ShineCommon\Utility.cs" />
   </ItemGroup>
   <ItemGroup>

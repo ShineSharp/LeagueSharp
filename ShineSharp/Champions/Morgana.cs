@@ -35,7 +35,7 @@ namespace ShineSharp.Champions
             misc.AddItem(new MenuItem("MAUTOQIMMO", "Auto Q Immobile Target").SetValue(true));
             misc.AddItem(new MenuItem("MAUTOWIMMO", "Auto W Immobile Target").SetValue(true));
 
-            m_evader = new Evader(out evade, EvadeMethods.MorganaE);
+            m_evader = new Evader(out evade, EvadeMethods.SpellShield);
 
             Config.AddSubMenu(combo);
             Config.AddSubMenu(harass);
