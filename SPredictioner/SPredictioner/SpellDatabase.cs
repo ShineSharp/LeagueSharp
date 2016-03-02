@@ -2699,7 +2699,7 @@ namespace SPredictioner
                     Type = SkillshotType.SkillshotCircle,
                     Delay = 500,
                     Range = 950,
-                    Radius = 300,
+                    Radius = 280,
                     MissileSpeed = 1750,
                     FixedRange = false,
                     AddHitbox = true,

@@ -36,8 +36,8 @@ namespace SPredictioner
             #endregion
 
 
-            SPrediction.Prediction.Initialize(Config);
-            Config.SubMenu("SPRED").AddItem(new MenuItem("SPREDHITC", "Hit Chance").SetValue(new StringList(ShineCommon.Utility.HitchanceNameArray, 2))).SetTooltip("High is recommended");
+            SPrediction.Prediction.Initialize(Config, "SPREDFORSPREDICTONER");
+            Config.SubMenu("SPREDFORSPREDICTONER").AddItem(new MenuItem("SPREDHITC", "Hit Chance").SetValue(new StringList(ShineCommon.Utility.HitchanceNameArray, 2))).SetTooltip("High is recommended");
             Config.AddToMainMenu();
             #endregion
 
