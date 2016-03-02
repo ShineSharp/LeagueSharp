@@ -234,18 +234,23 @@ namespace SPrediction
 
         public static Menu Initialize()
         {
-            if (blInitialized)
-                throw new Exception("SPrediction Already Initialized");
-            
-            PathTracker.Initialize();
-            Collision.Initialize();
-            StasisPrediction.Initialize();
-            Menu spredMenu = ConfigMenu.Initialize();
-            Drawings.Initialize();
+            try
+            {
+                PathTracker.Initialize();
+                Collision.Initialize();
+                StasisPrediction.Initialize();
+                Menu spredMenu = ConfigMenu.Initialize();
+                Drawings.Initialize();
 
-            blInitialized = true;
-
-            return spredMenu;
+                blInitialized = true;
+                return spredMenu;
+            }
+            catch
+            {
+                Menu m = new Menu("SPrediction", "SPRED");
+                m.AddItem(new MenuItem("PREDICTONLIST", "Prediction Method").SetValue(new StringList(new[] { "SPrediction", "Common Prediction" }, 1)));
+                return m;
+            }
         }
 
         #endregion

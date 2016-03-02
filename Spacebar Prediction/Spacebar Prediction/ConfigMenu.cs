@@ -49,7 +49,7 @@ namespace SPrediction
         public static Menu Initialize()
         {
             s_Menu = new Menu("SPrediction", "SPRED");
-            s_Menu.AddItem(new MenuItem("PREDICTONLIST", "Prediction Method").SetValue(new StringList(new[] { "SPrediction", "Common Predicion" }, 0)));
+            s_Menu.AddItem(new MenuItem("PREDICTONLIST", "Prediction Method").SetValue(new StringList(new[] { "SPrediction", "Common Prediction" }, 0)));
             s_Menu.AddItem(new MenuItem("SPREDWINDUP", "Check for target AA Windup").SetValue(false));
             s_Menu.AddItem(new MenuItem("SPREDMAXRANGEIGNORE", "Max Range Dodge Ignore (%)").SetValue(new Slider(50, 0, 100)));
             s_Menu.AddItem(new MenuItem("SPREDREACTIONDELAY", "Ignore Rection Delay").SetValue<Slider>(new Slider(0, 0, 200)));
