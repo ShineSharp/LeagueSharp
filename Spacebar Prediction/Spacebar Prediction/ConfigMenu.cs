@@ -38,7 +38,7 @@ namespace SPrediction
         /// Creates the sprediciton menu and attach to the given menu
         /// </summary>
         /// <param name="menuToAttach">The menu to attach.</param>
-        public static void Initialize(Menu menuToAttach)
+        public static void Initialize(Menu menuToAttach, string prefMenuName)
         {
             menuToAttach.AddSubMenu(Initialize());
         }
@@ -46,9 +46,9 @@ namespace SPrediction
         /// <summary>
         /// Creates the sprediciton menu
         /// </summary>
-        public static Menu Initialize()
+        public static Menu Initialize(string prefMenuName = "SPRED")
         {
-            s_Menu = new Menu("SPrediction", "SPRED");
+            s_Menu = new Menu("SPrediction", prefMenuName);
             s_Menu.AddItem(new MenuItem("PREDICTONLIST", "Prediction Method").SetValue(new StringList(new[] { "SPrediction", "Common Prediction" }, 0)));
             s_Menu.AddItem(new MenuItem("SPREDWINDUP", "Check for target AA Windup").SetValue(false));
             s_Menu.AddItem(new MenuItem("SPREDMAXRANGEIGNORE", "Max Range Dodge Ignore (%)").SetValue(new Slider(50, 0, 100)));

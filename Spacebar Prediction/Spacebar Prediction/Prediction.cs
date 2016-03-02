@@ -215,7 +215,7 @@ namespace SPrediction
         /// <summary>
         /// Initializes Prediction Services
         /// </summary>
-        public static void Initialize(Menu mainMenu)
+        public static void Initialize(Menu mainMenu, string prefMenuName = "SPRED")
         {
             if (blInitialized)
                 throw new Exception("SPrediction Already Initialized");
@@ -226,7 +226,7 @@ namespace SPrediction
             PathTracker.Initialize();
             Collision.Initialize();
             StasisPrediction.Initialize();
-            ConfigMenu.Initialize(mainMenu);
+            ConfigMenu.Initialize(mainMenu, prefMenuName);
             Drawings.Initialize();
             
             blInitialized = true;
@@ -247,7 +247,7 @@ namespace SPrediction
             }
             catch
             {
-                Menu m = new Menu("SPrediction", "SPRED");
+                Menu m = new Menu("SPrediction", "SPREDX");
                 m.AddItem(new MenuItem("PREDICTONLIST", "Prediction Method").SetValue(new StringList(new[] { "SPrediction", "Common Prediction" }, 1)));
                 return m;
             }
