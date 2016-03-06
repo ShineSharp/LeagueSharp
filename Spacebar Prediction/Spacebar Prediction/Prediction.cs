@@ -385,7 +385,7 @@ namespace SPrediction
                     result.HitChance = HitChance.Medium;
             }
         }
-        
+
         /// <summary>
         /// Gets Prediction result while unit is dashing
         /// </summary>
@@ -410,16 +410,20 @@ namespace SPrediction
                 if (dashInfo.IsBlink)
                 {
                     result.HitChance = HitChance.Impossible;
+                    result.CastPosition = target.ServerPosition.To2D();
                     return result;
                 }
-                
+
                 result.CastPosition = GetFastUnitPosition(target, dashInfo.Path, delay, missileSpeed, from, dashInfo.Speed);
                 result.HitChance = HitChance.Dashing;
 
                 result.Lock(false);
             }
             else
+            {
                 result.HitChance = HitChance.Impossible;
+                result.CastPosition = target.ServerPosition.To2D();
+            }
             return result;
         }
 
@@ -612,6 +616,7 @@ namespace SPrediction
             }
 
             result.HitChance = HitChance.Impossible;
+            result.CastPosition = target.ServerPosition.To2D();
 
             return result;
         }
