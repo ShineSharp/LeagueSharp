@@ -48,6 +48,10 @@ namespace ShineSharp.Champions
             misc.AddItem(new MenuItem("MLASTQ", "Last Hit Q").SetValue(true));
             misc.AddItem(new MenuItem("MAUTOQ", "Auto Harass Q").SetValue(true));
             misc.AddItem(new MenuItem("MUSER", "Use R If Killable").SetValue(false));
+            CustomizableAntiGapcloser.AddToMenu(misc.SubMenu("Customizable Antigapcloser"));
+            misc.SubMenu("Customizable Antigapcloser").AddItem(new MenuItem("CUSTOMANTIGAPE", "Use E for Anti-Gapcloser").SetValue(true));
+            misc.SubMenu("Customizable Antigapcloser").AddItem(new MenuItem("CUSTOMANTIGAPEMETHOD", "Use E for Anti-Gapcloser").SetValue(new StringList(new[] { "Side", "Far from enemy" })));
+            CustomizableAntiGapcloser.OnEnemyCustomGapcloser += OnEnemyCustomGapcloser;
 
             m_evader = new Evader(out evade, EvadeMethods.Blink);
 
@@ -95,13 +99,18 @@ namespace ShineSharp.Champions
             return dmg;
         }
 
-        public override void AntiGapcloser_OnEnemyGapcloser(ActiveGapcloser gapcloser)
+        private void OnEnemyCustomGapcloser(CActiveCGapcloser cGapcloser)
         {
-            if (gapcloser.End.Distance(ObjectManager.Player.ServerPosition) <= 300)
+            if (cGapcloser.Sender.IsEnemy && cGapcloser.End.Distance(ObjectManager.Player.ServerPosition) < 300 && !cGapcloser.Sender.IsDead && Spells[E].IsReady() && Config.Item("CUSTOMANTIGAPE").GetValue<bool>())
             {
-                Spells[E].Cast(gapcloser.End.Extend(ObjectManager.Player.ServerPosition, ObjectManager.Player.Distance(gapcloser.End) + Spells[E].Range));
+                int idx = Config.Item("CUSTOMANTIGAPEMETHOD").GetValue<StringList>().SelectedIndex;
+                if (idx == 0)
+                    Spells[E].Cast(ObjectManager.Player.ServerPosition.To2D() + (cGapcloser.End - cGapcloser.Start).To2D().Normalized().Perpendicular() * Spells[E].Range);
+                else
+                    Spells[E].Cast(ObjectManager.Player.ServerPosition.To2D() + (cGapcloser.End - cGapcloser.Start).To2D().Normalized() * Spells[E].Range);
             }
         }
+
 
         public void BeforeOrbwalk()
         {
