@@ -93,11 +93,11 @@ namespace SPrediction
         /// <returns>true if collision found</returns>
         public static bool CheckCollision(Vector2 from, Vector2 to, float width, float delay, float missileSpeed, bool checkMinion = true, bool checkEnemyHero = false, bool checkYasuoWall = true, bool checkAllyHero = false, bool checkWall = false, bool isArc = false)
         {
-            return (checkMinion && CheckMinionCollision(from, to, width, delay, missileSpeed, isArc)) ||
-                    (checkEnemyHero && CheckEnemyHeroCollision(from, to, width, delay, missileSpeed, isArc)) ||
-                    (checkYasuoWall && CheckYasuoWallCollision(from, to, width, isArc)) ||
-                    (checkAllyHero && CheckAllyHeroCollision(from, to, width, delay, missileSpeed, isArc)) ||
-                    (checkWall && CheckWallCollision(from, to));
+            return (checkMinion && CheckMinionCollision(from, to, width, delay, missileSpeed, isArc))
+                   || (checkEnemyHero && CheckEnemyHeroCollision(from, to, width, delay, missileSpeed, isArc))
+                   || (checkYasuoWall && CheckYasuoWallCollision(from, to, width, isArc))
+                   || (checkAllyHero && CheckAllyHeroCollision(from, to, width, delay, missileSpeed, isArc))
+                   || (checkWall && CheckWallCollision(from, to));
         }
 
         /// <summary>
@@ -116,8 +116,8 @@ namespace SPrediction
             if (isArc)
             {
                 spellHitBox = ClipperWrapper.MakePaths(new SPrediction.Geometry.Polygon(
-                                ClipperWrapper.DefineArc(from - new Vector2(875 / 2f, 20), to, (float)Math.PI * (to.Distance(from) / 875f), 410, 200 * (to.Distance(from) / 875f)),
-                                ClipperWrapper.DefineArc(from - new Vector2(875 / 2f, 20), to, (float)Math.PI * (to.Distance(from) / 875f), 410, 320 * (to.Distance(from) / 875f))));
+                                ClipperWrapper.DefineArc(from - new Vector2(900 / 2f, 20), to, (float)Math.PI * (to.Distance(from) / 900), 410, 200 * (to.Distance(from) / 900)),
+                                ClipperWrapper.DefineArc(from - new Vector2(900 / 2f, 20), to, (float)Math.PI * (to.Distance(from) / 900), 410, 320 * (to.Distance(from) / 900))));
 
             }
             return MinionManager.GetMinions(from.Distance(to) + 250, MinionTypes.All, MinionTeam.NotAlly, MinionOrderTypes.None).AsParallel().Any(p => ClipperWrapper.IsIntersects(ClipperWrapper.MakePaths(ClipperWrapper.DefineCircle(Prediction.GetFastUnitPosition(p, delay, missileSpeed), p.BoundingRadius * 2f + 10f)), spellHitBox));
@@ -139,8 +139,8 @@ namespace SPrediction
             if (isArc)
             {
                 spellHitBox = ClipperWrapper.MakePaths(new SPrediction.Geometry.Polygon(
-                                ClipperWrapper.DefineArc(from - new Vector2(875 / 2f, 20), to, (float)Math.PI * (to.Distance(from) / 875f), 410, 200 * (to.Distance(from) / 875f)),
-                                ClipperWrapper.DefineArc(from - new Vector2(875 / 2f, 20), to, (float)Math.PI * (to.Distance(from) / 875f), 410, 320 * (to.Distance(from) / 875f))));
+                                ClipperWrapper.DefineArc(from - new Vector2(900 / 2f, 20), to, (float)Math.PI * (to.Distance(from) / 900), 410, 200 * (to.Distance(from) / 900)),
+                                ClipperWrapper.DefineArc(from - new Vector2(900 / 2f, 20), to, (float)Math.PI * (to.Distance(from) / 900), 410, 320 * (to.Distance(from) / 900))));
             }
             return HeroManager.Enemies.AsParallel().Any(p => ClipperWrapper.IsIntersects(ClipperWrapper.MakePaths(ClipperWrapper.DefineCircle(Prediction.GetFastUnitPosition(p, delay, missileSpeed), p.BoundingRadius)), spellHitBox));
         }
@@ -161,8 +161,8 @@ namespace SPrediction
             if (isArc)
             {
                 spellHitBox = ClipperWrapper.MakePaths(new SPrediction.Geometry.Polygon(
-                                ClipperWrapper.DefineArc(from - new Vector2(875 / 2f, 20), to, (float)Math.PI * (to.Distance(from) / 875f), 410, 200 * (to.Distance(from) / 875f)),
-                                ClipperWrapper.DefineArc(from - new Vector2(875 / 2f, 20), to, (float)Math.PI * (to.Distance(from) / 875f), 410, 320 * (to.Distance(from) / 875f))));
+                                ClipperWrapper.DefineArc(from - new Vector2(900 / 2f, 20), to, (float)Math.PI * (to.Distance(from) / 900), 410, 200 * (to.Distance(from) / 900)),
+                                ClipperWrapper.DefineArc(from - new Vector2(900 / 2f, 20), to, (float)Math.PI * (to.Distance(from) / 900), 410, 320 * (to.Distance(from) / 900))));
             }
             return HeroManager.Allies.AsParallel().Any(p => ClipperWrapper.IsIntersects(ClipperWrapper.MakePaths(ClipperWrapper.DefineCircle(Prediction.GetFastUnitPosition(p, delay, missileSpeed), p.BoundingRadius)), spellHitBox));
         }
@@ -216,8 +216,8 @@ namespace SPrediction
             if (isArc)
             {
                 spellHitBox = new SPrediction.Geometry.Polygon(
-                                ClipperWrapper.DefineArc(from - new Vector2(875 / 2f, 20), to, (float)Math.PI * (to.Distance(from) / 875f), 410, 200 * (to.Distance(from) / 875f)),
-                                ClipperWrapper.DefineArc(from - new Vector2(875 / 2f, 20), to, (float)Math.PI * (to.Distance(from) / 875f), 410, 320 * (to.Distance(from) / 875f)));
+                                ClipperWrapper.DefineArc(from - new Vector2(900 / 2f, 20), to, (float)Math.PI * (to.Distance(from) / 900), 410, 200 * (to.Distance(from) / 900)),
+                                ClipperWrapper.DefineArc(from - new Vector2(900 / 2f, 20), to, (float)Math.PI * (to.Distance(from) / 900), 410, 320 * (to.Distance(from) / 900)));
             }
 
             return ClipperWrapper.IsIntersects(ClipperWrapper.MakePaths(yasuoWallPoly), ClipperWrapper.MakePaths(spellHitBox));
@@ -265,8 +265,8 @@ namespace SPrediction
             if (isArc)
             {
                 spellHitBox = ClipperWrapper.MakePaths(new SPrediction.Geometry.Polygon(
-                                ClipperWrapper.DefineArc(from - new Vector2(875 / 2f, 20), to, (float)Math.PI * (to.Distance(from) / 875f), 410, 200 * (to.Distance(from) / 875f)),
-                                ClipperWrapper.DefineArc(from - new Vector2(875 / 2f, 20), to, (float)Math.PI * (to.Distance(from) / 875f), 410, 320 * (to.Distance(from) / 875f))));
+                                ClipperWrapper.DefineArc(from - new Vector2(900 / 2f, 20), to, (float)Math.PI * (to.Distance(from) / 900), 410, 200 * (to.Distance(from) / 900)),
+                                ClipperWrapper.DefineArc(from - new Vector2(900 / 2f, 20), to, (float)Math.PI * (to.Distance(from) / 900), 410, 320 * (to.Distance(from) / 900))));
             }
             Flags _colFlags = Flags.None;
             var collidedMinions = MinionManager.GetMinions(range + 100, MinionTypes.All, MinionTeam.NotAlly, MinionOrderTypes.None).AsParallel().Where(p => ClipperWrapper.IsIntersects(ClipperWrapper.MakePaths(ClipperWrapper.DefineCircle(Prediction.GetFastUnitPosition(p, delay, missileSpeed), p.BoundingRadius + 15)), spellHitBox));

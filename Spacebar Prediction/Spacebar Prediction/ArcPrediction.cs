@@ -87,7 +87,7 @@ namespace SPrediction
                 var pred = LinePrediction.GetPrediction(target, 80f, delay, missileSpeed, range, collisionable, path, avgt, movt, avgp, anglediff, from, rangeCheckFrom);
                 if (pred.HitChance >= HitChance.Low)
                 {
-                    pred.CastPosition = (from + (pred.CastPosition - from).Normalized() * range)/*.RotateAroundPoint(from, (1 - pred.UnitPosition.Distance(ObjectManager.Player.ServerPosition.To2D()) / 820f) * (float)Math.PI / 2f)*/;
+                    pred.CastPosition = (from + (pred.CastPosition - from).Normalized() * range);
                     float cos = (float)Math.Cos((1 - pred.UnitPosition.Distance(from) / 820f) * Math.PI / 2);
                     float sin = (float)Math.Sin((1 - pred.UnitPosition.Distance(from) / 820f) * Math.PI / 2);
                     float x = cos * (pred.CastPosition.X - from.X) - sin * (pred.CastPosition.Y - from.Y) + from.X;
