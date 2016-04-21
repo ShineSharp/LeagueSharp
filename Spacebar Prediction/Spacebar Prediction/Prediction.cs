@@ -421,8 +421,8 @@ namespace SPrediction
             }
             else
             {
-                result.HitChance = HitChance.Impossible;
-                result.CastPosition = target.ServerPosition.To2D();
+                result = GetPrediction(target, width, delay, missileSpeed, range, collisionable, type, target.GetWaypoints(), 0, 0, 0, 0, from, rangeCheckFrom);
+                result.Lock(false);
             }
             return result;
         }
