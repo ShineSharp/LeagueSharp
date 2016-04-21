@@ -410,7 +410,7 @@ namespace SPrediction
                 if (dashInfo.IsBlink)
                 {
                     result.HitChance = HitChance.Impossible;
-                    result.CastPosition = target.ServerPosition.To2D();
+                    result.CastPosition = dashInfo.EndPos;
                     return result;
                 }
 
@@ -604,11 +604,6 @@ namespace SPrediction
                             result.HitChance = GetHitChance(t, avgt, movt, avgp, anglediff);
                             result.CastPosition = pCenter;
                             result.UnitPosition = pCenter; //+ (direction * (t - Math.Min(arriveTimeA, arriveTimeB)) * moveSpeed);
-                            /*if (currentPosition.IsBetween(ObjectManager.Player.ServerPosition.To2D(), result.CastPosition))
-                            {
-                                result.CastPosition = currentPosition;
-                                Console.WriteLine("corrected");
-                            }*/
                             return result;
                         }
                     }
