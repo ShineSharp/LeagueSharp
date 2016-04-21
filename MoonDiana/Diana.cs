@@ -62,7 +62,7 @@ namespace MoonDiana
                         }
                     };
             misc.AddItem(new MenuItem("MMISAYADR", "Misaya Combo Dont Use 2nd R").SetValue(false));
-            misc.AddItem(new MenuItem("MMOON", "Moon Combo Key").SetValue<KeyBind>(new KeyBind('G', KeyBindType.Press)))
+            misc.AddItem(new MenuItem("MMOON", "Moon Combo Key").SetValue(new KeyBind('G', KeyBindType.Press)))
                     .ValueChanged += (s, ar) =>
                     {
                         if (!ar.GetNewValue<KeyBind>().Active)
@@ -72,7 +72,7 @@ namespace MoonDiana
                             m_moon_r_casted = false;
                         }
                     };
-            misc.AddItem(new MenuItem("MFLEE", "Flee Key").SetValue<KeyBind>(new KeyBind('A', KeyBindType.Press)));
+            misc.AddItem(new MenuItem("MFLEE", "Flee Key").SetValue(new KeyBind('A', KeyBindType.Press)));
             misc.AddItem(new MenuItem("MINTERRUPTE", "Use E For Interrupt").SetValue(true));
             misc.AddItem(new MenuItem("MINTERRUPTRE", "Use R->E to Interrupt Important Spells").SetValue(true));
             misc.AddItem(new MenuItem("MGAPCLOSEW", "Use W For Gapcloser").SetValue(true));

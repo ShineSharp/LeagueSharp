@@ -281,6 +281,50 @@ namespace SPredictioner
 
             #endregion Ashe
 
+            #region Aurelion Sol
+
+            Spells.Add(
+                new SpellData
+                {
+                    ChampionName = "AurelionSol",
+                    SpellName = "AurelionSolQ",
+                    Slot = SpellSlot.Q,
+                    Type = SkillshotType.SkillshotLine,
+                    Delay = 250,
+                    Range = 1500,
+                    Radius = 180,
+                    MissileSpeed = 850,
+                    FixedRange = true,
+                    AddHitbox = true,
+                    DangerValue = 2,
+                    IsDangerous = false,
+                    MissileSpellName = "AurelionSolQMissile",
+                    CanBeRemoved = true,
+                    CollisionObjects = new[] { SpellData.CollisionObjectTypes.YasuoWall }
+                });
+
+            Spells.Add(
+                new SpellData
+                {
+                    ChampionName = "AurelionSol",
+                    SpellName = "AurelionSolR",
+                    Slot = SpellSlot.R,
+                    Type = SkillshotType.SkillshotLine,
+                    Delay = 300,
+                    Range = 1420,
+                    Radius = 120,
+                    MissileSpeed = 4500,
+                    FixedRange = true,
+                    AddHitbox = true,
+                    DangerValue = 3,
+                    IsDangerous = true,
+                    MissileSpellName = "AurelionSolRBeamMissile",
+                    CanBeRemoved = true,
+                    CollisionObjects = new[] { SpellData.CollisionObjectTypes.YasuoWall }
+                });
+
+            #endregion
+            
             #region Bard
 
             Spells.Add(
@@ -2717,7 +2761,7 @@ namespace SPredictioner
                 new SpellData
                 {
                     ChampionName = "Shen",
-                    SpellName = "ShenShadowDash",
+                    SpellName = "ShenE",
                     Slot = SpellSlot.E,
                     Type = SkillshotType.SkillshotLine,
                     Delay = 0,
@@ -2728,10 +2772,9 @@ namespace SPredictioner
                     AddHitbox = true,
                     DangerValue = 3,
                     IsDangerous = true,
-                    MissileSpellName = "ShenShadowDash",
+                    MissileSpellName = "ShenE",
                     ExtraRange = 200,
-                    CollisionObjects =
-                        new[] { SpellData.CollisionObjectTypes.Minion, SpellData.CollisionObjectTypes.Champions, SpellData.CollisionObjectTypes.YasuoWall },
+                    CollisionObjects = new[] { SpellData.CollisionObjectTypes.Champions },
                 });
 
             #endregion Shen
@@ -3012,6 +3055,28 @@ namespace SPredictioner
                 });
 
             #endregion Riven
+
+            #region Taric
+
+            Spells.Add(
+                new SpellData
+                {
+                    ChampionName = "Taric",
+                    SpellName = "TaricE",
+                    Slot = SpellSlot.E,
+                    Type = SkillshotType.SkillshotLine,
+                    Delay = 1000,
+                    Range = 750,
+                    Radius = 100,
+                    MissileSpeed = int.MaxValue,
+                    FixedRange = true,
+                    AddHitbox = true,
+                    DangerValue = 3,
+                    IsDangerous = true,
+                    MissileSpellName = "TaricE"
+                });
+
+            #endregion
 
             #region Tahm Kench
 
