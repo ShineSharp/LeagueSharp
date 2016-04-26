@@ -128,8 +128,6 @@ namespace MoonDiana
                 OrbwalkingFunctions[(int)LXOrbwalker.Mode.LaneClear] += LaneClear;
                 LXOrbwalker.Enable();
             }
-
-            CustomEvents.Unit.OnDash += Unit_OnDash;
         }
 
         public override void SetSpells()
@@ -457,12 +455,7 @@ namespace MoonDiana
                 }
             }
         }
-
-        private void Unit_OnDash(Obj_AI_Base sender, Dash.DashItem args)
-        {
-
-        }
-
+       
         public void BeforeDraw()
         {
             if (!Config.Item("MKILLABLEDRAW").GetValue<bool>())
