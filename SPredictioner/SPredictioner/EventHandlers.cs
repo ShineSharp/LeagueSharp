@@ -13,10 +13,7 @@ namespace SPredictioner
     public class EventHandlers
     {
         private static bool[] handleEvent = { true, true, true, true };
-        private static object m_lock = new object();
-
         
-
         public static void Game_OnGameLoad(EventArgs args)
         {
             SPredictioner.Initialize();
@@ -26,17 +23,14 @@ namespace SPredictioner
         {
             if (sender.IsMe)
             {
-                lock (m_lock)
-                {
-                    SpellSlot slot = ObjectManager.Player.GetSpellSlot(args.SData.Name);
-                    if (!ShineCommon.Utility.IsValidSlot(slot))
-                        return;
+                SpellSlot slot = ObjectManager.Player.GetSpellSlot(args.SData.Name);
+                if (!ShineCommon.Utility.IsValidSlot(slot))
+                    return;
 
-                    if (!handleEvent[(int)slot])
-                    {
-                        if (SPredictioner.Spells[(int)slot] != null)
-                            handleEvent[(int)slot] = true;
-                    }
+                if (!handleEvent[(int)slot])
+                {
+                    if (SPredictioner.Spells[(int)slot] != null)
+                        handleEvent[(int)slot] = true;
                 }
             }
         }
@@ -45,40 +39,37 @@ namespace SPredictioner
         {
             if (sender.Owner.IsMe)
             {
-                lock (m_lock)
+                if (SPredictioner.Config.Item("ENABLED").GetValue<bool>() && (SPredictioner.Config.Item("COMBOKEY").GetValue<KeyBind>().Active || SPredictioner.Config.Item("HARASSKEY").GetValue<KeyBind>().Active))
                 {
-                    if (SPredictioner.Config.Item("ENABLED").GetValue<bool>() && (SPredictioner.Config.Item("COMBOKEY").GetValue<KeyBind>().Active || SPredictioner.Config.Item("HARASSKEY").GetValue<KeyBind>().Active))
+                    if (!ShineCommon.Utility.IsValidSlot(args.Slot))
+                        return;
+
+                    if (SPredictioner.Spells[(int)args.Slot] == null)
+                        return;
+
+                    if (!SPredictioner.Config.Item(String.Format("{0}{1}", ObjectManager.Player.ChampionName, args.Slot)).GetValue<bool>())
+                        return;
+
+                    if (handleEvent[(int)args.Slot])
                     {
-                        if (!ShineCommon.Utility.IsValidSlot(args.Slot))
-                            return;
+                        args.Process = false;
+                        handleEvent[(int)args.Slot] = false;
+                        var enemy = args.EndPosition.GetEnemiesInRange(200f).OrderByDescending(p => ShineCommon.Utility.GetPriority(p.ChampionName)).FirstOrDefault();
+                        if (enemy == null)
+                            enemy = TargetSelector.GetTarget(SPredictioner.Spells[(int)args.Slot].Range, TargetSelector.DamageType.Physical);
 
-                        if (SPredictioner.Spells[(int)args.Slot] == null)
-                            return;
 
-                        if (!SPredictioner.Config.Item(String.Format("{0}{1}", ObjectManager.Player.ChampionName, args.Slot)).GetValue<bool>())
-                            return;
 
-                        if (handleEvent[(int)args.Slot])
+                        if (enemy != null)
                         {
-                            args.Process = false;
-                            handleEvent[(int)args.Slot] = false;
-                            var enemy = args.EndPosition.GetEnemiesInRange(200f).OrderByDescending(p => ShineCommon.Utility.GetPriority(p.ChampionName)).FirstOrDefault();
-                            if (enemy == null)
-                                enemy = TargetSelector.GetTarget(SPredictioner.Spells[(int)args.Slot].Range, TargetSelector.DamageType.Physical);
-
-
-
-                            if (enemy != null)
-                            {
-                                if (ObjectManager.Player.ChampionName == "Viktor" && args.Slot == SpellSlot.E)
-                                    SPredictioner.Spells[(int)args.Slot].SPredictionCastVector(enemy, 500, ShineCommon.Utility.HitchanceArray[SPredictioner.Config.Item("SPREDHITC").GetValue<StringList>().SelectedIndex]);
-                                else if (ObjectManager.Player.ChampionName == "Diana" && args.Slot == SpellSlot.Q)
-                                    SPredictioner.Spells[(int)args.Slot].SPredictionCastArc(enemy, ShineCommon.Utility.HitchanceArray[SPredictioner.Config.Item("SPREDHITC").GetValue<StringList>().SelectedIndex]);
-                                else if (ObjectManager.Player.ChampionName == "Veigar" && args.Slot == SpellSlot.E)
-                                    SPredictioner.Spells[(int)args.Slot].SPredictionCastRing(enemy, 80, ShineCommon.Utility.HitchanceArray[SPredictioner.Config.Item("SPREDHITC").GetValue<StringList>().SelectedIndex]);
-                                else
-                                    SPredictioner.Spells[(int)args.Slot].SPredictionCast(enemy, ShineCommon.Utility.HitchanceArray[SPredictioner.Config.Item("SPREDHITC").GetValue<StringList>().SelectedIndex]);
-                            }
+                            if (ObjectManager.Player.ChampionName == "Viktor" && args.Slot == SpellSlot.E)
+                                SPredictioner.Spells[(int)args.Slot].SPredictionCastVector(enemy, 500, ShineCommon.Utility.HitchanceArray[SPredictioner.Config.Item("SPREDHITC").GetValue<StringList>().SelectedIndex]);
+                            else if (ObjectManager.Player.ChampionName == "Diana" && args.Slot == SpellSlot.Q)
+                                SPredictioner.Spells[(int)args.Slot].SPredictionCastArc(enemy, ShineCommon.Utility.HitchanceArray[SPredictioner.Config.Item("SPREDHITC").GetValue<StringList>().SelectedIndex]);
+                            else if (ObjectManager.Player.ChampionName == "Veigar" && args.Slot == SpellSlot.E)
+                                SPredictioner.Spells[(int)args.Slot].SPredictionCastRing(enemy, 80, ShineCommon.Utility.HitchanceArray[SPredictioner.Config.Item("SPREDHITC").GetValue<StringList>().SelectedIndex]);
+                            else
+                                SPredictioner.Spells[(int)args.Slot].SPredictionCast(enemy, ShineCommon.Utility.HitchanceArray[SPredictioner.Config.Item("SPREDHITC").GetValue<StringList>().SelectedIndex]);
                         }
                     }
                 }
