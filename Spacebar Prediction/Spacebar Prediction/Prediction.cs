@@ -220,9 +220,6 @@ namespace SPrediction
             if (blInitialized)
                 throw new Exception("SPrediction Already Initialized");
 
-            if (mainMenu == null)
-                throw new NullReferenceException("Menu cannot be null!");
-
             PathTracker.Initialize();
             Collision.Initialize();
             StasisPrediction.Initialize();

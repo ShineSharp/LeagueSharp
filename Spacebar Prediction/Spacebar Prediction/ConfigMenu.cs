@@ -28,7 +28,7 @@ namespace SPrediction
     {
         #region Private Properties
 
-        private static Menu s_Menu;
+        private static Menu s_Menu = null;
 
         #endregion
 
@@ -40,7 +40,10 @@ namespace SPrediction
         /// <param name="menuToAttach">The menu to attach.</param>
         public static void Initialize(Menu menuToAttach, string prefMenuName)
         {
-            menuToAttach.AddSubMenu(Initialize());
+            Initialize();
+            if (menuToAttach == null)
+                return;
+            menuToAttach.AddSubMenu(s_Menu);
         }
 
         /// <summary>
