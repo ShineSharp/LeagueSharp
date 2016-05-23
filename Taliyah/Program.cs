@@ -240,7 +240,7 @@
 
         private static float WDamage(Obj_AI_Base target)
         {
-            return (float)ObjectManager.Player.CalculateDamage(target, DamageType.Magical, new int[] { 60, 80, 100, 120, 140 }[W.Level] + ObjectManager.Player.TotalMagicalDamage * 0.4f);
+            return (float)ObjectManager.Player.CalculateDamage(target, DamageType.Magical, new int[] { 60, 80, 100, 120, 140 }[W.Level - 1] + ObjectManager.Player.TotalMagicalDamage * 0.4f);
         }
     }
 }
