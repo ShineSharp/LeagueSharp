@@ -130,7 +130,7 @@
                                 {
                                     lastE = ObjectManager.Player.ServerPosition;
                                     E.Cast(ObjectManager.Player.ServerPosition.ToVector2() + (pred.CastPosition.ToVector2() - ObjectManager.Player.ServerPosition.ToVector2()).Normalized() * (E.Range - 200));
-                                    DelayAction.Add(250, () => W.Cast(pred.UnitPosition));
+                                    DelayAction.Add(250, () => { W.Cast(pred.UnitPosition); EWCasting = false; });
                                     EWCasting = true;
                                 }
                             }
@@ -206,7 +206,7 @@
 
         private static void Game_OnUpdate(EventArgs args)
         {
-            switch(Variables.Orbwalker.ActiveMode)
+            switch (Variables.Orbwalker.ActiveMode)
             {
                 case OrbwalkingMode.Combo:
                     Combo();
@@ -218,9 +218,6 @@
                     LaneClear();
                     break;
             }
-
-            if (W.Instance.Name == "TaliyahWNoClick")
-                EWCasting = false;
         }
 
         private static void Events_OnInterruptableTarget(object sender, Events.InterruptableTargetEventArgs e)
