@@ -19,6 +19,7 @@
         private static Menu main_menu;
         private static Spell Q, W, E;
         private static Vector3 lastE;
+        private static int lastETick = Environment.TickCount;
         private static bool Q5x = true;
         static void Main(string[] args)
         {
@@ -46,7 +47,9 @@
 
             Menu laneclear = new Menu("taliyah.laneclear", "LaneClear");
             laneclear.Add(new MenuBool("taliyah.laneclear.useq", "Use Q", true, ObjectManager.Player.ChampionName));
+            laneclear.Add(new MenuBool("taliyah.laneclear.useew", "Use EW", false, ObjectManager.Player.ChampionName));
             laneclear.Add(new MenuSlider("taliyah.laneclear.minq", "Min. Q Hit", 3, 1, 6, ObjectManager.Player.ChampionName));
+            laneclear.Add(new MenuSlider("taliyah.laneclear.minew", "Min. EW Hit", 5, 1, 6, ObjectManager.Player.ChampionName));
             laneclear.Add(new MenuSlider("taliyah.laneclear.manaperc", "Min. Mana", 40, 0, 100, ObjectManager.Player.ChampionName));
             main_menu.Add(laneclear);
 
@@ -65,10 +68,17 @@
             E.SetSkillshot(0.25f, 150f, 2000f, false, SkillshotType.SkillshotLine);
 
             Game.OnUpdate += Game_OnUpdate;
+            Obj_AI_Hero.OnProcessSpellCast += Obj_AI_Hero_OnProcessSpellCast;
             Events.OnGapCloser += Events_OnGapCloser;
             Events.OnInterruptableTarget += Events_OnInterruptableTarget;
             GameObject.OnCreate += GameObject_OnCreate;
             GameObject.OnDelete += GameObject_OnDelete;
+        }
+
+        private static void Obj_AI_Hero_OnProcessSpellCast(Obj_AI_Base sender, GameObjectProcessSpellCastEventArgs args)
+        {
+            if (sender.IsMe && args.Slot == SpellSlot.E)
+                lastETick = Environment.TickCount;
         }
 
         private static void GameObject_OnCreate(GameObject sender, EventArgs args)
@@ -83,12 +93,23 @@
                 Q5x = true;
         }
 
-
         private static void Combo()
         {
+            if (W.IsReady()) //killable W
+            {
+                var target = W.GetTarget();
+                if (target != null && target.Health < WDamage(target) - 50)
+                {
+                    var pred = W.GetPrediction(target);
+                    if (pred.Hitchance >= HitChance.High)
+                        W.Cast(pred.UnitPosition);
+                }
+
+            }
             if (W.Instance.Name == "TaliyahWNoClick")
             {
-                ObjectManager.Player.Spellbook.CastSpell(SpellSlot.W, lastE, false);
+                if (Environment.TickCount - lastETick < 3000)
+                    ObjectManager.Player.Spellbook.CastSpell(SpellSlot.W, lastE, false);
             }
             else
             {
@@ -121,12 +142,17 @@
                 {
                     var target = W.GetTarget();
                     if (target != null)
-                        W.CastIfHitchanceEquals(target, HitChance.High);
+                    {
+                        var pred = W.GetPrediction(target);
+                        if (pred.Hitchance >= HitChance.High)
+                            W.Cast(pred.UnitPosition);
+                    }
                 }
             }
             var q_target = Q.GetTarget();
             if (q_target != null && main_menu["taliyah.combo"]["taliyah.combo.useq"].GetValue<MenuBool>().Value && (!main_menu["taliyah.onlyq5"].GetValue<MenuBool>().Value || Q5x))
                 Q.Cast(q_target);
+
         }
 
         private static void Harass()
@@ -153,6 +179,14 @@
                 if (farm.MinionsHit >= main_menu["taliyah.laneclear"]["taliyah.laneclear.minq"].GetValue<MenuSlider>().Value)
                     Q.Cast(farm.Position);
             }
+
+            if (main_menu["taliyah.laneclear"]["taliyah.laneclear.useew"].GetValue<MenuBool>().Value)
+            {
+                var farm = W.GetCircularFarmLocation(ObjectManager.Get<Obj_AI_Minion>().Where(p => p.IsEnemy && p.DistanceToPlayer() < W.Range).ToList());
+                if (farm.MinionsHit >= main_menu["taliyah.laneclear"]["taliyah.laneclear.minew"].GetValue<MenuSlider>().Value)
+                    W.Cast(farm.Position);
+            }
+
         }
 
         private static void Game_OnUpdate(EventArgs args)
@@ -187,6 +221,11 @@
                 if (e.End.DistanceToPlayer() < E.Range)
                     E.Cast(e.Sender.ServerPosition);
             }
+        }
+
+        private static float WDamage(Obj_AI_Base target)
+        {
+            return (float)ObjectManager.Player.CalculateDamage(target, DamageType.Magical, new int[] { 60, 80, 100, 120, 140 }[W.Level] + ObjectManager.Player.TotalMagicalDamage * 0.4f);
         }
     }
 }
