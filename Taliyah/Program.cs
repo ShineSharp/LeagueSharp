@@ -21,6 +21,7 @@
         private static Vector3 lastE;
         private static int lastETick = Environment.TickCount;
         private static bool Q5x = true;
+        private static bool EWCasting = false;
         static void Main(string[] args)
         {
             Bootstrap.Init();
@@ -95,17 +96,6 @@
 
         private static void Combo()
         {
-            if (W.IsReady()) //killable W
-            {
-                var target = W.GetTarget();
-                if (target != null && target.Health < WDamage(target) - 50)
-                {
-                    var pred = W.GetPrediction(target);
-                    if (pred.Hitchance >= HitChance.High)
-                        W.Cast(pred.UnitPosition);
-                }
-
-            }
             if (W.Instance.Name == "TaliyahWNoClick")
             {
                 if (Environment.TickCount - lastETick < 3000)
@@ -113,32 +103,51 @@
             }
             else
             {
-                if (E.IsReady() && main_menu["taliyah.combo"]["taliyah.combo.usee"].GetValue<MenuBool>().Value)
+                if (W.IsReady()) //killable W
                 {
-                    if (W.IsReady() && main_menu["taliyah.combo"]["taliyah.combo.usew"].GetValue<MenuBool>().Value)
+                    var target = W.GetTarget();
+                    if (target != null && target.Health < WDamage(target) - 50)
                     {
-                        //e w combo
-                        var target = W.GetTarget();
-                        if (target != null)
+                        var pred = W.GetPrediction(target);
+                        if (pred.Hitchance >= HitChance.High)
+                            W.Cast(pred.UnitPosition);
+                    }
+
+                }
+
+                if (!EWCasting)
+                {
+                    if (E.IsReady() && main_menu["taliyah.combo"]["taliyah.combo.usee"].GetValue<MenuBool>().Value)
+                    {
+                        if (W.IsReady() && main_menu["taliyah.combo"]["taliyah.combo.usew"].GetValue<MenuBool>().Value)
                         {
-                            var pred = W.GetPrediction(target);
-                            if (pred.Hitchance >= HitChance.High)
+                            //e w combo
+                            var target = W.GetTarget();
+                            if (target != null)
                             {
+                                var pred = W.GetPrediction(target);
+                                if (pred.Hitchance >= HitChance.High)
+                                {
+                                    lastE = ObjectManager.Player.ServerPosition;
+                                    E.Cast(ObjectManager.Player.ServerPosition.ToVector2() + (pred.CastPosition.ToVector2() - ObjectManager.Player.ServerPosition.ToVector2()).Normalized() * (E.Range - 200));
+                                    DelayAction.Add(250, () => W.Cast(pred.UnitPosition));
+                                    EWCasting = true;
+                                }
+                            }
+                            return;
+                        }
+                        else
+                        {
+                            var target = E.GetTarget();
+                            if (target != null)
+                            {
+                                E.Cast(target);
                                 lastE = ObjectManager.Player.ServerPosition;
-                                E.Cast(ObjectManager.Player.ServerPosition.ToVector2() + (pred.CastPosition.ToVector2() - ObjectManager.Player.ServerPosition.ToVector2()).Normalized() * (E.Range - 200));
-                                DelayAction.Add(250, () => W.Cast(pred.UnitPosition));
                             }
                         }
-                        return;
-                    }
-                    else
-                    {
-                        var target = E.GetTarget();
-                        if (target != null)
-                            E.Cast(target);
                     }
                 }
-                if (W.IsReady() && main_menu["taliyah.combo"]["taliyah.combo.usew"].GetValue<MenuBool>().Value)
+                if (W.IsReady() && main_menu["taliyah.combo"]["taliyah.combo.usew"].GetValue<MenuBool>().Value && !EWCasting)
                 {
                     var target = W.GetTarget();
                     if (target != null)
@@ -173,18 +182,24 @@
             if (ObjectManager.Player.ManaPercent < main_menu["taliyah.laneclear"]["taliyah.laneclear.manaperc"].GetValue<MenuSlider>().Value)
                 return;
             
-            if (main_menu["taliyah.laneclear"]["taliyah.laneclear.useq"].GetValue<MenuBool>().Value)
+            if (main_menu["taliyah.laneclear"]["taliyah.laneclear.useq"].GetValue<MenuBool>().Value && Q.IsReady())
             {
                 var farm = Q.GetCircularFarmLocation(ObjectManager.Get<Obj_AI_Minion>().Where(p => p.IsEnemy && p.DistanceToPlayer() < Q.Range).ToList());
                 if (farm.MinionsHit >= main_menu["taliyah.laneclear"]["taliyah.laneclear.minq"].GetValue<MenuSlider>().Value)
                     Q.Cast(farm.Position);
             }
 
-            if (main_menu["taliyah.laneclear"]["taliyah.laneclear.useew"].GetValue<MenuBool>().Value)
+            if (main_menu["taliyah.laneclear"]["taliyah.laneclear.useew"].GetValue<MenuBool>().Value && W.IsReady() && E.IsReady())
             {
                 var farm = W.GetCircularFarmLocation(ObjectManager.Get<Obj_AI_Minion>().Where(p => p.IsEnemy && p.DistanceToPlayer() < W.Range).ToList());
                 if (farm.MinionsHit >= main_menu["taliyah.laneclear"]["taliyah.laneclear.minew"].GetValue<MenuSlider>().Value)
-                    W.Cast(farm.Position);
+                {
+                    E.Cast(farm.Position);
+                    lastE = ObjectManager.Player.ServerPosition;
+                    if (W.Instance.Name == "TaliyahW")
+                        W.Cast(farm.Position);
+                    DelayAction.Add(250, () => ObjectManager.Player.Spellbook.CastSpell(SpellSlot.W, lastE, false));
+                }
             }
 
         }
@@ -203,6 +218,9 @@
                     LaneClear();
                     break;
             }
+
+            if (W.Instance.Name == "TaliyahWNoClick")
+                EWCasting = false;
         }
 
         private static void Events_OnInterruptableTarget(object sender, Events.InterruptableTargetEventArgs e)
