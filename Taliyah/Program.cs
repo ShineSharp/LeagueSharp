@@ -97,7 +97,7 @@
                     if (W.IsReady() && main_menu["taliyah.combo"]["taliyah.combo.usew"].GetValue<MenuBool>().Value)
                     {
                         //e w combo
-                        var target = E.GetTarget();
+                        var target = W.GetTarget();
                         if (target != null)
                         {
                             var pred = W.GetPrediction(target);
