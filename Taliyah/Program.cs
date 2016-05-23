@@ -28,6 +28,9 @@
 
         private static void OnLoad(object sender, EventArgs e)
         {
+            if (ObjectManager.Player.ChampionName != "Taliyah")
+                return;
+
             main_menu = new Menu("taliyah", "Taliyah", true);
 
             Menu combo = new Menu("taliyah.combo", "Combo");
