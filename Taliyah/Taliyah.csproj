@@ -39,10 +39,10 @@
       <HintPath>C:\Users\Shine\Downloads\LeagueSharp\System\LeagueSharp.dll</HintPath>
     </Reference>
     <Reference Include="LeagueSharp.Data">
-      <HintPath>..\..\..\Users\Shine\Downloads\LeagueSharp\System\LeagueSharp.Data.dll</HintPath>
+      <HintPath>C:\Users\Shine\Downloads\LeagueSharp\System\LeagueSharp.Data.dll</HintPath>
     </Reference>
     <Reference Include="LeagueSharp.SDKEx">
-      <HintPath>..\..\..\Users\Shine\Downloads\LeagueSharp\System\LeagueSharp.SDKEx.dll</HintPath>
+      <HintPath>C:\Users\Shine\Downloads\LeagueSharp\System\LeagueSharp.SDKEx.dll</HintPath>
     </Reference>
     <Reference Include="SharpDX">
       <HintPath>C:\Users\Shine\Downloads\LeagueSharp\System\SharpDX.dll</HintPath>
