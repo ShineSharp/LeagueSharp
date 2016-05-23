@@ -22,6 +22,7 @@
         private static bool Q5x = true;
         static void Main(string[] args)
         {
+            Bootstrap.Init();
             Events.OnLoad += OnLoad;
         }
 
