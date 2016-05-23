@@ -4,11 +4,14 @@
     using System.Linq;
     using LeagueSharp;
     using LeagueSharp.SDK;
-    using LeagueSharp.SDK.Core.Utils;
-    using LeagueSharp.SDK.Core.UI.IMenu.Values;
+    using LeagueSharp.SDK.UI;
+    using LeagueSharp.SDK.Utils;
+    using LeagueSharp.SDK.Enumerations;
     using SharpDX;
 
-    using Menu = LeagueSharp.SDK.Core.UI.IMenu.Menu;
+    using Menu = LeagueSharp.SDK.UI.Menu;
+    using SkillshotType = LeagueSharp.SDK.Enumerations.SkillshotType;
+    using Spell = LeagueSharp.SDK.Spell;
 
 
     class Program
@@ -142,7 +145,7 @@
             
             if (main_menu["taliyah.laneclear"]["taliyah.laneclear.useq"].GetValue<MenuBool>().Value)
             {
-                var farm = Q.GetCircularFarmLocation(ObjectManager.Get<Obj_AI_Minion>().Where(p => p.IsEnemy && p.DistanceToPlayer() < Q.Range).Select(q => (Obj_AI_Base)q).ToList());
+                var farm = Q.GetCircularFarmLocation(ObjectManager.Get<Obj_AI_Minion>().Where(p => p.IsEnemy && p.DistanceToPlayer() < Q.Range).ToList());
                 if (farm.MinionsHit >= main_menu["taliyah.laneclear"]["taliyah.laneclear.minq"].GetValue<MenuSlider>().Value)
                     Q.Cast(farm.Position);
             }

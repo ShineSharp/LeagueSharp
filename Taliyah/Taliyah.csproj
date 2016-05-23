@@ -9,7 +9,7 @@
     <AppDesignerFolder>Properties</AppDesignerFolder>
     <RootNamespace>Taliyah</RootNamespace>
     <AssemblyName>Taliyah</AssemblyName>
-    <TargetFrameworkVersion>v4.5.2</TargetFrameworkVersion>
+    <TargetFrameworkVersion>v4.5</TargetFrameworkVersion>
     <FileAlignment>512</FileAlignment>
     <TargetFrameworkProfile />
   </PropertyGroup>
@@ -38,8 +38,11 @@
     <Reference Include="LeagueSharp">
       <HintPath>C:\Users\Shine\Downloads\LeagueSharp\System\LeagueSharp.dll</HintPath>
     </Reference>
-    <Reference Include="LeagueSharp.SDK">
-      <HintPath>C:\Users\Shine\Downloads\LeagueSharp\System\LeagueSharp.SDK.dll</HintPath>
+    <Reference Include="LeagueSharp.Data">
+      <HintPath>..\..\..\..\..\Downloads\LeagueSharp\System\LeagueSharp.Data.dll</HintPath>
+    </Reference>
+    <Reference Include="LeagueSharp.SDKEx">
+      <HintPath>..\..\..\..\..\Downloads\LeagueSharp\System\LeagueSharp.SDKEx.dll</HintPath>
     </Reference>
     <Reference Include="SharpDX">
       <HintPath>C:\Users\Shine\Downloads\LeagueSharp\System\SharpDX.dll</HintPath>
