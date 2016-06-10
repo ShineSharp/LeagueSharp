@@ -146,7 +146,7 @@ namespace SPrediction
         /// <param name="args"></param>
         private static void Game_OnGameEnd(EventArgs args)
         {
-            var file = Path.Combine(AppDomain.CurrentDomain.BaseDirectory, String.Format("sprediction_{0}_{1}_{2}.txt", ObjectManager.Player.ChampionName, DateTime.Now.ToString("dd-MM"), Environment.TickCount.ToString("x8")));
+            var file = Path.Combine(AppDomain.CurrentDomain.BaseDirectory, "Cache", String.Format("sprediction_{0}_{1}_{2}.txt", ObjectManager.Player.ChampionName, DateTime.Now.ToString("dd-MM"), Environment.TickCount.ToString("x8")));
             File.WriteAllText(file,
                 String.Format("Champion : {1}{0}Casted Spell Count: {2}{0}Hit Spell Count: {3}{0}Hitchance(%) : {4}{0}",
                 Environment.NewLine,
