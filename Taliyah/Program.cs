@@ -2,6 +2,7 @@
 {
     using System;
     using System.Linq;
+    using System.Collections.Generic;
     using LeagueSharp;
     using LeagueSharp.SDK;
     using LeagueSharp.SDK.UI;
@@ -87,8 +88,38 @@
             Events.OnInterruptableTarget += Events_OnInterruptableTarget;
             GameObject.OnCreate += GameObject_OnCreate;
             GameObject.OnDelete += GameObject_OnDelete;
+            Drawing.OnEndScene += Drawing_OnEndScene;
         }
-        
+
+        private static void Drawing_OnEndScene(EventArgs args)
+        {
+            if (main_menu["taliyah.drawing"]["taliyah.drawing.drawr"].GetValue<MenuBool>().Value && ObjectManager.Player.Spellbook.GetSpell(SpellSlot.R).IsReady())
+            {
+                float radius = 3000f + 1500f * (ObjectManager.Player.Spellbook.GetSpell(SpellSlot.R).Level - 1);
+                var pointList = new List<Vector3>();
+                for (var i = 0; i < 23; i++)
+                {
+                    var angle = i * Math.PI * 2 / 23;
+                    pointList.Add(
+                        new Vector3(
+                            ObjectManager.Player.ServerPosition.X + radius * (float)Math.Cos(angle), ObjectManager.Player.ServerPosition.Y + radius * (float)Math.Sin(angle),
+                            ObjectManager.Player.ServerPosition.Z));
+                }
+
+                for (var i = 0; i < pointList.Count; i++)
+                {
+                    var a = pointList[i];
+                    var b = pointList[i == pointList.Count - 1 ? 0 : i + 1];
+
+                    var aonScreen = Drawing.WorldToMinimap(a);
+                    var bonScreen = Drawing.WorldToMinimap(b);
+
+                    Drawing.DrawLine(aonScreen.X, aonScreen.Y, bonScreen.X, bonScreen.Y, 1, System.Drawing.Color.White);
+                }
+
+            }
+        }
+
         private static void Game_OnWndProc(WndEventArgs args)
         {
             if (args.Msg == (uint)WindowsMessages.LBUTTONDOWN)
@@ -99,7 +130,14 @@
 
         private static void Drawing_OnDraw(EventArgs args)
         {
-            
+            if (main_menu["taliyah.drawing"]["taliyah.drawing.drawq"].GetValue<MenuBool>().Value)
+                Drawing.DrawCircle(ObjectManager.Player.Position, Q.Range, System.Drawing.Color.Red);
+
+            if (main_menu["taliyah.drawing"]["taliyah.drawing.draww"].GetValue<MenuBool>().Value)
+                Drawing.DrawCircle(ObjectManager.Player.Position, W.Range, System.Drawing.Color.Green);
+
+            if (main_menu["taliyah.drawing"]["taliyah.drawing.drawe"].GetValue<MenuBool>().Value)
+                Drawing.DrawCircle(ObjectManager.Player.Position, E.Range, System.Drawing.Color.Blue);
         }
 
         private static void Obj_AI_Hero_OnProcessSpellCast(Obj_AI_Base sender, GameObjectProcessSpellCastEventArgs args)
