@@ -56,6 +56,13 @@
             laneclear.Add(new MenuSlider("taliyah.laneclear.manaperc", "Min. Mana", 40, 0, 100, ObjectManager.Player.ChampionName));
             main_menu.Add(laneclear);
 
+            Menu drawing = new Menu("taliyah.drawing", "Drawings");
+            drawing.Add(new MenuBool("taliyah.drawing.drawq", "Draw Q", true, ObjectManager.Player.ChampionName));
+            drawing.Add(new MenuBool("taliyah.drawing.draww", "Draw W", true, ObjectManager.Player.ChampionName));
+            drawing.Add(new MenuBool("taliyah.drawing.drawe", "Draw E", true, ObjectManager.Player.ChampionName));
+            drawing.Add(new MenuBool("taliyah.drawing.drawr", "Draw R Minimap", true, ObjectManager.Player.ChampionName));
+            main_menu.Add(drawing);
+
             main_menu.Add(new MenuBool("taliyah.onlyq5", "Only cast 5x Q", false, ObjectManager.Player.ChampionName));
             main_menu.Add(new MenuBool("taliyah.antigap", "Auto E to Gapclosers", true, ObjectManager.Player.ChampionName));
             main_menu.Add(new MenuBool("taliyah.interrupt", "Auto W to interrupt spells", true, ObjectManager.Player.ChampionName));
@@ -92,23 +99,7 @@
 
         private static void Drawing_OnDraw(EventArgs args)
         {
-            if (selectedGObj != null)
-            {
-                if (selectedGObj.Distance(ObjectManager.Player) < 1000)
-                {
-                    Drawing.DrawCircle(selectedGObj.Position, 200, System.Drawing.Color.Gray);
-                    Drawing.DrawText(selectedGObj.Position.X, selectedGObj.Position.Y, System.Drawing.Color.Gray, "push position");
-                    return;
-                }
-            }
-            selectedGObj = null;
-            if (Variables.TargetSelector.Selected.Target != null && Variables.TargetSelector.Selected.Target.IsValidTarget(1000))
-            {
-                Vector3 pos = Variables.TargetSelector.Selected.Target.ServerPosition + (Variables.TargetSelector.Selected.Target.ServerPosition - ObjectManager.Player.ServerPosition).Normalized() * 50f;
-                Drawing.DrawCircle(pos, 200, System.Drawing.Color.Gray);
-                Drawing.DrawText(pos.X, pos.Y, System.Drawing.Color.Gray, "push position");
-                
-            }
+            
         }
 
         private static void Obj_AI_Hero_OnProcessSpellCast(Obj_AI_Base sender, GameObjectProcessSpellCastEventArgs args)
