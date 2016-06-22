@@ -22,6 +22,8 @@
         private static int lastETick = Environment.TickCount;
         private static bool Q5x = true;
         private static bool EWCasting = false;
+        private static GameObject selectedGObj = null;
+        private static bool pull_push_enemy = false;
         static void Main(string[] args)
         {
             Bootstrap.Init();
@@ -57,6 +59,8 @@
             main_menu.Add(new MenuBool("taliyah.onlyq5", "Only cast 5x Q", false, ObjectManager.Player.ChampionName));
             main_menu.Add(new MenuBool("taliyah.antigap", "Auto E to Gapclosers", true, ObjectManager.Player.ChampionName));
             main_menu.Add(new MenuBool("taliyah.interrupt", "Auto W to interrupt spells", true, ObjectManager.Player.ChampionName));
+            main_menu.Add(new MenuKeyBind("taliyah.pullenemy", "Pull Selected Target", System.Windows.Forms.Keys.T, KeyBindType.Press, ObjectManager.Player.ChampionName));
+            main_menu.Add(new MenuKeyBind("taliyah.pushenemy", "Push Selected Target", System.Windows.Forms.Keys.G, KeyBindType.Press, ObjectManager.Player.ChampionName));
             main_menu.Attach();
       
             Q = new Spell(SpellSlot.Q, 900f);
@@ -68,12 +72,43 @@
             E = new Spell(SpellSlot.E, 700f);
             E.SetSkillshot(0.25f, 150f, 2000f, false, SkillshotType.SkillshotLine);
 
+            Game.OnWndProc += Game_OnWndProc;
             Game.OnUpdate += Game_OnUpdate;
+            Drawing.OnDraw += Drawing_OnDraw;
             Obj_AI_Hero.OnProcessSpellCast += Obj_AI_Hero_OnProcessSpellCast;
             Events.OnGapCloser += Events_OnGapCloser;
             Events.OnInterruptableTarget += Events_OnInterruptableTarget;
             GameObject.OnCreate += GameObject_OnCreate;
             GameObject.OnDelete += GameObject_OnDelete;
+        }
+        
+        private static void Game_OnWndProc(WndEventArgs args)
+        {
+            if (args.Msg == (uint)WindowsMessages.LBUTTONDOWN)
+            {
+                selectedGObj = ObjectManager.Get<Obj_AI_Base>().Where(p => p.IsValid && !p.IsMe && !p.IsDead && p.Distance(Game.CursorPos.ToVector2()) < 200 && p.IsAlly).FirstOrDefault();
+            }
+        }
+
+        private static void Drawing_OnDraw(EventArgs args)
+        {
+            if (selectedGObj != null)
+            {
+                if (selectedGObj.Distance(ObjectManager.Player) < 1000)
+                {
+                    Drawing.DrawCircle(selectedGObj.Position, 200, System.Drawing.Color.Gray);
+                    Drawing.DrawText(selectedGObj.Position.X, selectedGObj.Position.Y, System.Drawing.Color.Gray, "push position");
+                    return;
+                }
+            }
+            selectedGObj = null;
+            if (Variables.TargetSelector.Selected.Target != null && Variables.TargetSelector.Selected.Target.IsValidTarget(1000))
+            {
+                Vector3 pos = Variables.TargetSelector.Selected.Target.ServerPosition + (Variables.TargetSelector.Selected.Target.ServerPosition - ObjectManager.Player.ServerPosition).Normalized() * 50f;
+                Drawing.DrawCircle(pos, 200, System.Drawing.Color.Gray);
+                Drawing.DrawText(pos.X, pos.Y, System.Drawing.Color.Gray, "push position");
+                
+            }
         }
 
         private static void Obj_AI_Hero_OnProcessSpellCast(Obj_AI_Base sender, GameObjectProcessSpellCastEventArgs args)
@@ -204,6 +239,32 @@
 
         }
 
+        private static void CheckKeyBindings()
+        {
+            if (!pull_push_enemy && Variables.TargetSelector.Selected.Target != null && Variables.TargetSelector.Selected.Target.IsValidTarget(W.Range))
+            {
+                Vector3 push_position = ObjectManager.Player.ServerPosition;
+
+                if (main_menu["taliyah.pullenemy"].GetValue<MenuKeyBind>().Active || main_menu["taliyah.pushenemy"].GetValue<MenuKeyBind>().Active)
+                {
+                    if (main_menu["taliyah.pushenemy"].GetValue<MenuKeyBind>().Active)
+                    {
+                        if (selectedGObj != null && selectedGObj.Distance(ObjectManager.Player) < 1000)
+                            push_position = selectedGObj.Position;
+                        else
+                            push_position = Variables.TargetSelector.Selected.Target.ServerPosition + (Variables.TargetSelector.Selected.Target.ServerPosition - ObjectManager.Player.ServerPosition).Normalized() * 50f;
+                    }
+                    var pred = W.GetPrediction(Variables.TargetSelector.Selected.Target);
+                    if (pred.Hitchance >= HitChance.High)
+                    {
+                        pull_push_enemy = true;
+                        W.Cast(pred.UnitPosition);
+                        DelayAction.Add(250, () => { ObjectManager.Player.Spellbook.CastSpell(SpellSlot.W, push_position, false); pull_push_enemy = false; });
+                    }
+                }
+            }
+        }
+
         private static void Game_OnUpdate(EventArgs args)
         {
             switch (Variables.Orbwalker.ActiveMode)
@@ -216,6 +277,9 @@
                     break;
                 case OrbwalkingMode.LaneClear:
                     LaneClear();
+                    break;
+                case OrbwalkingMode.None:
+                    CheckKeyBindings();
                     break;
             }
         }
