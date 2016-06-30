@@ -270,13 +270,13 @@
 
         private static void CheckKeyBindings()
         {
-            Variables.Orbwalker.Orbwalk();
             if (!pull_push_enemy && Variables.TargetSelector.Selected.Target != null && Variables.TargetSelector.Selected.Target.IsValidTarget(W.Range))
             {
                 Vector3 push_position = ObjectManager.Player.ServerPosition;
 
                 if (main_menu["taliyah.pullenemy"].GetValue<MenuKeyBind>().Active || main_menu["taliyah.pushenemy"].GetValue<MenuKeyBind>().Active)
                 {
+                    Variables.Orbwalker.Orbwalk();
                     if (main_menu["taliyah.pushenemy"].GetValue<MenuKeyBind>().Active)
                     {
                         if (selectedGObj != null && selectedGObj.Distance(ObjectManager.Player) < 1000)
