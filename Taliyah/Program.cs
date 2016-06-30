@@ -270,6 +270,7 @@
 
         private static void CheckKeyBindings()
         {
+            Variables.Orbwalker.Orbwalk();
             if (!pull_push_enemy && Variables.TargetSelector.Selected.Target != null && Variables.TargetSelector.Selected.Target.IsValidTarget(W.Range))
             {
                 Vector3 push_position = ObjectManager.Player.ServerPosition;
