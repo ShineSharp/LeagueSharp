@@ -173,7 +173,7 @@
                     {
                         var pred = W.GetPrediction(target);
                         if (pred.Hitchance >= HitChance.High)
-                            W.Cast(pred.UnitPosition);
+                            W.Cast(pred.UnitPosition, ObjectManager.Player.ServerPosition);
                     }
 
                 }
@@ -268,13 +268,13 @@
 
         private static void CheckKeyBindings()
         {
-            if (!pull_push_enemy && Variables.TargetSelector.Selected.Target != null && Variables.TargetSelector.Selected.Target.IsValidTarget(W.Range))
+            if (main_menu["taliyah.pullenemy"].GetValue<MenuKeyBind>().Active || main_menu["taliyah.pushenemy"].GetValue<MenuKeyBind>().Active)
             {
-                Vector3 push_position = ObjectManager.Player.ServerPosition;
-
-                if (main_menu["taliyah.pullenemy"].GetValue<MenuKeyBind>().Active || main_menu["taliyah.pushenemy"].GetValue<MenuKeyBind>().Active)
+                Variables.Orbwalker.Orbwalk();
+                if (!pull_push_enemy && Variables.TargetSelector.Selected.Target != null && Variables.TargetSelector.Selected.Target.IsValidTarget(W.Range))
                 {
-                    Variables.Orbwalker.Orbwalk();
+                    Vector3 push_position = ObjectManager.Player.ServerPosition;
+
                     if (main_menu["taliyah.pushenemy"].GetValue<MenuKeyBind>().Active)
                     {
                         if (selectedGObj != null && selectedGObj.Distance(ObjectManager.Player) < 1000)
@@ -317,7 +317,7 @@
             if (main_menu["taliyah.interrupt"].GetValue<MenuBool>().Value)
             {
                 if (e.Sender.DistanceToPlayer() < W.Range)
-                    W.Cast(e.Sender.ServerPosition);
+                    W.Cast(e.Sender.ServerPosition, ObjectManager.Player.ServerPosition);
             }
         }
 
