@@ -162,8 +162,7 @@
         {
             if (W.Instance.Name == "TaliyahWNoClick")
             {
-                if (Environment.TickCount - lastETick < 3000)
-                    ObjectManager.Player.Spellbook.CastSpell(SpellSlot.W, lastE, false);
+                //
             }
             else
             {
@@ -194,7 +193,7 @@
                                 {
                                     lastE = ObjectManager.Player.ServerPosition;
                                     E.Cast(ObjectManager.Player.ServerPosition.ToVector2() + (pred.CastPosition.ToVector2() - ObjectManager.Player.ServerPosition.ToVector2()).Normalized() * (E.Range - 200));
-                                    DelayAction.Add(250, () => { W.Cast(pred.UnitPosition); EWCasting = false; });
+                                    DelayAction.Add(250, () => { W.Cast(pred.UnitPosition, lastE); EWCasting = false; });
                                     EWCasting = true;
                                 }
                             }
@@ -218,7 +217,7 @@
                     {
                         var pred = W.GetPrediction(target);
                         if (pred.Hitchance >= HitChance.High)
-                            W.Cast(pred.UnitPosition);
+                            W.Cast(pred.UnitPosition, pred.UnitPosition);
                     }
                 }
             }
@@ -261,8 +260,7 @@
                     E.Cast(farm.Position);
                     lastE = ObjectManager.Player.ServerPosition;
                     if (W.Instance.Name == "TaliyahW")
-                        W.Cast(farm.Position);
-                    DelayAction.Add(250, () => ObjectManager.Player.Spellbook.CastSpell(SpellSlot.W, lastE, false));
+                        W.Cast(farm.Position, lastE.ToVector2());
                 }
             }
 
@@ -288,8 +286,8 @@
                     if (pred.Hitchance >= HitChance.High)
                     {
                         pull_push_enemy = true;
-                        W.Cast(pred.UnitPosition);
-                        DelayAction.Add(250, () => { ObjectManager.Player.Spellbook.CastSpell(SpellSlot.W, push_position, false); pull_push_enemy = false; });
+                        W.Cast(pred.UnitPosition, push_position);
+                        DelayAction.Add(250, () => pull_push_enemy = false);
                     }
                 }
             }
