@@ -29,7 +29,7 @@ namespace SPredictioner
                 {
                     Spells[(int)spell.Slot] = new Spell(spell.Slot, spell.Range);
                     Spells[(int)spell.Slot].SetSkillshot(spell.Delay / 1000f, spell.Radius, spell.MissileSpeed, spell.Collisionable, spell.Type);
-                    skillshots.AddItem(new MenuItem(String.Format("{0}{1}", ObjectManager.Player.ChampionName, spell.Slot), "Convert Spell " + spell.Slot.ToString()).SetValue(true));
+                    skillshots.AddItem(new MenuItem(String.Format("{0}{1}", spell.ChampionName, spell.Slot), "Convert Spell " + spell.Slot.ToString()).SetValue(true));
                 }
             }
             Config.AddSubMenu(skillshots);
@@ -37,6 +37,7 @@ namespace SPredictioner
 
 
             SPrediction.Prediction.Initialize(Config, "SPREDFORSPREDICTONER");
+            Config.SubMenu("SPREDFORSPREDICTONER").Name = "SPrediction";
             Config.SubMenu("SPREDFORSPREDICTONER").AddItem(new MenuItem("SPREDHITC", "Hit Chance").SetValue(new StringList(ShineCommon.Utility.HitchanceNameArray, 2))).SetTooltip("High is recommended");
             Config.AddToMainMenu();
             #endregion
