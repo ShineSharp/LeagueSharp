@@ -32,7 +32,7 @@ namespace SPrediction
 
         #endregion
 
-        #region Initalizer Method
+        #region Initalizer Methods
 
         /// <summary>
         /// Creates the sprediciton menu and attach to the given menu
@@ -40,7 +40,7 @@ namespace SPrediction
         /// <param name="menuToAttach">The menu to attach.</param>
         public static void Initialize(Menu menuToAttach, string prefMenuName)
         {
-            Initialize();
+            Initialize(prefMenuName);
             if (menuToAttach == null)
                 return;
             menuToAttach.AddSubMenu(s_Menu);
