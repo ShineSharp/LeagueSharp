@@ -1,8 +1,5 @@
 ﻿using System;
-using System.Collections.Generic;
 using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
 using LeagueSharp;
 using LeagueSharp.Common;
 using SharpDX;
@@ -28,9 +25,11 @@ namespace WhereDidHeGo
             {
                 if (ObjectManager.Player.Distance(pos) < 1000)
                 {
-                    if (Items.CanUseItem(2043) && Items.HasItem(2043))
+                    if (Items.CanUseItem((int)ItemId.Vision_Ward) && Items.HasItem((int)ItemId.Vision_Ward))
                         slot = ObjectManager.Player.GetSpellSlot("VisionWard");
-                    else if ((Items.CanUseItem(3362) && Items.HasItem(3362)))
+                    else if (Items.CanUseItem((int)ItemId.Greater_Vision_Totem_Trinket) && Items.HasItem((int)ItemId.Greater_Vision_Totem_Trinket))
+                        slot = SpellSlot.Trinket;
+                    else if (Items.CanUseItem((int)ItemId.Warding_Totem_Trinket) && Items.HasItem((int)ItemId.Warding_Totem_Trinket))
                         slot = SpellSlot.Trinket;
                 }
             }
@@ -40,7 +39,7 @@ namespace WhereDidHeGo
             {
                 if (ObjectManager.Player.Distance(pos) < 700)
                 {
-                    if ((Items.CanUseItem(3364) && Items.HasItem(3364)) || (Items.CanUseItem(3341) && Items.HasItem(3341)))
+                    if ((Items.CanUseItem((int)ItemId.Oracles_Lens_Trinket) && Items.HasItem((int)ItemId.Oracles_Lens_Trinket)) || (Items.CanUseItem((int)ItemId.Sweeping_Lens_Trinket) && Items.HasItem((int)ItemId.Sweeping_Lens_Trinket)))
                         slot = SpellSlot.Trinket;
                 }
             }
@@ -48,7 +47,7 @@ namespace WhereDidHeGo
             //lightbringer active
             if (Data.Config.Item("USELIGHTBRINGER").GetValue<bool>())
             {
-                if (Items.CanUseItem(3185) && Items.HasItem(3185))
+                if (Items.CanUseItem((int)ItemId.The_Lightbringer) && Items.HasItem((int)ItemId.The_Lightbringer))
                 {
                     LeagueSharp.Common.Items.UseItem(3185, pos);
                     return true;
@@ -58,14 +57,9 @@ namespace WhereDidHeGo
             //hextech sweeper
             if (Data.Config.Item("USEHEXTECHSWEEPER").GetValue<bool>())
             {
-                if (Items.CanUseItem(3187) && Items.HasItem(3187))
+                if (Items.CanUseItem((int)ItemId.Hextech_Sweeper) && Items.HasItem((int)ItemId.Hextech_Sweeper))
                 {
-                    LeagueSharp.Common.Items.UseItem(3187, pos);
-                    return true;
-                }
-                else if (Items.CanUseItem(3348) && Items.HasItem(3348))
-                {
-                    LeagueSharp.Common.Items.UseItem(3348, pos);
+                    LeagueSharp.Common.Items.UseItem((int)ItemId.Hextech_Sweeper, pos);
                     return true;
                 }
             }
