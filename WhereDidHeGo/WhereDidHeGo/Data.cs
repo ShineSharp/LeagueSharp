@@ -36,7 +36,6 @@ namespace WhereDidHeGo
             AntiStealthSpells.Add(new _sdata { ChampionName = "nidalee",    Spell = SpellSlot.W, SpellRange = 900,  StealthDetectionLevel = 1 });
             AntiStealthSpells.Add(new _sdata { ChampionName = "nocturne",   Spell = SpellSlot.Q, SpellRange = 1200, StealthDetectionLevel = 1 });
             AntiStealthSpells.Add(new _sdata { ChampionName = "twistedfate",Spell = SpellSlot.R, SpellRange = 4000, StealthDetectionLevel = 3, SelfCast = true });
-            AntiStealthSpells.Add(new _sdata { ChampionName = "fizz",       Spell = SpellSlot.W, SpellRange = 1275, StealthDetectionLevel = 2 });
             #endregion
             #region Config Menu
             Config = new Menu("Where Did He Go", "wheredidhego", true);
