@@ -484,7 +484,7 @@ namespace SPrediction
             {
                 if (movt > 50)
                 {
-                    if (avgt >= t * 1.25f)
+                    if (avgt >= t + Game.Ping)
                     {
                         if (anglediff < 30)
                             return HitChance.VeryHigh;
