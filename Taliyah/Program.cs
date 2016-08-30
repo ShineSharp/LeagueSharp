@@ -75,7 +75,7 @@
             Q.SetSkillshot(0f, 60f, Q.Instance.SData.MissileSpeed, true, SkillshotType.SkillshotLine);
 
             W = new Spell(SpellSlot.W, 800f);
-            W.SetSkillshot(0.6f, 50f, float.MaxValue, false, SkillshotType.SkillshotCircle);
+            W.SetSkillshot(1f, 50f, float.MaxValue, false, SkillshotType.SkillshotCircle);
 
             E = new Spell(SpellSlot.E, 700f);
             E.SetSkillshot(0.25f, 150f, 2000f, false, SkillshotType.SkillshotLine);
